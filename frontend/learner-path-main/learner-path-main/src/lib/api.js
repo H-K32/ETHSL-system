@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_BASE_URL = "https://ethsl-system.onrender.com/api";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const TOKEN_KEY = "ethsl_access_token";
 export const REFRESH_KEY = "ethsl_refresh_token";
