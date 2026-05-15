@@ -169,7 +169,7 @@ const ManageCourses = () => {
               <option value="">Select Level</option>
               {levels.map((l) => (
                 <option key={l.id} value={l.id}>
-                  {l.name}
+                  {l.display_name}
                 </option>
               ))}
             </select>

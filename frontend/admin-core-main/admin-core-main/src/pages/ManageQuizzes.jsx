@@ -408,7 +408,7 @@ const ManageQuizzes = () => {
 
               {levels.map((l) => (
                 <option key={l.id} value={l.id}>
-                  {l.name}
+                  {l.display_name}
                 </option>
               ))}
             </select>
