@@ -5,7 +5,7 @@ const REFRESH_KEY = "elearn_refresh";
 const USER_KEY = "elearn_user";
 
 export const api = axios.create({
-  baseURL: "https://ethsl-system.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -94,7 +94,7 @@ export async function refreshAccessToken() {
   if (!refresh) return null;
 
   try {
-    const res = await axios.post("/api/users/refresh/", {
+    const res = await axios.post("/users/refresh/", {
       refresh,
     });
 
