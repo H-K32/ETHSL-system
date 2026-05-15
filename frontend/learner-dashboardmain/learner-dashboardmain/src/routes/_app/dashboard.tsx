@@ -22,14 +22,13 @@ function DashboardPage() {
       setLoading(true);
       setError("");
 
-      const courseRes = await api.get("learner/courses/");
+      const courseRes = await api.get("/courses/learner/courses/");
       const userRes = await api.get("/users/profile/");
       const progressRes = await api.get("/progress/profile/dashboard/");
 
       setCourses(courseRes.data);
       setUser(userRes.data);
       setProgress(progressRes.data);
-
     } catch (err: any) {
       console.error(err);
       setError("Failed to load dashboard data");
@@ -41,6 +40,11 @@ function DashboardPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const isCourseUnlocked = (index: number) => {
+    if (index === 0) return true;
+    return (courses[index - 1]?.progress ?? 0) >= 100;
+  };
 
   const stats = [
     {
@@ -89,11 +93,6 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* DEBUG (REMOVE LATER) */}
-      <div className="text-xs text-gray-400">
-        DEBUG: {JSON.stringify(progress)}
-      </div>
-
       {/* STATS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => {
@@ -136,37 +135,55 @@ function DashboardPage() {
         <div className="space-y-3">
           {loading
             ? Array(3).fill(0).map((_, i) => (
-                <div key={i} className="h-20 rounded-2xl bg-muted animate-pulse" />
+                <div
+                  key={i}
+                  className="h-20 rounded-2xl bg-muted animate-pulse"
+                />
               ))
-            : courses.slice(0, 3).map((c) => (
-                <Link
-                  key={c.id}
-                  to="/courses/$courseId"
-                  params={{ courseId: String(c.id) }}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border hover:shadow-[var(--shadow-soft)] transition-all"
-                >
+            : courses.slice(0, 3).map((c, index) => {
+                const unlocked = isCourseUnlocked(index);
+
+                return (
                   <div
-                    className="h-14 w-14 rounded-xl flex items-center justify-center text-2xl"
-                    style={{ background: c.color }}
+                    key={c.id}
+                    onClick={() => {
+                      if (!unlocked) {
+                        alert("🚫 Finish previous course first");
+                        return;
+                      }
+                      window.location.href = `/courses/${c.id}`;
+                    }}
+                    className={`flex items-center gap-4 p-4 rounded-2xl border transition ${
+                      unlocked
+                        ? "bg-card hover:shadow-[var(--shadow-soft)] cursor-pointer"
+                        : "bg-muted opacity-50 cursor-not-allowed"
+                    }`}
                   >
-                    {c.thumbnail}
-                  </div>
+                    <div
+                      className="h-14 w-14 rounded-xl flex items-center justify-center text-2xl"
+                      style={{ background: c.color }}
+                    >
+                      {c.thumbnail}
+                    </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold truncate">{c.title}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold truncate">
+                        {c.title}
+                      </div>
 
-                    <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${c.progress}%`,
-                          background: "var(--gradient-primary)",
-                        }}
-                      />
+                      <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${c.progress}%`,
+                            background: "var(--gradient-primary)",
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
         </div>
       </section>
 
@@ -177,11 +194,30 @@ function DashboardPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading
             ? Array(6).fill(0).map((_, i) => (
-                <div key={i} className="h-40 rounded-2xl bg-muted animate-pulse" />
+                <div
+                  key={i}
+                  className="h-40 rounded-2xl bg-muted animate-pulse"
+                />
               ))
-            : courses.map((c) => (
-                <CourseCard key={c.id} course={c} />
-              ))}
+            : courses.map((c) => {
+                const unlocked = true; // optional: replace with real logic
+
+                return (
+                  <CourseCard
+                    key={c.id}
+                    course={c}
+                    locked={!unlocked}
+                    onLockedClick={() =>
+                      alert("🚫 Course is locked")
+                    }
+                    onClick={() => {
+                      if (unlocked) {
+                        window.location.href = `/courses/${c.id}`;
+                      }
+                    }}
+                  />
+                );
+              })}
         </div>
       </section>
 

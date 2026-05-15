@@ -23,33 +23,35 @@ function PlacementTest() {
     loadQuiz();
   }, []);
 
-  const submit = async () => {
-    setLoading(true);
+const submit = async () => {
+  setLoading(true);
 
-    try {
-      const payload = {
-        quiz: quiz.id,
-        answers: Object.entries(answers).map(([q, opt]) => ({
-          question: Number(q),
-          selected_option: opt,
-        })),
-      };
+  try {
+    const payload = {
+      quiz: quiz.id,
+      answers: Object.entries(answers).map(([q, opt]) => ({
+        question: Number(q),
+        selected_option: opt,
+      })),
+    };
 
-      const res = await api.post("/progress/submit-quiz/", payload);
+    const res = await api.post("/progress/submit-quiz/", payload);
 
-      if (res.data.passed) {
-        alert("🎉 You passed! Level unlocked.");
-      } else {
-        alert("You failed. You remain beginner.");
-      }
-
-      navigate({ to: "/dashboard" });
-    } catch (err) {
-      alert("Error submitting quiz");
-    } finally {
-      setLoading(false);
+    if (res.data.passed) {
+      alert("🎉 You passed! Level unlocked.");
+    } else {
+      alert("You failed. You remain beginner.");
     }
-  };
+
+    // always go dashboard AFTER result
+    navigate({ to: "/dashboard" });
+
+  } catch (err) {
+    alert("Error submitting quiz");
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!quiz) {
     return (

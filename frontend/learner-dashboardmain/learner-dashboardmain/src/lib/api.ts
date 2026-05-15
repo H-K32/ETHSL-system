@@ -5,7 +5,7 @@ const REFRESH_KEY = "elearn_refresh";
 const USER_KEY = "elearn_user";
 
 export const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -13,10 +13,26 @@ export const api = axios.create({
    AUTH INTERCEPTOR (JWT FIX)
    ========================= */
 api.interceptors.request.use((config) => {
-  const token = getToken();
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // ✅ PUBLIC ROUTES (NO TOKEN)
+  const publicRoutes = [
+    "/users/register/",
+    "/users/login/",
+    "/users/refresh/",
+    "/courses/public/levels/",
+  ];
+
+  const isPublicRoute = publicRoutes.some((route) =>
+    config.url?.includes(route)
+  );
+
+  // ✅ ONLY attach token for protected routes
+  if (!isPublicRoute) {
+    const token = getToken();
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   return config;

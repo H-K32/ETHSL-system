@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { GraduationCap, Mail, Lock } from "lucide-react";
-import { api, setToken, setStoredUser } from "@/lib/api";
+import { api, setToken, setRefreshToken, setStoredUser } from "@/lib/api";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -30,6 +30,9 @@ function LoginPage() {
 
       // SimpleJWT response
       setToken(res.data.access);
+      if (res.data.refresh) {
+        setRefreshToken(res.data.refresh);
+      }
 
       // store minimal user info
       setStoredUser({ username });
