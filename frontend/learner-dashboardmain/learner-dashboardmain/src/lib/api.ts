@@ -5,7 +5,7 @@ const REFRESH_KEY = "elearn_refresh";
 const USER_KEY = "elearn_user";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: "https://ethsl-system.onrender.com/api",
   headers: { "Content-Type": "application/json" },
 });
 
