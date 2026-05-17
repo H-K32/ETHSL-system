@@ -37,7 +37,7 @@ export default function Courses() {
                 </div>
               </div>
             )
-            return locked ? <div key={c.id}>{Card}</div> : <Link key={c.id} to={`/lessons/${c.id}`}>{Card}</Link>
+            return locked ? <div key={c.id}>{Card}</div> : <Link key={c.id} to={`course/lessons/${c.id}`}>{Card}</Link>
           })}
         </div>
       )}

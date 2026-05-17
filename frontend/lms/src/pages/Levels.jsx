@@ -30,7 +30,7 @@ export default function Levels() {
                 {l.description && <p className="text-sm text-slate-600 mt-1 line-clamp-2">{l.description}</p>}
               </div>
             )
-            return locked ? <div key={l.id}>{Card}</div> : <Link key={l.id} to={`/courses/${l.id}`}>{Card}</Link>
+            return locked ? <div key={l.id}>{Card}</div> : <Link key={l.id} to={`course/courses/${l.id}`}>{Card}</Link>
           })}
         </div>
       )}
