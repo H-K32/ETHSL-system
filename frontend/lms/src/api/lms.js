@@ -17,4 +17,4 @@ export const getPlacementQuiz = () => api.get(`/placement/`).then((r) => r.data)
 export const submitPlacement = (answers) =>
   api.post(`/placement/submit/`, { answers }).then((r) => r.data)
 
-export const getProfile = () => api.get('/profile/').then((r) => r.data)
+export const getProfile = () => api.get('users/profile/').then((r) => r.data)
