@@ -1,7 +1,5 @@
 import api from './client.js'
 
- 
-
 export const getLevels = () =>
   api.get('/courses/learner/levels/').then((r) => r.data)
 
@@ -19,3 +17,11 @@ export const getQuiz = (quizId) =>
 
 export const getProfile = () =>
   api.get('/users/profile/').then((r) => r.data)
+
+export const completeLesson = async () => ({ success: true })
+
+export const getPlacementQuiz = async () => ([])
+
+export const submitPlacement = async () => ({ success: true })
+
+export const submitQuiz = async () => ({ success: true })
