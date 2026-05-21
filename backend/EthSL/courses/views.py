@@ -290,20 +290,25 @@ class LearnerLevelListView(APIView):
     def get(self, request):
 
         user = request.user
-        if not user or not user.is_authenticated:
-            return Response({"detail": "Unauthorized"}, status=401)
 
         levels = Level.objects.all().order_by("order")
+
         data = []
 
-        from courses.access import can_access_level, can_take_level_quiz
+        from courses.access import (
+            can_access_level,
+            can_take_level_quiz
+        )
 
         for level in levels:
+
             level_quiz = Quiz.objects.filter(level=level).first()
 
             data.append({
                 "id": level.id,
                 "name": level.name,
+                "display_name": level.get_name_display(),
+                "order": level.order,
                 "unlocked": can_access_level(user, level),
                 "has_quiz": level_quiz is not None,
                 "quiz_id": level_quiz.id if level_quiz else None,
