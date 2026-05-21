@@ -40,6 +40,8 @@ class Lesson(models.Model):
     description = models.TextField()
     video = models.FileField(upload_to='lesson_videos/')
     order = models.PositiveIntegerField()
+    duration = models.CharField(max_length=50, null=True, blank=True)
+    thumbnail = models.ImageField(upload_to="lesson_thumbnails/", null=True, blank=True)
 
     class Meta:
         ordering = ['order']

@@ -18,9 +18,13 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'
+        
+class LessonWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = '__all__'
 
-
-class LessonSerializer(serializers.ModelSerializer):
+class LessonReadSerializer(serializers.ModelSerializer):
     is_completed = serializers.SerializerMethodField()
     is_unlocked = serializers.SerializerMethodField()
 
@@ -30,6 +34,9 @@ class LessonSerializer(serializers.ModelSerializer):
 
     def get_is_completed(self, obj):
         user = self.context['request'].user
+        if not user or user.is_anonymous:
+            return False
+
         return LessonProgress.objects.filter(
             user=user,
             lesson=obj,
@@ -38,6 +45,8 @@ class LessonSerializer(serializers.ModelSerializer):
 
     def get_is_unlocked(self, obj):
         user = self.context['request'].user
+        if not user or user.is_anonymous:
+            return True
 
         previous_lessons = obj.course.lessons.filter(order__lt=obj.order)
 
@@ -50,8 +59,6 @@ class LessonSerializer(serializers.ModelSerializer):
                 return False
 
         return True
-
-
 
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:

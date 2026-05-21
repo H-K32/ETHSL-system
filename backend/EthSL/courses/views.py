@@ -8,13 +8,17 @@ from rest_framework.response import Response
 from django.db.models import Count, Avg
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+
+from rest_framework.exceptions import ValidationError
+import traceback
  
 from progress.models import LessonProgress, QuizAttempt
 
 from .serializers import (
     LevelSerializer,
     CourseSerializer,
-    LessonSerializer,
+    LessonReadSerializer,
+    LessonWriteSerializer,
     QuizSerializer
 )
 from .access import (
@@ -141,62 +145,87 @@ class AdminCourseDetailView(APIView):
 class AdminLessonListCreateView(APIView):
     permission_classes = [IsAdminUserRole]
     parser_classes = (MultiPartParser, FormParser)
-    
+
     def get(self, request):
         lessons = Lesson.objects.all()
-        serializer = LessonSerializer(lessons, many=True, context={"request": request})
+        serializer = LessonReadSerializer(
+            lessons,
+            many=True,
+            context={"request": request}
+        )
         return Response(serializer.data)
-    
+
     def post(self, request):
-        serializer = LessonSerializer(data=request.data, context={"request": request})
+        serializer = LessonWriteSerializer(data=request.data)
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status.HTTP_201_CREATED)
-        return Response(serializer.errors,  status=status.HTTP_400_BAD_REQUEST)
+            lesson = serializer.save()
+
+            return Response(
+                LessonReadSerializer(
+                    lesson,
+                    context={"request": request}
+                ).data,
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     
 class AdminLessonDetailView(APIView):
     permission_classes = [IsAdminUserRole]
-    
+    parser_classes = (MultiPartParser, FormParser)
+
     def get_object(self, pk):
         try:
             return Lesson.objects.get(pk=pk)
         except Lesson.DoesNotExist:
             return None
-        
+
     def get(self, request, pk):
         lesson = self.get_object(pk)
         if not lesson:
             return Response({"detail": "Not found"}, status=404)
-        serializer = LessonSerializer(lesson)
+
+        serializer = LessonReadSerializer(lesson, context={"request": request})
         return Response(serializer.data)
-    
+
     def put(self, request, pk):
         lesson = self.get_object(pk)
         if not lesson:
             return Response({"detail": "Not found"}, status=404)
-        serializer = LessonSerializer(lesson, data=request.data, context={"request": request})
+
+        serializer = LessonWriteSerializer(lesson, data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            lesson = serializer.save()
+            return Response(
+                LessonReadSerializer(lesson, context={"request": request}).data
+            )
+
         return Response(serializer.errors, status=400)
-    
+
     def patch(self, request, pk):
         lesson = self.get_object(pk)
         if not lesson:
             return Response({"detail": "Not found"}, status=404)
-        serializer = LessonSerializer(lesson, data=request.data, partial=True, context={"request": request})
+
+        serializer = LessonWriteSerializer(lesson, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            lesson = serializer.save()
+            return Response(
+                LessonReadSerializer(lesson, context={"request": request}).data
+            )
+
         return Response(serializer.errors, status=400)
-    
+
     def delete(self, request, pk):
         lesson = self.get_object(pk)
         if not lesson:
             return Response({"detail": "Not found"}, status=404)
+
         lesson.delete()
         return Response({"detail": "deleted successfully"}, status=204)
-
+    
 class AdminStatisticsView(APIView):
     permission_classes = [IsAdminUserRole]
     
