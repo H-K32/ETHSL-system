@@ -26,7 +26,9 @@ export default function Levels() {
                   <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-2 py-1 rounded">Level {l.order ?? ''}</span>
                   {locked && <span className="text-xs text-slate-500">🔒 Locked</span>}
                 </div>
-                <h3 className="mt-3 font-semibold text-slate-900">{l.name}</h3>
+                <h3 className="mt-3 font-semibold text-slate-900">
+  {l.display_name || l.name}
+</h3>
                 {l.description && <p className="text-sm text-slate-600 mt-1 line-clamp-2">{l.description}</p>}
               </div>
             )
