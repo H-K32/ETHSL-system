@@ -4,11 +4,16 @@ from progress.models import LessonProgress
  
 
 class LevelSerializer(serializers.ModelSerializer):
+    display_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Level
-        fields = '__all__'
-        
-        
+        fields = ['id', 'name', 'display_name', 'order']
+
+    def get_display_name(self, obj):
+        return obj.get_name_display()
+    
+    
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
