@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-
+import '../styles/home.css'
 export default function Home() {
   const { user } = useAuth()
   return (

@@ -1,0 +1,327 @@
+/* ============================================
+   HOME PAGE STYLES
+   ============================================ */
+
+/* Container animations */
+.home-container {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero section background effects */
+.bg-gradient-to-b {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-gradient-to-b::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+  animation: rotateSlow 20s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotateSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Badge animation */
+span[class*="bg-brand-100"] {
+  animation: pulse 2s infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* Main heading gradient effect */
+h1 {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: slideInLeft 0.8s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Paragraph animation */
+.text-slate-600 {
+  animation: fadeIn 1s ease-out 0.3s backwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Button animations */
+a[class*="bg-brand-600"] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+a[class*="bg-brand-600"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  z-index: -1;
+}
+
+a[class*="bg-brand-600"]:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+a[class*="bg-brand-600"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+}
+
+/* Login button hover effect */
+a[class*="border-slate-200"] {
+  transition: all 0.3s ease;
+}
+
+a[class*="border-slate-200"]:hover {
+  transform: translateY(-2px);
+  background: #f8fafc;
+  border-color: #94a3b8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Feature cards */
+.rounded-xl.bg-white {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+  animation: cardFadeIn 0.6s ease-out backwards;
+}
+
+.rounded-xl.bg-white:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.rounded-xl.bg-white:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.rounded-xl.bg-white:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rounded-xl.bg-white:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Feature card icon */
+.w-10.h-10.rounded-lg {
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+}
+
+.rounded-xl.bg-white:hover .w-10.h-10.rounded-lg {
+  transform: scale(1.1) rotate(5deg);
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+}
+
+/* Feature card heading */
+h3 {
+  transition: color 0.3s ease;
+}
+
+.rounded-xl.bg-white:hover h3 {
+  color: #4f46e5;
+}
+
+/* How it works section */
+.bg-slate-900 {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-slate-900::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+}
+
+/* How it works section heading */
+.bg-slate-900 h2 {
+  animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Step cards */
+.rounded-lg.bg-slate-800 {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  animation: stepFadeIn 0.6s ease-out backwards;
+}
+
+.rounded-lg.bg-slate-800:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.rounded-lg.bg-slate-800:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.rounded-lg.bg-slate-800:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.rounded-lg.bg-slate-800:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rounded-lg.bg-slate-800:hover {
+  transform: translateY(-5px);
+  background: linear-gradient(135deg, #1e293b 0%, #1e1b4b 100%);
+  box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.3);
+}
+
+/* Step numbers */
+.text-brand-500 {
+  transition: all 0.3s ease;
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.rounded-lg.bg-slate-800:hover .text-brand-500 {
+  transform: scale(1.2) translateX(5px);
+  color: #8b5cf6;
+}
+
+/* Step text */
+.mt-1.font-medium {
+  transition: transform 0.3s ease;
+}
+
+.rounded-lg.bg-slate-800:hover .mt-1.font-medium {
+  transform: translateX(5px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bg-gradient-to-b::before {
+    animation: rotateSlow 15s linear infinite;
+  }
+  
+  .rounded-xl.bg-white:hover {
+    transform: translateY(-4px);
+  }
+  
+  .rounded-lg.bg-slate-800:hover {
+    transform: translateY(-3px);
+  }
+}
+
+/* Optional: Add a subtle gradient border to feature cards */
+.rounded-xl.bg-white {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #e2e8f0, #cbd5e1) border-box;
+  border: 1px solid transparent;
+}
+
+/* Optional: Smooth scroll behavior for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optional: Custom selection color */
+::selection {
+  background: rgba(99, 102, 241, 0.2);
+  color: #4f46e5;
+}
