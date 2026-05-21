@@ -19,12 +19,10 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = '__all__'
         
-class LessonReadSerializer(serializers.ModelSerializer):
-    course_title = serializers.ReadOnlyField(source="course.title")
-
+class LessonWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = '__all__'
+        fields = "__all__"
         
         
 class LessonReadSerializer(serializers.ModelSerializer):
@@ -66,16 +64,26 @@ class LessonReadSerializer(serializers.ModelSerializer):
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option
-        fields = ["id", "option_text", "is_correct"]
-
-
+        fields = [
+            "id",
+            "option_text",
+            "option_image",
+            "option_video",
+            "is_correct",
+        ]
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True)
 
     class Meta:
         model = Question
-        fields = ["id", "question_text", "points", "options"]
-
+        fields = [
+            "id",
+            "question_text",
+            "question_image",
+            "question_video",
+            "points",
+            "options",
+        ]
 
 class QuizSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)

@@ -105,12 +105,10 @@ class Question(models.Model):
         on_delete=models.CASCADE,
         related_name="questions"
     )
-    question_text = models.TextField()
+    question_text = models.TextField(blank=True, null=True)
+    question_image = models.ImageField(upload_to="quiz/questions/images/", blank=True, null=True)
+    question_video = models.FileField(upload_to="quiz/questions/videos/", blank=True, null=True)
     points = models.IntegerField(default=1)
-
-    def __str__(self):
-        return self.question_text
-
 
 class Option(models.Model):
     question = models.ForeignKey(
@@ -118,8 +116,7 @@ class Option(models.Model):
         on_delete=models.CASCADE,
         related_name="options"
     )
-    option_text = models.TextField()
+    option_text = models.TextField(blank=True, null=True)
+    option_image = models.ImageField(upload_to="quiz/options/images/", blank=True, null=True)
+    option_video = models.FileField(upload_to="quiz/options/videos/", blank=True, null=True)
     is_correct = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.option_text
