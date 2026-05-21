@@ -13,6 +13,11 @@ __pycache__/
 db.sqlite3
 media/
 staticfiles/
+media/
+lesson_videos/
+lesson_thumbnails/
+*.mp4
+*.MOV
 
 # Virtual environment
 venv/
