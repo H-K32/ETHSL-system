@@ -19,11 +19,14 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = '__all__'
         
-class LessonWriteSerializer(serializers.ModelSerializer):
+class LessonReadSerializer(serializers.ModelSerializer):
+    course_title = serializers.ReadOnlyField(source="course.title")
+
     class Meta:
         model = Lesson
         fields = '__all__'
-
+        
+        
 class LessonReadSerializer(serializers.ModelSerializer):
     is_completed = serializers.SerializerMethodField()
     is_unlocked = serializers.SerializerMethodField()
