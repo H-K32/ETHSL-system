@@ -19,7 +19,7 @@ const AdminProfile = () => {
 
   // ---------------- FETCH PROFILE ----------------
   const fetchProfile = async () => {
-    const res = await API.get("/users/me/");
+    const res = await API.get("/users/admin/profile/");
     setProfile(res.data);
     setForm({
       username: res.data.username,
@@ -36,7 +36,7 @@ const AdminProfile = () => {
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
 
-    await API.put("/users/me/", form);
+    await API.put("/users/admin/profile/", form);
     alert("Profile updated successfully!");
     fetchProfile();
   };
