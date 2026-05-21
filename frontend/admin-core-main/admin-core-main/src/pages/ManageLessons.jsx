@@ -144,7 +144,7 @@ const ManageLessons = () => {
                 {lessons.map((l) => (
                   <tr key={l.id}>
                     <td>{l.title}</td>
-                    <td>{l.course}</td>
+                    <td>{l.course_title}</td>
                     <td>{l.order}</td>
                     <td>{l.duration}</td>
 
