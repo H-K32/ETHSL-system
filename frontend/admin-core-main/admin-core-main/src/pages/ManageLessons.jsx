@@ -108,14 +108,13 @@ const ManageLessons = () => {
     fetchLessons();
 
   } catch (err) {
-    console.log("FULL ERROR:", err);
+  console.log("FULL ERROR OBJECT:", err);
+  console.log("STATUS:", err.response?.status);
+  console.log("DATA:", err.response?.data);
+  console.log("HEADERS:", err.response?.headers);
 
-    setError(
-      err.response?.data
-        ? JSON.stringify(err.response.data)
-        : err.message
-    );
-  }
+  setError(JSON.stringify(err.response?.data || err.message));
+}
 };
   // ---------------- UI ----------------
   return (
