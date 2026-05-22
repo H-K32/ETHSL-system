@@ -2,11 +2,48 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from courses.models import Quiz, Question, Option
+from courses.models import Quiz, Question, Option, Lesson
 from .models import QuizAttempt, Answer, LessonProgress
 from certificates.models import Certificate
 import uuid
 from django.utils.timezone import now
+
+
+def issue_certificate_if_all_quizzes_passed(user, level):
+    """Issue a certificate if user has passed all lesson quizzes in the level."""
+    if not level:
+        return None
+    
+    # Get all lessons in this level
+    lessons = Lesson.objects.filter(course__level=level)
+    if not lessons.exists():
+        return None
+    
+    # Check that each lesson has a quiz
+    lesson_quiz_ids = []
+    for lesson in lessons:
+        quiz = getattr(lesson, 'quiz', None)
+        if not quiz:
+            return None  # Missing quiz for a lesson, cannot issue certificate yet
+        lesson_quiz_ids.append(quiz.id)
+    
+    # Check how many of these quizzes the user has passed
+    passed_count = QuizAttempt.objects.filter(
+        user=user,
+        quiz_id__in=lesson_quiz_ids,
+        passed=True
+    ).values('quiz_id').distinct().count()
+    
+    # If all quizzes are passed, issue certificate
+    if passed_count == len(lesson_quiz_ids):
+        certificate, _ = Certificate.objects.get_or_create(
+            learner=user,
+            level=level,
+            defaults={"certificate_id": f"CERT-{uuid.uuid4().hex[:8]}"}
+        )
+        return certificate
+    
+    return None
 
 class SubmitQuizView(APIView):
     permission_classes = [IsAuthenticated]
@@ -44,28 +81,21 @@ class SubmitQuizView(APIView):
         attempt.passed = score >= quiz.passing_score
         attempt.save()
 
-        if attempt.passed:
-
-            if quiz.level and quiz.quiz_type == "final":
-
-                Certificate.objects.get_or_create(
-                    learner=request.user,
-                    level=quiz.level,
-                    defaults={
-                        "certificate_id":
-                        f"CERT-{uuid.uuid4().hex[:8]}"
-                    }
-                )
-
         user = request.user
 
         if attempt.passed:
+            # Check if this is a lesson quiz and try to issue certificate
+            if quiz.quiz_type == "lesson" and quiz.lesson:
+                issue_certificate_if_all_quizzes_passed(
+                    user,
+                    quiz.lesson.course.level
+                )
 
+            # Handle placement quiz level advancement
             if quiz.level and quiz.quiz_type == "placement":
                 if quiz.level.name == "beginner":
                     user.level = "intermediate"
                     user.placement_required = False
-
                 elif quiz.level.name == "intermediate":
                     user.level = "advanced"
                     user.placement_required = False

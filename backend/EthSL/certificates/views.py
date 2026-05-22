@@ -256,7 +256,7 @@ def build_certificate_story(certificate):
 
     content = [
 
-        Spacer(1, 24),
+        Spacer(1, 50),
 
         Paragraph(
             "CERTIFICATE OF COMPLETION",
@@ -264,7 +264,7 @@ def build_certificate_story(certificate):
         ),
 
         # Added more spacing here
-        Spacer(1, 20),
+        Spacer(1, 24),
 
         Paragraph(
             "This certifies that",
@@ -476,16 +476,26 @@ class MyCertificatesView(APIView):
 
     def get(self, request):
 
-        certificates = Certificate.objects.filter(
-            learner=request.user
-        ).order_by("-issued_at")
+        try:
+            certificates = Certificate.objects.filter(
+                learner=request.user
+            ).order_by("-issued_at")
+        except Exception as e:
+            print(f"Error fetching certificates: {e}")
+            return Response([])
 
         data = []
 
         for cert in certificates:
+            try:
+                level_name = cert.level.name if cert.level else "Unknown"
+            except Exception as e:
+                print(f"Error accessing level for cert {cert.id}: {e}")
+                level_name = "Unknown"
+
             data.append({
                 "id": cert.id,
-                "level": cert.level.name,
+                "level": level_name,
                 "issued_at": cert.issued_at.isoformat(),
                 "certificate_id": cert.certificate_id,
             })
