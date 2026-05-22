@@ -4,18 +4,24 @@ import "../styles/table.css";
 
 // ---------------- EMPTY QUESTION ----------------
 const createEmptyQuestion = () => ({
+  question_type: "text", // 👈 NEW
+
   question_text: "",
   question_image: null,
   question_video: null,
+
   points: 1,
+
   options: [
     {
+      option_type: "text",
       option_text: "",
       option_image: null,
       option_video: null,
       is_correct: false,
     },
     {
+      option_type: "text",
       option_text: "",
       option_image: null,
       option_video: null,
@@ -470,108 +476,221 @@ const handleSubmit = async (e) => {
           {/* QUESTIONS */}
           <h3>Questions</h3>
 
-          {form.questions.map((q, qIndex) => (
-            <div
-              key={qIndex}
-              style={{
-                border: "1px solid #ccc",
-                padding: 10,
-                marginBottom: 10,
-              }}
-            >
-              {/* QUESTION */}
-             <input
-  type="file"
-  accept="image/*"
-  onChange={(e) =>
-    updateQuestion(qIndex, "question_image", e.target.files[0])
-  }
-/>
+          {/* ================= QUESTIONS ================= */}
 
-<input
-  type="file"
-  accept="video/*"
-  onChange={(e) =>
-    updateQuestion(qIndex, "question_video", e.target.files[0])
-  }
-/>
-              {/* POINTS */}
-              <input
-                type="number"
-                placeholder="Points"
-                value={q.points}
-                onChange={(e) =>
-                  updateQuestion(
-                    qIndex,
-                    "points",
-                    e.target.value
-                  )
-                }
-              />
+{form.questions.map((q, qIndex) => (
+  <div
+    key={qIndex}
+    style={{
+      border: "1px solid #ccc",
+      padding: 10,
+      marginBottom: 10,
+    }}
+  >
+    {/* QUESTION TYPE */}
+    <select
+      value={q.question_type || "text"}
+      onChange={(e) => {
+        const type = e.target.value;
 
-              {/* ADD OPTION */}
-              <button
-                type="button"
-                onClick={() => addOption(qIndex)}
-              >
-                + Add Option
-              </button>
+        updateQuestion(qIndex, "question_type", type);
 
-              {/* OPTIONS */}
-              {q.options.map((o, oIndex) => (
-                <div
-                  key={oIndex}
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    marginTop: 10,
-                  }}
-                >
-<input
-  type="file"
-  accept="image/*"
-  onChange={(e) =>
-    updateOption(qIndex, oIndex, "option_image", e.target.files[0])
-  }
-/>
+        // 🔥 RESET OTHER TYPES (VERY IMPORTANT FIX)
+        if (type === "text") {
+          updateQuestion(qIndex, "question_image", null);
+          updateQuestion(qIndex, "question_video", null);
+        }
 
-<input
-  type="file"
-  accept="video/*"
-  onChange={(e) =>
-    updateOption(qIndex, oIndex, "option_video", e.target.files[0])
-  }
-/>
+        if (type === "image") {
+          updateQuestion(qIndex, "question_text", "");
+          updateQuestion(qIndex, "question_video", null);
+        }
 
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={o.is_correct}
-                      onChange={(e) =>
-                        updateOption(
-                          qIndex,
-                          oIndex,
-                          "is_correct",
-                          e.target.checked
-                        )
-                      }
-                    />
+        if (type === "video") {
+          updateQuestion(qIndex, "question_text", "");
+          updateQuestion(qIndex, "question_image", null);
+        }
+      }}
+    >
+      <option value="text">Text</option>
+      <option value="image">Image</option>
+      <option value="video">Video</option>
+    </select>
 
-                    Correct
-                  </label>
-                </div>
-              ))}
-            </div>
-          ))}
+    {/* QUESTION INPUT */}
 
-          {/* ADD QUESTION */}
-          <button
-            type="button"
-            onClick={addQuestion}
-          >
-            + Add Question
-          </button>
+    {q.question_type === "text" && (
+      <input
+        type="text"
+        placeholder="Question text"
+        value={q.question_text}
+        onChange={(e) =>
+          updateQuestion(qIndex, "question_text", e.target.value)
+        }
+      />
+    )}
 
+    {q.question_type === "image" && (
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) =>
+          updateQuestion(
+            qIndex,
+            "question_image",
+            e.target.files[0]
+          )
+        }
+      />
+    )}
+
+    {q.question_type === "video" && (
+      <input
+        type="file"
+        accept="video/*"
+        onChange={(e) =>
+          updateQuestion(
+            qIndex,
+            "question_video",
+            e.target.files[0]
+          )
+        }
+      />
+    )}
+
+    {/* POINTS */}
+    <input
+      type="number"
+      placeholder="Points"
+      value={q.points}
+      onChange={(e) =>
+        updateQuestion(qIndex, "points", e.target.value)
+      }
+    />
+
+    {/* ================= OPTIONS ================= */}
+
+    <button
+      type="button"
+      onClick={() => addOption(qIndex)}
+    >
+      + Add Option
+    </button>
+
+    {q.options.map((o, oIndex) => (
+      <div
+        key={oIndex}
+        style={{
+          display: "flex",
+          gap: 10,
+          marginTop: 10,
+          alignItems: "center",
+        }}
+      >
+        {/* OPTION TYPE */}
+        <select
+          value={o.option_type || "text"}
+          onChange={(e) => {
+            const type = e.target.value;
+
+            updateOption(qIndex, oIndex, "option_type", type);
+
+            // reset unused fields
+            if (type === "text") {
+              updateOption(qIndex, oIndex, "option_image", null);
+              updateOption(qIndex, oIndex, "option_video", null);
+            }
+
+            if (type === "image") {
+              updateOption(qIndex, oIndex, "option_text", "");
+              updateOption(qIndex, oIndex, "option_video", null);
+            }
+
+            if (type === "video") {
+              updateOption(qIndex, oIndex, "option_text", "");
+              updateOption(qIndex, oIndex, "option_image", null);
+            }
+          }}
+        >
+          <option value="text">Text</option>
+          <option value="image">Image</option>
+          <option value="video">Video</option>
+        </select>
+
+        {/* TEXT OPTION */}
+        {o.option_type === "text" && (
+          <input
+            type="text"
+            placeholder="Option text"
+            value={o.option_text}
+            onChange={(e) =>
+              updateOption(
+                qIndex,
+                oIndex,
+                "option_text",
+                e.target.value
+              )
+            }
+          />
+        )}
+
+        {/* IMAGE OPTION */}
+        {o.option_type === "image" && (
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              updateOption(
+                qIndex,
+                oIndex,
+                "option_image",
+                e.target.files[0]
+              )
+            }
+          />
+        )}
+
+        {/* VIDEO OPTION */}
+        {o.option_type === "video" && (
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) =>
+              updateOption(
+                qIndex,
+                oIndex,
+                "option_video",
+                e.target.files[0]
+              )
+            }
+          />
+        )}
+
+        {/* CORRECT */}
+        <label>
+          <input
+            type="checkbox"
+            checked={o.is_correct}
+            onChange={(e) =>
+              updateOption(
+                qIndex,
+                oIndex,
+                "is_correct",
+                e.target.checked
+              )
+            }
+          />
+          Correct
+        </label>
+      </div>
+    ))}
+
+    {/* ADD QUESTION */}
+    <button type="button" onClick={addQuestion}>
+      + Add Question
+    </button>
+  </div>
+))}
           {/* SAVE */}
           <button type="submit">
             Save Quiz
