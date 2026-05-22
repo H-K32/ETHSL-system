@@ -490,4 +490,4 @@ class MyCertificatesView(APIView):
                 "certificate_id": cert.certificate_id,
             })
 
-        return Response(data)
+        return Response(data) 
