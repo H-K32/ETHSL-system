@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from courses.models import Quiz, Question, Option
 from .models import QuizAttempt, Answer, LessonProgress
+from certificates.models import Certificate
+import uuid
 from django.utils.timezone import now
 
 class SubmitQuizView(APIView):
@@ -41,6 +43,19 @@ class SubmitQuizView(APIView):
         attempt.score = score
         attempt.passed = score >= quiz.passing_score
         attempt.save()
+
+        if attempt.passed:
+
+            if quiz.level and quiz.quiz_type == "final":
+
+                Certificate.objects.get_or_create(
+                    learner=request.user,
+                    level=quiz.level,
+                    defaults={
+                        "certificate_id":
+                        f"CERT-{uuid.uuid4().hex[:8]}"
+                    }
+                )
 
         user = request.user
 

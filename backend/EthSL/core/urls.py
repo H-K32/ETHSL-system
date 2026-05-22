@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/courses/', include('courses.urls')),
     path('api/progress/', include('progress.urls')),
     path("api/community/", include("community.urls")),
+    path("api/certificates/", include("certificates.urls")),
 ]
 
 if settings.DEBUG:
