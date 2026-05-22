@@ -5,10 +5,22 @@ import "../styles/table.css";
 // ---------------- EMPTY QUESTION ----------------
 const createEmptyQuestion = () => ({
   question_text: "",
+  question_image: null,
+  question_video: null,
   points: 1,
   options: [
-    { option_text: "", is_correct: false },
-    { option_text: "", is_correct: false },
+    {
+      option_text: "",
+      option_image: null,
+      option_video: null,
+      is_correct: false,
+    },
+    {
+      option_text: "",
+      option_image: null,
+      option_video: null,
+      is_correct: false,
+    },
   ],
 });
 
@@ -192,60 +204,75 @@ const ManageQuizzes = () => {
   };
 
   // ================= SUBMIT =================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const payload = {
-      lesson:
-        form.quiz_type === "lesson"
-          ? Number(form.lesson)
-          : null,
+  const formData = new FormData();
 
-      course:
-        form.quiz_type === "course"
-          ? Number(form.course)
-          : null,
+  formData.append("lesson", form.quiz_type === "lesson" ? form.lesson : "");
+  formData.append("course", form.quiz_type === "course" ? form.course : "");
+  formData.append("level", form.quiz_type === "level" ? form.level : "");
 
-      level:
-        form.quiz_type === "level"
-          ? Number(form.level)
-          : null,
+  formData.append("description", form.description);
+  formData.append("passing_score", form.passing_score);
 
-      description: form.description,
+  form.questions.forEach((q, qIndex) => {
+    formData.append(`questions[${qIndex}][question_text]`, q.question_text);
+    formData.append(`questions[${qIndex}][points]`, q.points || 1);
 
-      passing_score: Number(form.passing_score),
+    if (q.question_image) {
+      formData.append(`questions[${qIndex}][question_image]`, q.question_image);
+    }
 
-      questions: form.questions.map((q) => ({
-        question_text: q.question_text,
+    if (q.question_video) {
+      formData.append(`questions[${qIndex}][question_video]`, q.question_video);
+    }
 
-        points: q.points || 1,
+    q.options.forEach((o, oIndex) => {
+      formData.append(
+        `questions[${qIndex}][options][${oIndex}][option_text]`,
+        o.option_text
+      );
 
-        options: q.options.map((o) => ({
-          option_text: o.option_text,
-          is_correct: o.is_correct,
-        })),
-      })),
-    };
+      formData.append(
+        `questions[${qIndex}][options][${oIndex}][is_correct]`,
+        o.is_correct
+      );
 
-    try {
-      if (editingId) {
-        await API.put(
-          `/courses/quiz/${editingId}/`,
-          payload
+      if (o.option_image) {
+        formData.append(
+          `questions[${qIndex}][options][${oIndex}][option_image]`,
+          o.option_image
         );
-      } else {
-        await API.post("/courses/quiz/", payload);
       }
 
-      setMode("list");
+      if (o.option_video) {
+        formData.append(
+          `questions[${qIndex}][options][${oIndex}][option_video]`,
+          o.option_video
+        );
+      }
+    });
+  });
 
-      fetchQuizzes();
-    } catch (err) {
-      console.error(err.response?.data);
-
-      alert("Error saving quiz. Check console.");
+  try {
+    if (editingId) {
+      await API.put(`/courses/quiz/${editingId}/`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } else {
+      await API.post("/courses/quiz/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
     }
-  };
+
+    setMode("list");
+    fetchQuizzes();
+  } catch (err) {
+    console.error(err.response?.data);
+    alert("Error saving quiz");
+  }
+};
 
   // ================= UI =================
   return (
@@ -453,19 +480,21 @@ const ManageQuizzes = () => {
               }}
             >
               {/* QUESTION */}
-              <input
-                type="text"
-                placeholder="Question"
-                value={q.question_text}
-                onChange={(e) =>
-                  updateQuestion(
-                    qIndex,
-                    "question_text",
-                    e.target.value
-                  )
-                }
-              />
+             <input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    updateQuestion(qIndex, "question_image", e.target.files[0])
+  }
+/>
 
+<input
+  type="file"
+  accept="video/*"
+  onChange={(e) =>
+    updateQuestion(qIndex, "question_video", e.target.files[0])
+  }
+/>
               {/* POINTS */}
               <input
                 type="number"
@@ -498,19 +527,21 @@ const ManageQuizzes = () => {
                     marginTop: 10,
                   }}
                 >
-                  <input
-                    type="text"
-                    placeholder="Option"
-                    value={o.option_text}
-                    onChange={(e) =>
-                      updateOption(
-                        qIndex,
-                        oIndex,
-                        "option_text",
-                        e.target.value
-                      )
-                    }
-                  />
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    updateOption(qIndex, oIndex, "option_image", e.target.files[0])
+  }
+/>
+
+<input
+  type="file"
+  accept="video/*"
+  onChange={(e) =>
+    updateOption(qIndex, oIndex, "option_video", e.target.files[0])
+  }
+/>
 
                   <label>
                     <input
