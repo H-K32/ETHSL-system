@@ -4,7 +4,7 @@ import "../styles/table.css";
 
 // ---------------- EMPTY QUESTION ----------------
 const createEmptyQuestion = () => ({
-  question_type: "text", // 👈 NEW
+  question_type: "text",
 
   question_text: "",
   question_image: null,
@@ -33,20 +33,16 @@ const createEmptyQuestion = () => ({
 // ---------------- EMPTY FORM ----------------
 const emptyForm = {
   quiz_type: "lesson",
-
   lesson: "",
   course: "",
   level: "",
-
   description: "",
   passing_score: "",
-
   questions: [],
 };
 
 const ManageQuizzes = () => {
   const [quizzes, setQuizzes] = useState([]);
-
   const [lessons, setLessons] = useState([]);
   const [courses, setCourses] = useState([]);
   const [levels, setLevels] = useState([]);
@@ -94,25 +90,16 @@ const ManageQuizzes = () => {
   // ================= EDIT =================
   const handleEdit = (quiz) => {
     let quizType = "lesson";
-
-    if (quiz.course) {
-      quizType = "course";
-    }
-
-    if (quiz.level) {
-      quizType = "level";
-    }
+    if (quiz.course) quizType = "course";
+    if (quiz.level) quizType = "level";
 
     setForm({
       quiz_type: quizType,
-
       lesson: quiz.lesson || "",
       course: quiz.course || "",
       level: quiz.level || "",
-
-      description: quiz.description,
-      passing_score: quiz.passing_score,
-
+      description: quiz.description || "",
+      passing_score: quiz.passing_score || "",
       questions: quiz.questions
         ? quiz.questions.map((q) => ({
             ...q,
@@ -127,158 +114,155 @@ const ManageQuizzes = () => {
 
   // ================= DELETE =================
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this quiz?"
-    );
-
-    if (!confirmDelete) return;
-
+    if (!window.confirm("Are you sure you want to delete this quiz?")) return;
     await API.delete(`/courses/quiz/${id}/`);
-
     fetchQuizzes();
   };
 
   // ================= QUESTIONS =================
   const addQuestion = () => {
-    setForm({
-      ...form,
-      questions: [...form.questions, createEmptyQuestion()],
-    });
+    setForm((prev) => ({
+      ...prev,
+      questions: [...prev.questions, createEmptyQuestion()],
+    }));
   };
 
   const updateQuestion = (index, field, value) => {
-    const updated = form.questions.map((q, i) =>
-      i === index ? { ...q, [field]: value } : q
-    );
-
-    setForm({
-      ...form,
-      questions: updated,
+    setForm((prev) => {
+      const updated = [...prev.questions];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, questions: updated };
     });
   };
 
   // ================= OPTIONS =================
   const addOption = (qIndex) => {
-    const updated = form.questions.map((q, i) => {
-      if (i !== qIndex) return q;
+    setForm((prev) => {
+      const updated = [...prev.questions];
 
-      return {
-        ...q,
-        options: [
-          ...q.options,
-          {
-            option_text: "",
-            is_correct: false,
-          },
-        ],
-      };
-    });
+      updated[qIndex].options = [
+        ...updated[qIndex].options,
+        {
+          option_type: "text",
+          option_text: "",
+          option_image: null,
+          option_video: null,
+          is_correct: false,
+        },
+      ];
 
-    setForm({
-      ...form,
-      questions: updated,
+      return { ...prev, questions: updated };
     });
   };
 
   const updateOption = (qIndex, oIndex, field, value) => {
-    const updated = form.questions.map((q, i) => {
-      if (i !== qIndex) return q;
+    setForm((prev) => {
+      const updated = [...prev.questions];
 
-      return {
-        ...q,
+      const options = [...updated[qIndex].options];
 
-        options: q.options.map((o, j) => ({
-          ...o,
-
-          option_text:
-            field === "option_text" && j === oIndex
-              ? value
-              : o.option_text,
-
-          is_correct:
-            field === "is_correct"
-              ? j === oIndex
-              : o.is_correct,
-        })),
+      options[oIndex] = {
+        ...options[oIndex],
+        [field]: value,
       };
-    });
 
-    setForm({
-      ...form,
-      questions: updated,
+      updated[qIndex].options = options;
+
+      return { ...prev, questions: updated };
     });
   };
 
   // ================= SUBMIT =================
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-  formData.append("lesson", form.quiz_type === "lesson" ? form.lesson : "");
-  formData.append("course", form.quiz_type === "course" ? form.course : "");
-  formData.append("level", form.quiz_type === "level" ? form.level : "");
+    formData.append(
+      "lesson",
+      form.quiz_type === "lesson" ? form.lesson : ""
+    );
+    formData.append(
+      "course",
+      form.quiz_type === "course" ? form.course : ""
+    );
+    formData.append(
+      "level",
+      form.quiz_type === "level" ? form.level : ""
+    );
 
-  formData.append("description", form.description);
-  formData.append("passing_score", form.passing_score);
+    formData.append("description", form.description);
+    formData.append("passing_score", form.passing_score);
 
-  form.questions.forEach((q, qIndex) => {
-    formData.append(`questions[${qIndex}][question_text]`, q.question_text);
-    formData.append(`questions[${qIndex}][points]`, q.points || 1);
-
-    if (q.question_image) {
-      formData.append(`questions[${qIndex}][question_image]`, q.question_image);
-    }
-
-    if (q.question_video) {
-      formData.append(`questions[${qIndex}][question_video]`, q.question_video);
-    }
-
-    q.options.forEach((o, oIndex) => {
+    form.questions.forEach((q, qIndex) => {
       formData.append(
-        `questions[${qIndex}][options][${oIndex}][option_text]`,
-        o.option_text
+        `questions[${qIndex}][question_text]`,
+        q.question_text
+      );
+      formData.append(
+        `questions[${qIndex}][points]`,
+        q.points || 1
       );
 
-      formData.append(
-        `questions[${qIndex}][options][${oIndex}][is_correct]`,
-        o.is_correct
-      );
-
-      if (o.option_image) {
+      if (q.question_image)
         formData.append(
-          `questions[${qIndex}][options][${oIndex}][option_image]`,
-          o.option_image
+          `questions[${qIndex}][question_image]`,
+          q.question_image
         );
-      }
 
-      if (o.option_video) {
+      if (q.question_video)
         formData.append(
-          `questions[${qIndex}][options][${oIndex}][option_video]`,
-          o.option_video
+          `questions[${qIndex}][question_video]`,
+          q.question_video
         );
-      }
+
+      q.options.forEach((o, oIndex) => {
+        formData.append(
+          `questions[${qIndex}][options][${oIndex}][option_text]`,
+          o.option_text
+        );
+
+        formData.append(
+          `questions[${qIndex}][options][${oIndex}][is_correct]`,
+          o.is_correct
+        );
+
+        if (o.option_image)
+          formData.append(
+            `questions[${qIndex}][options][${oIndex}][option_image]`,
+            o.option_image
+          );
+
+        if (o.option_video)
+          formData.append(
+            `questions[${qIndex}][options][${oIndex}][option_video]`,
+            o.option_video
+          );
+      });
     });
-  });
 
-  try {
-    if (editingId) {
-      await API.put(`/courses/quiz/${editingId}/`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-    } else {
-      await API.post("/courses/quiz/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+    try {
+      if (editingId) {
+        await API.put(`/courses/quiz/${editingId}/`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } else {
+        await API.post("/courses/quiz/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+
+      setMode("list");
+      fetchQuizzes();
+    } catch (err) {
+      console.error(err.response?.data);
+      alert("Error saving quiz");
     }
-
-    setMode("list");
-    fetchQuizzes();
-  } catch (err) {
-    console.error(err.response?.data);
-    alert("Error saving quiz");
-  }
-};
+  };
 
   // ================= UI =================
   return (
@@ -287,7 +271,7 @@ const handleSubmit = async (e) => {
         <h1>Manage Quizzes</h1>
       </div>
 
-      {/* ================= LIST ================= */}
+      {/* LIST */}
       {mode === "list" && (
         <>
           <button className="btn-add" onClick={handleAdd}>
@@ -297,7 +281,7 @@ const handleSubmit = async (e) => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Quiz Type</th>
+                <th>Type</th>
                 <th>Target</th>
                 <th>Questions</th>
                 <th>Passing Score</th>
@@ -310,8 +294,8 @@ const handleSubmit = async (e) => {
                 <tr key={q.id}>
                   <td>
                     {q.lesson && "Lesson Quiz"}
-                    {q.course && "Course Final Quiz"}
-                    {q.level && "Level Final Quiz"}
+                    {q.course && "Course Quiz"}
+                    {q.level && "Level Quiz"}
                   </td>
 
                   <td>
@@ -320,15 +304,13 @@ const handleSubmit = async (e) => {
                     {q.level && `Level #${q.level}`}
                   </td>
 
-                  <td>{q.questions?.length}</td>
-
+                  <td>{q.questions?.length || 0}</td>
                   <td>{q.passing_score}</td>
 
                   <td>
                     <button onClick={() => handleEdit(q)}>
                       Edit
                     </button>
-
                     <button onClick={() => handleDelete(q.id)}>
                       Delete
                     </button>
@@ -340,126 +322,24 @@ const handleSubmit = async (e) => {
         </>
       )}
 
-      {/* ================= FORM ================= */}
+      {/* FORM */}
       {mode === "form" && (
-        <form
-          onSubmit={handleSubmit}
-          className="form-column"
-        >
-
-          {/* QUIZ TYPE */}
+        <form onSubmit={handleSubmit} className="form-column">
+          {/* quiz type */}
           <select
             value={form.quiz_type}
             onChange={(e) =>
               setForm({
                 ...form,
-
                 quiz_type: e.target.value,
-
-                lesson: "",
-                course: "",
-                level: "",
               })
             }
           >
-            <option value="lesson">
-              Lesson Quiz
-            </option>
-
-            <option value="course">
-              Course Final Quiz
-            </option>
-
-            <option value="level">
-              Level Final Quiz
-            </option>
+            <option value="lesson">Lesson</option>
+            <option value="course">Course</option>
+            <option value="level">Level</option>
           </select>
 
-          {/* LESSON SELECT */}
-          {form.quiz_type === "lesson" && (
-            <select
-              value={form.lesson}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  lesson: e.target.value,
-                })
-              }
-              required
-            >
-              <option value="">
-                Select Lesson
-              </option>
-
-              {lessons.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.title}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* COURSE SELECT */}
-          {form.quiz_type === "course" && (
-            <select
-              value={form.course}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  course: e.target.value,
-                })
-              }
-              required
-            >
-              <option value="">
-                Select Course
-              </option>
-
-              {courses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* LEVEL SELECT */}
-          {form.quiz_type === "level" && (
-            <select
-              value={form.level}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  level: e.target.value,
-                })
-              }
-              required
-            >
-              <option value="">
-                Select Level
-              </option>
-
-              {levels.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.display_name}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* DESCRIPTION */}
-          <textarea
-            placeholder="Description"
-            value={form.description}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                description: e.target.value,
-              })
-            }
-          />
-
-          {/* PASSING SCORE */}
           <input
             type="number"
             placeholder="Passing Score"
@@ -470,237 +350,84 @@ const handleSubmit = async (e) => {
                 passing_score: e.target.value,
               })
             }
-            required
           />
 
-          {/* QUESTIONS */}
           <h3>Questions</h3>
 
-          {/* ================= QUESTIONS ================= */}
+          {form.questions.map((q, qIndex) => (
+            <div key={qIndex}>
+              <select
+                value={q.question_type}
+                onChange={(e) =>
+                  updateQuestion(
+                    qIndex,
+                    "question_type",
+                    e.target.value
+                  )
+                }
+              >
+                <option value="text">Text</option>
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+              </select>
 
-{form.questions.map((q, qIndex) => (
-  <div
-    key={qIndex}
-    style={{
-      border: "1px solid #ccc",
-      padding: 10,
-      marginBottom: 10,
-    }}
-  >
-    {/* QUESTION TYPE */}
-    <select
-      value={q.question_type || "text"}
-      onChange={(e) => {
-        const type = e.target.value;
+              {q.question_type === "text" && (
+                <input
+                  value={q.question_text}
+                  onChange={(e) =>
+                    updateQuestion(
+                      qIndex,
+                      "question_text",
+                      e.target.value
+                    )
+                  }
+                />
+              )}
 
-        updateQuestion(qIndex, "question_type", type);
+              <button
+                type="button"
+                onClick={() => addOption(qIndex)}
+              >
+                Add Option
+              </button>
 
-        // 🔥 RESET OTHER TYPES (VERY IMPORTANT FIX)
-        if (type === "text") {
-          updateQuestion(qIndex, "question_image", null);
-          updateQuestion(qIndex, "question_video", null);
-        }
+              {q.options.map((o, oIndex) => (
+                <div key={oIndex}>
+                  <input
+                    value={o.option_text}
+                    onChange={(e) =>
+                      updateOption(
+                        qIndex,
+                        oIndex,
+                        "option_text",
+                        e.target.value
+                      )
+                    }
+                  />
 
-        if (type === "image") {
-          updateQuestion(qIndex, "question_text", "");
-          updateQuestion(qIndex, "question_video", null);
-        }
+                  <input
+                    type="checkbox"
+                    checked={o.is_correct}
+                    onChange={(e) =>
+                      updateOption(
+                        qIndex,
+                        oIndex,
+                        "is_correct",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
 
-        if (type === "video") {
-          updateQuestion(qIndex, "question_text", "");
-          updateQuestion(qIndex, "question_image", null);
-        }
-      }}
-    >
-      <option value="text">Text</option>
-      <option value="image">Image</option>
-      <option value="video">Video</option>
-    </select>
-
-    {/* QUESTION INPUT */}
-
-    {q.question_type === "text" && (
-      <input
-        type="text"
-        placeholder="Question text"
-        value={q.question_text}
-        onChange={(e) =>
-          updateQuestion(qIndex, "question_text", e.target.value)
-        }
-      />
-    )}
-
-    {q.question_type === "image" && (
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) =>
-          updateQuestion(
-            qIndex,
-            "question_image",
-            e.target.files[0]
-          )
-        }
-      />
-    )}
-
-    {q.question_type === "video" && (
-      <input
-        type="file"
-        accept="video/*"
-        onChange={(e) =>
-          updateQuestion(
-            qIndex,
-            "question_video",
-            e.target.files[0]
-          )
-        }
-      />
-    )}
-
-    {/* POINTS */}
-    <input
-      type="number"
-      placeholder="Points"
-      value={q.points}
-      onChange={(e) =>
-        updateQuestion(qIndex, "points", e.target.value)
-      }
-    />
-
-    {/* ================= OPTIONS ================= */}
-
-    <button
-      type="button"
-      onClick={() => addOption(qIndex)}
-    >
-      + Add Option
-    </button>
-
-    {q.options.map((o, oIndex) => (
-      <div
-        key={oIndex}
-        style={{
-          display: "flex",
-          gap: 10,
-          marginTop: 10,
-          alignItems: "center",
-        }}
-      >
-        {/* OPTION TYPE */}
-        <select
-          value={o.option_type || "text"}
-          onChange={(e) => {
-            const type = e.target.value;
-
-            updateOption(qIndex, oIndex, "option_type", type);
-
-            // reset unused fields
-            if (type === "text") {
-              updateOption(qIndex, oIndex, "option_image", null);
-              updateOption(qIndex, oIndex, "option_video", null);
-            }
-
-            if (type === "image") {
-              updateOption(qIndex, oIndex, "option_text", "");
-              updateOption(qIndex, oIndex, "option_video", null);
-            }
-
-            if (type === "video") {
-              updateOption(qIndex, oIndex, "option_text", "");
-              updateOption(qIndex, oIndex, "option_image", null);
-            }
-          }}
-        >
-          <option value="text">Text</option>
-          <option value="image">Image</option>
-          <option value="video">Video</option>
-        </select>
-
-        {/* TEXT OPTION */}
-        {o.option_type === "text" && (
-          <input
-            type="text"
-            placeholder="Option text"
-            value={o.option_text}
-            onChange={(e) =>
-              updateOption(
-                qIndex,
-                oIndex,
-                "option_text",
-                e.target.value
-              )
-            }
-          />
-        )}
-
-        {/* IMAGE OPTION */}
-        {o.option_type === "image" && (
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              updateOption(
-                qIndex,
-                oIndex,
-                "option_image",
-                e.target.files[0]
-              )
-            }
-          />
-        )}
-
-        {/* VIDEO OPTION */}
-        {o.option_type === "video" && (
-          <input
-            type="file"
-            accept="video/*"
-            onChange={(e) =>
-              updateOption(
-                qIndex,
-                oIndex,
-                "option_video",
-                e.target.files[0]
-              )
-            }
-          />
-        )}
-
-        {/* CORRECT */}
-        <label>
-          <input
-            type="checkbox"
-            checked={o.is_correct}
-            onChange={(e) =>
-              updateOption(
-                qIndex,
-                oIndex,
-                "is_correct",
-                e.target.checked
-              )
-            }
-          />
-          Correct
-        </label>
-      </div>
-    ))}
-
-    {/* ADD QUESTION */}
-    <button type="button" onClick={addQuestion}>
-      + Add Question
-    </button>
-  </div>
-))}
-          {/* SAVE */}
-          <button type="submit">
-            Save Quiz
+          <button type="button" onClick={addQuestion}>
+            Add Question
           </button>
 
-          {/* CANCEL */}
-          <button
-            type="button"
-            onClick={() => setMode("list")}
-          >
+          <button type="submit">Save</button>
+          <button type="button" onClick={() => setMode("list")}>
             Cancel
           </button>
         </form>
