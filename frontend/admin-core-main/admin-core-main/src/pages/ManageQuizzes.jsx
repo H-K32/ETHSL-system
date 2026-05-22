@@ -128,17 +128,14 @@ const ManageQuizzes = () => {
     });
   };
 
-  const updateQuestion = (index, field, value) => {
-    const updated = form.questions.map((q, i) =>
+const updateQuestion = (index, field, value) => {
+  setForm((prev) => ({
+    ...prev,
+    questions: prev.questions.map((q, i) =>
       i === index ? { ...q, [field]: value } : q
-    );
-
-    setForm({
-      ...form,
-      questions: updated,
-    });
-  };
-
+    ),
+  }));
+};
   // ================= OPTIONS =================
   const addOption = (qIndex) => {
     const updated = form.questions.map((q, i) => {
