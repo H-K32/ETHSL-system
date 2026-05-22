@@ -74,7 +74,7 @@ export default function Certificates() {
           <p className="certificates-kicker">Achievements</p>
           <h1>Certificates</h1>
           <p className="certificates-subtitle">
-            Tap a certificate card to open the PDF in the browser viewer. You can also download it from the card.
+            Tap a certificate card to open the PDF in the browser viewer. <div>You can also download it from the card.</div>
           </p>
         </div>
         <div className="certificates-hero-badge">

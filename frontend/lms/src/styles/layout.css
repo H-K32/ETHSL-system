@@ -509,12 +509,13 @@
   gap: 1rem;
   justify-content: start;
   align-items: stretch;
+  margin-top: 2.5rem;
 }
 
 .certificate-card {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 1.9rem;
   height: 100%;
 }
 
@@ -547,6 +548,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 0.75rem;
   margin-bottom: 0.85rem;
   min-height: 2rem;
@@ -562,6 +564,7 @@
   color: #4338ca;
   font-size: 0.72rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .certificate-card-id {
