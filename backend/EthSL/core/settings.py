@@ -207,6 +207,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://ethsl-system-jl5a.vercel.app",
     "https://ethsl-system-lv12v44xi-sekina-s-projects.vercel.app",
+    "https://ethsl-system.vercel.app"
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
