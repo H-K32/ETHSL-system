@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import { getCertificates } from '../api/lms.js'
 import '../styles/layout.css'
 
 export default function Layout() {
@@ -29,22 +28,7 @@ export default function Layout() {
     { title: 'Scored 90% on Quiz', date: 'Yesterday' },
     { title: 'Started Level 2', date: '3 days ago' },
   ]
-// Certificates state
-  const [certificates, setCertificates] = useState([])
-
-  useEffect(() => {
-    if (!user) return
-    let mounted = true
-    getCertificates()
-      .then((data) => {
-        if (mounted) setCertificates(data)
-      })
-      .catch((err) => console.error('Failed loading certificates', err))
-    return () => {
-      mounted = false
-    }
-  }, [user])
-//end of certificates state
+  
   return (
     <div className="layout-container">
       {/* Sidebar - Always show when logged in */}
@@ -80,6 +64,13 @@ export default function Layout() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
                 <span>Progress</span>
+              </NavLink>
+
+              <NavLink to="/certificates" className={navLinkClass}>
+                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m1-5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2z" />
+                </svg>
+                <span>Certificates</span>
               </NavLink>
 
               <NavLink to="/community" className={navLinkClass}>
@@ -168,29 +159,7 @@ export default function Layout() {
                   ))}
                 </div>
               </div>
-              {/* Certificates */}
-              <div className="dashboard-card certificate-section">
-                <div className="card-header">
-                  <h3>Certificates</h3>
-                  <Link to="/certificates" className="view-all">View All →</Link>
-                </div>
-                <div className="certificates-list">
-                  {certificates.length === 0 ? (
-                    <div className="certificate-item">
-                      <div className="certificate-title">No certificates yet</div>
-                      <div className="certificate-meta">Earn certificates by completing courses.</div>
-                    </div>
-                  ) : (
-                    certificates.map((cert) => (
-                      <div key={cert.id} className="certificate-item">
-                        <div className="certificate-title">{cert.level || cert.title || 'Certificate'}</div>
-                        <div className="certificate-meta">Issued: {new Date(cert.issued_at).toLocaleDateString()}</div>
-                        <Link to={`/certificates/${cert.id}`} className="btn-small">View Certificate</Link>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+              
               
               {/* Quick Actions */}
               <div className="quick-actions">
