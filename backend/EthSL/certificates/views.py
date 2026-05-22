@@ -64,9 +64,9 @@ def draw_certificate_background(canvas, doc):
 
     canvas.line(
         35 * mm,
-        height - 45 * mm,
+        height - 58 * mm,
         width - 35 * mm,
-        height - 45 * mm
+        height - 58 * mm
     )
 
     # Decorative bottom line
@@ -263,8 +263,7 @@ def build_certificate_story(certificate):
             title_style
         ),
 
-        # Added more spacing here
-        Spacer(1, 24),
+        Spacer(1, 30),
 
         Paragraph(
             "This certifies that",

@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
-import { getCertificatePdf, getCertificates } from '../../api/lms.js'
+import { useEffect, useState } from 'react'
+import { getCertificates } from '../../api/lms.js'
+import { downloadCertificatePdf, openCertificatePdf } from '../../utils/certificates.js'
 
 function formatIssuedAt(value) {
   if (!value) return 'Recent'
@@ -17,10 +18,8 @@ function buildLevelLabel(certificate) {
 
 export default function Certificates() {
   const [certificates, setCertificates] = useState([])
-  const [selectedId, setSelectedId] = useState(null)
-  const [pdfUrl, setPdfUrl] = useState('')
   const [loading, setLoading] = useState(true)
-  const [pdfLoading, setPdfLoading] = useState(false)
+  const [downloadingId, setDownloadingId] = useState(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -31,7 +30,6 @@ export default function Certificates() {
         if (!mounted) return
         const list = Array.isArray(data) ? data : data?.results || []
         setCertificates(list)
-        setSelectedId(list[0]?.id ?? null)
         setError('')
       })
       .catch((requestError) => {
@@ -48,50 +46,26 @@ export default function Certificates() {
     }
   }, [])
 
-  const selectedCertificate = useMemo(
-    () => certificates.find((certificate) => certificate.id === selectedId) || certificates[0] || null,
-    [certificates, selectedId],
-  )
-
-  useEffect(() => {
-    if (!selectedCertificate?.id) {
-      setPdfUrl('')
-      return undefined
+  async function handleOpen(certificate) {
+    try {
+      await openCertificatePdf(certificate)
+    } catch (requestError) {
+      console.error('Failed opening certificate PDF', requestError)
+      setError('Unable to open the certificate PDF.')
     }
+  }
 
-    let mounted = true
-    setPdfLoading(true)
-    setError('')
-
-    getCertificatePdf(selectedCertificate.id)
-      .then((blob) => {
-        if (!mounted) return
-        const nextUrl = URL.createObjectURL(blob)
-        setPdfUrl((currentUrl) => {
-          if (currentUrl) URL.revokeObjectURL(currentUrl)
-          return nextUrl
-        })
-      })
-      .catch((requestError) => {
-        if (!mounted) return
-        console.error('Failed loading certificate PDF', requestError)
-        setPdfUrl('')
-        setError('Unable to load the certificate PDF.')
-      })
-      .finally(() => {
-        if (mounted) setPdfLoading(false)
-      })
-
-    return () => {
-      mounted = false
+  async function handleDownload(certificate) {
+    try {
+      setDownloadingId(certificate.id)
+      await downloadCertificatePdf(certificate)
+    } catch (requestError) {
+      console.error('Failed downloading certificate PDF', requestError)
+      setError('Unable to download the certificate PDF.')
+    } finally {
+      setDownloadingId(null)
     }
-  }, [selectedCertificate?.id])
-
-  useEffect(() => {
-    return () => {
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl)
-    }
-  }, [pdfUrl])
+  }
 
   return (
     <div className="certificates-page">
@@ -100,7 +74,7 @@ export default function Certificates() {
           <p className="certificates-kicker">Achievements</p>
           <h1>Certificates</h1>
           <p className="certificates-subtitle">
-            Tap a certificate to expand it, preview the PDF, and download it when you need a copy.
+            Tap a certificate card to open the PDF in the browser viewer. You can also download it from the card.
           </p>
         </div>
         <div className="certificates-hero-badge">
@@ -117,84 +91,38 @@ export default function Certificates() {
           No certificates earned yet. Complete a level to unlock your first certificate.
         </div>
       ) : (
-        <>
-          <div className="certificate-slides" role="list" aria-label="Certificate slides">
-            {certificates.map((certificate) => {
-              const isActive = certificate.id === selectedCertificate?.id
+        <div className="certificate-grid" role="list" aria-label="Certificate cards">
+          {certificates.map((certificate) => (
+            <article key={certificate.id} className="certificate-card" role="listitem">
+              <button
+                type="button"
+                className="certificate-card-link"
+                onClick={() => handleOpen(certificate)}
+              >
+                <span className="certificate-card-topline">
+                  <span className="certificate-card-badge">🏅 {buildLevelLabel(certificate)}</span>
+                  <span className="certificate-card-id">ID {certificate.certificate_id}</span>
+                </span>
+                <div className="certificate-card-visual">
+                  <span className="certificate-card-icon">Tap to open</span>
+                  <strong>{buildLevelLabel(certificate)}</strong>
+                </div>
+                <div className="certificate-card-meta">
+                  <span>Issued {formatIssuedAt(certificate.issued_at)}</span>
+                </div>
+              </button>
 
-              return (
-                <button
-                  type="button"
-                  key={certificate.id}
-                  role="listitem"
-                  className={`certificate-slide ${isActive ? 'active' : ''}`}
-                  onClick={() => setSelectedId(certificate.id)}
-                >
-                  <span className="certificate-slide-level">{buildLevelLabel(certificate)}</span>
-                  <div className="certificate-slide-visual">
-                    <span className="certificate-slide-icon">🏅</span>
-                    <span className="certificate-slide-label">Tap to expand</span>
-                  </div>
-                  <div className="certificate-slide-meta">
-                    <strong>{certificate.title || certificate.level || 'Course certificate'}</strong>
-                    <span>{formatIssuedAt(certificate.issued_at)}</span>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-
-          <section className="certificate-viewer-card">
-            <div className="certificate-viewer-header">
-              <div>
-                <p className="certificates-kicker">Selected certificate</p>
-                <h2>{selectedCertificate?.title || selectedCertificate?.level || 'Certificate'}</h2>
-              </div>
-
-              <div className="certificate-actions">
-                {pdfUrl && (
-                  <a className="certificate-button primary" href={pdfUrl} download>
-                    Download PDF
-                  </a>
-                )}
-                {pdfUrl && (
-                  <a className="certificate-button" href={pdfUrl} target="_blank" rel="noreferrer">
-                    Open in new tab
-                  </a>
-                )}
-              </div>
-            </div>
-
-            <div className="certificate-preview-shell">
-              {pdfLoading ? (
-                <div className="certificate-preview-state">Loading PDF preview…</div>
-              ) : pdfUrl ? (
-                <iframe
-                  className="certificate-preview"
-                  src={pdfUrl}
-                  title="Certificate PDF preview"
-                />
-              ) : (
-                <div className="certificate-preview-state">Preview unavailable.</div>
-              )}
-            </div>
-
-            <div className="certificate-footer-bar">
-              <div>
-                <span className="certificate-footer-label">Level</span>
-                <strong>{buildLevelLabel(selectedCertificate)}</strong>
-              </div>
-              <div>
-                <span className="certificate-footer-label">Issued</span>
-                <strong>{formatIssuedAt(selectedCertificate?.issued_at)}</strong>
-              </div>
-              <div>
-                <span className="certificate-footer-label">Certificate ID</span>
-                <strong>{selectedCertificate?.id ?? '—'}</strong>
-              </div>
-            </div>
-          </section>
-        </>
+              <button
+                type="button"
+                className="certificate-card-download certificate-card-download--bottom"
+                onClick={() => handleDownload(certificate)}
+                disabled={downloadingId === certificate.id}
+              >
+                {downloadingId === certificate.id ? 'Downloading…' : 'Download PDF'}
+              </button>
+            </article>
+          ))}
+        </div>
       )}
     </div>
   )
