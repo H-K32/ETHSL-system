@@ -4,6 +4,7 @@ import "../styles/table.css";
 
 // ---------------- EMPTY QUESTION ----------------
 const createEmptyQuestion = () => ({
+  question_type: "text",
   question_text: "",
   points: 1,
   options: [
@@ -11,7 +12,6 @@ const createEmptyQuestion = () => ({
     { option_text: "", is_correct: false },
   ],
 });
-
 // ---------------- EMPTY FORM ----------------
 const emptyForm = {
   quiz_type: "lesson",
@@ -162,34 +162,25 @@ const ManageQuizzes = () => {
     });
   };
 
-  const updateOption = (qIndex, oIndex, field, value) => {
-    const updated = form.questions.map((q, i) => {
-      if (i !== qIndex) return q;
+const updateOption = (qIndex, oIndex, field, value) => {
+  const updated = form.questions.map((q, i) => {
+    if (i !== qIndex) return q;
 
-      return {
-        ...q,
+    return {
+      ...q,
+      options: q.options.map((o, j) => {
+        if (j !== oIndex) return o;
 
-        options: q.options.map((o, j) => ({
+        return {
           ...o,
+          [field]: value,
+        };
+      }),
+    };
+  });
 
-          option_text:
-            field === "option_text" && j === oIndex
-              ? value
-              : o.option_text,
-
-          is_correct:
-            field === "is_correct"
-              ? j === oIndex
-              : o.is_correct,
-        })),
-      };
-    });
-
-    setForm({
-      ...form,
-      questions: updated,
-    });
-  };
+  setForm({ ...form, questions: updated });
+};
 
   // ================= SUBMIT =================
   const handleSubmit = async (e) => {
@@ -440,119 +431,191 @@ const ManageQuizzes = () => {
             required
           />
 
-          {/* QUESTIONS */}
-          <h3>Questions</h3>
+{/* QUESTIONS */}
+<h3>Questions</h3>
 
-          {form.questions.map((q, qIndex) => (
-            <div
-              key={qIndex}
-              style={{
-                border: "1px solid #ccc",
-                padding: 10,
-                marginBottom: 10,
-              }}
-            >
-              {/* QUESTION */}
-              <input
-                type="text"
-                placeholder="Question"
-                value={q.question_text}
-                onChange={(e) =>
-                  updateQuestion(
-                    qIndex,
-                    "question_text",
-                    e.target.value
-                  )
-                }
-              />
+{form.questions.map((q, qIndex) => (
+  <div
+    key={qIndex}
+    style={{
+      border: "1px solid #ccc",
+      padding: 10,
+      marginBottom: 10,
+    }}
+  >
+    {/* ================= QUESTION ================= */}
+    <input
+      type="text"
+      placeholder="Question"
+      value={q.question_text}
+      onChange={(e) =>
+        updateQuestion(qIndex, "question_text", e.target.value)
+      }
+    />
 
-              {/* POINTS */}
-              <input
-                type="number"
-                placeholder="Points"
-                value={q.points}
-                onChange={(e) =>
-                  updateQuestion(
-                    qIndex,
-                    "points",
-                    e.target.value
-                  )
-                }
-              />
+    {/* POINTS */}
+    <input
+      type="number"
+      placeholder="Points"
+      value={q.points}
+      onChange={(e) =>
+        updateQuestion(qIndex, "points", e.target.value)
+      }
+    />
 
-              {/* ADD OPTION */}
-              <button
-                type="button"
-                onClick={() => addOption(qIndex)}
-              >
-                + Add Option
-              </button>
+    {/* ================= ADD OPTION ================= */}
+    <button
+      type="button"
+      onClick={() => addOption(qIndex)}
+    >
+      + Add Option
+    </button>
 
-              {/* OPTIONS */}
-              {q.options.map((o, oIndex) => (
-                <div
-                  key={oIndex}
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    marginTop: 10,
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Option"
-                    value={o.option_text}
-                    onChange={(e) =>
-                      updateOption(
-                        qIndex,
-                        oIndex,
-                        "option_text",
-                        e.target.value
-                      )
-                    }
-                  />
+    {/* ================= OPTIONS ================= */}
+    {q.options.map((o, oIndex) => (
+      <div
+        key={oIndex}
+        style={{
+          display: "flex",
+          gap: 10,
+          marginTop: 10,
+          alignItems: "center",
+        }}
+      >
+        {/* OPTION TYPE SELECT */}
+        <select
+          value={o.option_type || "text"}
+          onChange={(e) => {
+            const type = e.target.value;
 
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={o.is_correct}
-                      onChange={(e) =>
-                        updateOption(
-                          qIndex,
-                          oIndex,
-                          "is_correct",
-                          e.target.checked
-                        )
-                      }
-                    />
+            updateOption(qIndex, oIndex, "option_type", type);
 
-                    Correct
-                  </label>
-                </div>
-              ))}
-            </div>
-          ))}
+            // RESET OLD DATA
+            if (type === "text") {
+              updateOption(qIndex, oIndex, "option_image", null);
+              updateOption(qIndex, oIndex, "option_video", null);
+            }
 
-          {/* ADD QUESTION */}
-          <button
-            type="button"
-            onClick={addQuestion}
-          >
-            + Add Question
-          </button>
+            if (type === "image") {
+              updateOption(qIndex, oIndex, "option_text", "");
+              updateOption(qIndex, oIndex, "option_video", null);
+            }
 
-          {/* SAVE */}
-          <button type="submit">
-            Save Quiz
-          </button>
+            if (type === "video") {
+              updateOption(qIndex, oIndex, "option_text", "");
+              updateOption(qIndex, oIndex, "option_image", null);
+            }
+          }}
+        >
+          <option value="text">Text</option>
+          <option value="image">Image</option>
+          <option value="video">Video</option>
+        </select>
 
-          {/* CANCEL */}
-          <button
-            type="button"
-            onClick={() => setMode("list")}
-          >
-            Cancel
-          </button>
+        {/* ================= TEXT OPTION ================= */}
+        {(!o.option_type || o.option_type === "text") && (
+          <input
+            type="text"
+            placeholder="Option text"
+            value={o.option_text}
+            onChange={(e) =>
+              updateOption(
+                qIndex,
+                oIndex,
+                "option_text",
+                e.target.value
+              )
+            }
+          />
+        )}
+
+        {/* ================= IMAGE OPTION ================= */}
+        {o.option_type === "image" && (
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              updateOption(
+                qIndex,
+                oIndex,
+                "option_image",
+                e.target.files[0]
+              )
+            }
+          />
+        )}
+
+        {/* ================= VIDEO OPTION ================= */}
+        {o.option_type === "video" && (
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) =>
+              updateOption(
+                qIndex,
+                oIndex,
+                "option_video",
+                e.target.files[0]
+              )
+            }
+          />
+        )}
+
+        {/* ================= CORRECT ================= */}
+        <label>
+          <input
+            type="checkbox"
+            checked={o.is_correct}
+            onChange={(e) =>
+              updateOption(
+                qIndex,
+                oIndex,
+                "is_correct",
+                e.target.checked
+              )
+            }
+          />
+          Correct
+        </label>
+      </div>
+    ))}
+
+    {/* ================= DELETE QUESTION ================= */}
+    <button
+      type="button"
+      onClick={() => {
+        const updated = form.questions.filter(
+          (_, i) => i !== qIndex
+        );
+        setForm({ ...form, questions: updated });
+      }}
+      style={{
+        marginTop: 10,
+        color: "red",
+      }}
+    >
+      Delete Question
+    </button>
+  </div>
+))}
+
+{/* ================= ADD QUESTION ================= */}
+<button type="button" onClick={addQuestion}>
+  + Add Question
+</button>
+
+{/* ================= SAVE ================= */}
+<button type="submit">
+  Save Quiz
+</button>
+
+{/* ================= CANCEL ================= */}
+<button
+  type="button"
+  onClick={() => setMode("list")}
+>
+  Cancel
+</button>
         </form>
       )}
     </>
