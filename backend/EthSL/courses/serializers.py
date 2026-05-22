@@ -20,6 +20,19 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 class LessonWriteSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Lesson
+        fields = [
+            "id",
+            "course",
+            "title",
+            "description",
+            "video",
+            "order",
+            "duration",
+            "thumbnail",
+        ]
     class Meta:
         model = Lesson
         fields = "__all__"
