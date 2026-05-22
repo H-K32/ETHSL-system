@@ -508,17 +508,22 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 290px));
   gap: 1rem;
   justify-content: start;
+  align-items: stretch;
 }
 
 .certificate-card {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+  height: 100%;
 }
 
 .certificate-card-link {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   width: 100%;
+  min-height: 340px;
   text-decoration: none;
   border: 1px solid #e2e8f0;
   border-radius: 1.25rem;
@@ -529,6 +534,7 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .certificate-card-link:hover {
@@ -543,6 +549,7 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.85rem;
+  min-height: 2rem;
 }
 
 .certificate-card-badge {
@@ -564,10 +571,12 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .certificate-card-visual {
   aspect-ratio: 1.55 / 1;
+  min-height: 170px;
   border-radius: 0.9rem;
   background:
     radial-gradient(circle at top left, rgba(255,255,255,0.35), transparent 38%),
@@ -597,6 +606,7 @@
   flex-direction: column;
   gap: 0.25rem;
   margin-top: 0.9rem;
+  min-height: 1.5rem;
 }
 
 .certificate-card-meta span {
@@ -632,6 +642,7 @@
 
 .certificate-card-download--bottom {
   width: 100%;
+  min-height: 48px;
 }
 
 .certificate-viewer-header {
