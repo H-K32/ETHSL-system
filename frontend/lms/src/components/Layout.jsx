@@ -1,5 +1,7 @@
+import React, { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { getCertificates } from '../api/lms.js'
 import '../styles/layout.css'
 
 export default function Layout() {
@@ -27,7 +29,22 @@ export default function Layout() {
     { title: 'Scored 90% on Quiz', date: 'Yesterday' },
     { title: 'Started Level 2', date: '3 days ago' },
   ]
+// Certificates state
+  const [certificates, setCertificates] = useState([])
 
+  useEffect(() => {
+    if (!user) return
+    let mounted = true
+    getCertificates()
+      .then((data) => {
+        if (mounted) setCertificates(data)
+      })
+      .catch((err) => console.error('Failed loading certificates', err))
+    return () => {
+      mounted = false
+    }
+  }, [user])
+//end of certificates state
   return (
     <div className="layout-container">
       {/* Sidebar - Always show when logged in */}
@@ -151,7 +168,30 @@ export default function Layout() {
                   ))}
                 </div>
               </div>
-
+              {/* Certificates */}
+              <div className="dashboard-card certificate-section">
+                <div className="card-header">
+                  <h3>Certificates</h3>
+                  <Link to="/certificates" className="view-all">View All →</Link>
+                </div>
+                <div className="certificates-list">
+                  {certificates.length === 0 ? (
+                    <div className="certificate-item">
+                      <div className="certificate-title">No certificates yet</div>
+                      <div className="certificate-meta">Earn certificates by completing courses.</div>
+                    </div>
+                  ) : (
+                    certificates.map((cert) => (
+                      <div key={cert.id} className="certificate-item">
+                        <div className="certificate-title">{cert.level || cert.title || 'Certificate'}</div>
+                        <div className="certificate-meta">Issued: {new Date(cert.issued_at).toLocaleDateString()}</div>
+                        <Link to={`/certificates/${cert.id}`} className="btn-small">View Certificate</Link>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+              
               {/* Quick Actions */}
               <div className="quick-actions">
                 <h3 className="quick-title">Quick Actions</h3>

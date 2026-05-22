@@ -15,6 +15,7 @@ import Notifications from './pages/Notifications.jsx'
 import NotFound from './pages/NotFound.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Layout from './components/Layout.jsx'
+import Certificates from './pages/learner/Certificates.jsx'
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/lesson/:id" element={<LessonDetail />} />
           <Route path="/quiz/:id" element={<Quiz />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/certificates" element={<Certificates />} />
         </Route>
 
         {/* 404 Route */}

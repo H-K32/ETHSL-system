@@ -18,6 +18,10 @@ export const getQuiz = (quizId) =>
 export const getProfile = () =>
   api.get('/users/profile/').then((r) => r.data)
 
+//certificates
+export const getCertificates = () =>
+  api.get('/certificates/my-certificates/').then((r) => r.data)
+
 export const completeLesson = async () => ({ success: true })
 
 export const getPlacementQuiz = async () => ([])
