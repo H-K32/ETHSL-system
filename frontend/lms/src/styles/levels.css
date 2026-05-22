@@ -1,8 +1,8 @@
 /* ============================================
-   LEVELS PAGE - BEAUTIFUL MODERN DESIGN (FIXED)
+   LEVELS PAGE - UNIFORM CARDS & MODERN DESIGN
    ============================================ */
 
-/* Main container - elegant gradient background */
+/* Main container */
 .max-w-5xl.mx-auto.px-4.py-10 {
   background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
   min-height: 100vh;
@@ -61,7 +61,7 @@ h1.text-2xl.font-bold::after {
   transform-origin: left;
 }
 
-/* Subtitle - NO LOCK SIGN */
+/* Subtitle */
 p.text-sm.text-slate-500.mt-1 {
   color: #475569 !important;
   font-size: 1rem !important;
@@ -69,34 +69,43 @@ p.text-sm.text-slate-500.mt-1 {
   margin-bottom: 0 !important;
 }
 
-/* Remove any pseudo-element that might add lock */
-p.text-sm.text-slate-500.mt-1::before,
-p.text-sm.text-slate-500.mt-1::after {
-  display: none !important;
-  content: none !important;
-}
-
-/* Grid container */
+/* Grid container - FIXED for uniform cards */
 .mt-6.grid {
   margin-top: 2rem !important;
   gap: 1.5rem !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
 }
 
-/* Card styles - ALL CARDS SAME HEIGHT */
+/* Card wrapper - ensures all cards are equal */
+.mt-6.grid > * {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.mt-6.grid > * > a,
+.mt-6.grid > * > div {
+  width: 100%;
+  display: flex;
+}
+
+/* Card styles - UNIFORM SIZE */
 .rounded-xl.border.p-5 {
   border-radius: 1rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 180px;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  min-height: 220px !important;
+  height: 100% !important;
 }
 
-/* Unlocked cards - Glass effect */
+/* Unlocked cards */
 .bg-white.border-slate-200 {
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -130,23 +139,23 @@ p.text-sm.text-slate-500.mt-1::after {
 
 /* Locked cards */
 .bg-slate-50.border-slate-200.opacity-70 {
-  background: rgba(241, 245, 249, 0.7) !important;
+  background: rgba(241, 245, 249, 0.8) !important;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(203, 213, 225, 0.5) !important;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .bg-slate-50.border-slate-200.opacity-70:hover {
   transform: translateY(-4px);
-  opacity: 0.9;
-  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.1);
+  opacity: 0.95;
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.15);
 }
 
-/* Level badge - Beautiful pill */
+/* Level badge */
 span.text-xs.font-semibold.text-brand-700.bg-brand-50 {
   background: linear-gradient(135deg, #e0e7ff, #c7d2fe) !important;
   color: #4f46e5 !important;
-  padding: 0.35rem 1rem !important;
+  padding: 0.4rem 1rem !important;
   border-radius: 2rem !important;
   font-size: 0.7rem !important;
   font-weight: 700 !important;
@@ -154,14 +163,14 @@ span.text-xs.font-semibold.text-brand-700.bg-brand-50 {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   width: fit-content;
 }
 
-/* Lock badge - FIX: Only one lock sign */
+/* Lock badge */
 span.text-xs.text-slate-500 {
-  background: rgba(0, 0, 0, 0.05);
-  padding: 0.35rem 1rem;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.4rem 1rem;
   border-radius: 2rem;
   font-size: 0.7rem;
   font-weight: 600;
@@ -171,18 +180,13 @@ span.text-xs.text-slate-500 {
   width: fit-content;
 }
 
-/* Remove any duplicate lock that might appear */
 span.text-xs.text-slate-500::before {
   content: '🔒';
   display: inline-block;
+  font-size: 0.65rem;
 }
 
-span.text-xs.text-slate-500::after {
-  display: none !important;
-  content: none !important;
-}
-
-/* Card title */
+/* Card title - ensures consistent height */
 h3.mt-3.font-semibold {
   font-size: 1.25rem !important;
   font-weight: 700 !important;
@@ -190,6 +194,12 @@ h3.mt-3.font-semibold {
   margin-top: 0.75rem;
   margin-bottom: 0.5rem;
   transition: color 0.3s ease;
+  line-height: 1.4;
+  min-height: 3.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Unlocked card title hover */
@@ -200,15 +210,30 @@ h3.mt-3.font-semibold {
   color: transparent;
 }
 
-/* Description text */
+/* Description text - ensures consistent height */
 p.text-sm.text-slate-600.mt-1 {
   color: #64748b !important;
   font-size: 0.875rem;
-  line-height: 1.6;
+  line-height: 1.5;
   margin-top: 0.5rem;
+  margin-bottom: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
 }
 
-/* Icon decoration for unlocked cards */
+/* Badge container - flex to keep badges at top */
+.rounded-xl.border.p-5 > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Sparkle icon on unlocked cards */
 .bg-white.border-slate-200 {
   position: relative;
 }
@@ -225,12 +250,26 @@ p.text-sm.text-slate-600.mt-1 {
 }
 
 .bg-white.border-slate-200:hover::after {
-  opacity: 0.15;
+  opacity: 0.2;
 }
 
-/* Animation for cards - subtle fade only */
+/* Locked card overlay effect */
+.bg-slate-50.border-slate-200.opacity-70 {
+  position: relative;
+}
+
+.bg-slate-50.border-slate-200.opacity-70::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.02), rgba(0,0,0,0.05));
+  pointer-events: none;
+  border-radius: 1rem;
+}
+
+/* Card animations */
 .rounded-xl.border.p-5 {
-  animation: fadeInScale 0.4s ease-out backwards;
+  animation: fadeInUp 0.5s ease-out backwards;
 }
 
 .rounded-xl.border.p-5:nth-child(1) { animation-delay: 0.05s; }
@@ -240,50 +279,50 @@ p.text-sm.text-slate-600.mt-1 {
 .rounded-xl.border.p-5:nth-child(5) { animation-delay: 0.25s; }
 .rounded-xl.border.p-5:nth-child(6) { animation-delay: 0.3s; }
 
-@keyframes fadeInScale {
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
   }
-}
-
-/* Make all cards equal height in the grid */
-.grid > * {
-  display: flex;
-  align-items: stretch;
-}
-
-.grid > * > a,
-.grid > * > div {
-  width: 100%;
-  display: flex;
 }
 
 /* Link styles */
 a {
   text-decoration: none;
   width: 100%;
-}
-
-a .rounded-xl.border.p-5 {
-  cursor: pointer;
-  width: 100%;
+  display: block;
 }
 
 /* Empty state styling */
-.mt-6 > div {
+.mt-6 > div:only-child {
   text-align: center;
   padding: 3rem;
   background: white;
   border-radius: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  width: 100%;
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
 }
 
 /* Responsive design */
+@media (max-width: 1024px) {
+  .mt-6.grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 1.25rem !important;
+  }
+}
+
 @media (max-width: 768px) {
   .max-w-5xl.mx-auto.px-4.py-10 {
     padding: 1.5rem;
@@ -294,15 +333,36 @@ a .rounded-xl.border.p-5 {
   }
   
   .mt-6.grid {
+    grid-template-columns: 1fr !important;
     gap: 1rem !important;
   }
   
   h3.mt-3.font-semibold {
     font-size: 1rem !important;
+    min-height: 2.8rem;
   }
   
   .bg-white.border-slate-200:hover {
     transform: translateY(-4px);
+  }
+  
+  .rounded-xl.border.p-5 {
+    min-height: 200px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .rounded-xl.border.p-5 {
+    padding: 1rem !important;
+    min-height: 180px !important;
+  }
+  
+  h3.mt-3.font-semibold {
+    font-size: 0.95rem !important;
+  }
+  
+  p.text-sm.text-slate-600.mt-1 {
+    font-size: 0.75rem !important;
   }
 }
 
@@ -323,4 +383,10 @@ a .rounded-xl.border.p-5 {
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #4338ca, #6d28d9);
+}
+
+/* Add level number badge styling */
+.level-number {
+  font-weight: 700;
+  font-size: 0.8rem;
 }

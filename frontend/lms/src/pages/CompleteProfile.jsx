@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useEffect } from 'react'
 import '../styles/layout.css'
 
 export default function Layout() {
@@ -10,9 +11,20 @@ export default function Layout() {
   const navLinkClass = ({ isActive }) =>
     `nav-link ${isActive ? 'nav-link-active' : 'nav-link-inactive'}`
 
+  // Check if user needs to take placement test
+  useEffect(() => {
+    if (user && user.placement_required && user.level !== 'beginner') {
+      // Only redirect if not already on placement page
+      if (location.pathname !== '/placement') {
+        navigate('/placement')
+      }
+    }
+  }, [user, location.pathname, navigate])
+
   // Check if current page is auth pages (no sidebar for login/register)
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register'
-  const showSidebar = user && !isAuthPage
+  const isPlacementPage = location.pathname === '/placement'
+  const showSidebar = user && !isAuthPage && !isPlacementPage
 
   // Dashboard stats
   const stats = [
@@ -30,27 +42,34 @@ export default function Layout() {
 
   return (
     <div className="layout-container">
-      {/* Sidebar - Always show when logged in */}
+      {/* Sidebar - Only show when logged in and NOT on auth or placement pages */}
       {showSidebar && (
         <aside className="sidebar">
           <div className="sidebar-content">
             {/* Logo */}
-            <Link to="/dashboard" className="logo">
+            <Link to="/" className="logo">
               <div className="logo-icon">
                 <span>E</span>
               </div>
               <span className="logo-text">ETHSL LMS</span>
             </Link>
 
-            {/* Navigation - Placement REMOVED */}
+            {/* Navigation */}
             <nav className="nav-menu">
-              <NavLink to="/dashboard" className={navLinkClass}>
+              <NavLink to="/" className={navLinkClass}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
                 <span>Dashboard</span>
               </NavLink>
               
+              <NavLink to="/placement" className={navLinkClass}>
+                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Placement</span>
+              </NavLink>
+
               <NavLink to="/levels" className={navLinkClass}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -104,8 +123,8 @@ export default function Layout() {
       {/* Main Content */}
       <div className={`main-wrapper ${!showSidebar ? 'full-width' : ''}`}>
         <main className="main-content">
-          {/* Dashboard Content - Main view when at /dashboard */}
-          {location.pathname === '/dashboard' && (
+          {/* Dashboard Content - Shown at Home page when user is logged in */}
+          {location.pathname === '/' && user && !showSidebar ? (
             <div className="dashboard-container">
               {/* Welcome Section */}
               <div className="welcome-section">
@@ -171,14 +190,13 @@ export default function Layout() {
                 </div>
               </div>
             </div>
+          ) : (
+            <Outlet />
           )}
-          
-          {/* Other routes will render here */}
-          {location.pathname !== '/dashboard' && <Outlet />}
         </main>
         
         {/* Footer - Hide on auth pages */}
-        {!isAuthPage && (
+        {!isAuthPage && !isPlacementPage && (
           <footer className="footer">
             <p>© {new Date().getFullYear()} ETHSL Learner LMS. All rights reserved.</p>
           </footer>

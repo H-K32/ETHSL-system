@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-
+import '../styles/login.css'
 export default function Login() {
   const { login } = useAuth()
   const nav = useNavigate()

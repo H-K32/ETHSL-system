@@ -4,7 +4,7 @@ import { getLevels } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import EmptyState from '../components/EmptyState.jsx'
-
+import '../styles/levels.css'
 export default function Levels() {
   const { data, loading, error, reload } = useAsync(getLevels, [])
   if (loading) return <Spinner />
