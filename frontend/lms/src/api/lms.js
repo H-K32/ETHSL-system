@@ -21,6 +21,11 @@ export const getProfile = () =>
 //certificates
 export const getCertificates = () =>
   api.get('/certificates/my-certificates/').then((r) => r.data)
+//certificate pdf download
+export const getCertificatePdf = (certificateId) =>
+  api
+    .get(`/certificates/download/${certificateId}/`, { responseType: 'blob' })
+    .then((r) => r.data)
 
 export const completeLesson = async () => ({ success: true })
 
