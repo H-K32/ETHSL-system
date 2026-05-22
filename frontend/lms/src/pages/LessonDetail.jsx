@@ -4,21 +4,31 @@ import useAsync from '../utils/useAsync.js'
 import { getLesson, completeLesson } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
+import '../styles/lessondetail.css'
 
 function YouTubeOrVideo({ url }) {
   if (!url) return null
   const yt = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([\w-]+)/)
   if (yt) {
     return (
-      <div className="aspect-video rounded-xl overflow-hidden bg-black">
-        <iframe className="w-full h-full" src={`https://www.youtube.com/embed/${yt[1]}`} allowFullScreen title="lesson" />
+      <div className="video-container">
+        <iframe 
+          src={`https://www.youtube.com/embed/${yt[1]}`} 
+          allowFullScreen 
+          title="lesson"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        />
       </div>
     )
   }
   return (
-    <video controls className="w-full rounded-xl bg-black">
-      <source src={url} />
-    </video>
+    <div className="video-container">
+      <video controls controlsList="nodownload">
+        <source src={url} />
+        Your browser does not support the video tag.
+      </video>
+    </div>
   )
 }
 
@@ -30,44 +40,76 @@ export default function LessonDetail() {
   const [done, setDone] = useState(false)
 
   if (loading) return <Spinner />
-  if (error) return <div className="max-w-4xl mx-auto px-4 py-10"><ErrorState error={error} onRetry={reload} /></div>
+  if (error) return <div className="lesson-detail-container"><ErrorState error={error} onRetry={reload} /></div>
 
   const onComplete = async () => {
     setCompleting(true)
-    try { await completeLesson(id); setDone(true) }
-    catch (e) { alert(e?.response?.data?.detail || 'Could not mark as complete') }
-    finally { setCompleting(false) }
+    try { 
+      await completeLesson(id)
+      setDone(true)
+      // Show success message
+      alert('Lesson completed! You can now proceed to the quiz if available.')
+    } catch (e) { 
+      alert(e?.response?.data?.detail || 'Could not mark as complete') 
+    } finally { 
+      setCompleting(false) 
+    }
   }
 
   const completed = done || lesson?.completed || lesson?.is_completed
-  const quizId = lesson?.quiz?.id || lesson?.quiz_id
+  const videoUrl = lesson?.video_url || lesson?.video
+  const quizData = lesson?.quiz
+  const quizId = quizData?.id || lesson?.quiz_id
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link to={-1} className="text-sm text-slate-500 hover:text-brand-600">← Back</Link>
-      <h1 className="mt-2 text-2xl font-bold text-slate-900">{lesson?.title}</h1>
-      <div className="mt-4">
-        <YouTubeOrVideo url={lesson?.video_url} />
-      </div>
+    <div className="lesson-detail-container">
+      <Link to="#" onClick={() => nav(-1)} className="back-link">
+        ← Back to Lessons
+      </Link>
+      <h1 className="lesson-title">{lesson?.title}</h1>
+      
+      <YouTubeOrVideo url={videoUrl} />
+      
       {lesson?.description && (
-        <div className="mt-6 prose prose-slate max-w-none whitespace-pre-wrap text-slate-700">
-          {lesson.description}
+        <div className="lesson-description">
+          <p>{lesson.description}</p>
         </div>
       )}
-      <div className="mt-8 flex flex-wrap gap-3">
-        <button
-          disabled={completing || completed}
-          onClick={onComplete}
-          className={`px-4 py-2 rounded-lg font-medium ${
-            completed ? 'bg-emerald-100 text-emerald-700' : 'bg-brand-600 text-white hover:bg-brand-700'
-          } disabled:opacity-70`}
-        >
-          {completed ? '✓ Completed' : completing ? 'Saving…' : 'Mark as complete'}
-        </button>
-        {quizId && (
-          <button onClick={() => nav(`/quiz/${quizId}`)} className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50">
-            Take quiz →
+      
+      <div className="lesson-actions">
+        {/* Mark Complete button - only show if not completed */}
+        {!completed && (
+          <button
+            disabled={completing}
+            onClick={onComplete}
+            className="btn-complete"
+          >
+            {completing ? 'Saving…' : '✓ Mark as complete'}
           </button>
+        )}
+        
+        {/* Show Quiz button after lesson is completed */}
+        {completed && quizId && (
+          <button 
+            onClick={() => nav(`/quiz/${quizId}`)} 
+            className="btn-quiz"
+          >
+            📝 Take Quiz →
+          </button>
+        )}
+        
+        {/* Show message if completed but no quiz */}
+        {completed && !quizId && (
+          <div className="completed-message">
+            ✓ Lesson completed! No quiz for this lesson.
+          </div>
+        )}
+        
+        {/* Show message if not completed but quiz exists */}
+        {!completed && quizId && (
+          <div className="quiz-warning">
+            ⚠️ Complete the lesson first to unlock the quiz
+          </div>
         )}
       </div>
     </div>

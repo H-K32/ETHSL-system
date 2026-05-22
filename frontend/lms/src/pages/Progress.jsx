@@ -17,82 +17,6 @@ export default function Progress() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Course progress data based on user level
-  const getCourseProgress = () => {
-    const userLevel = progress.current_level || 'beginner'
-    
-    if (userLevel === 'beginner') {
-      return [
-        { name: 'Level 1: Beginner', progress: 65, lessons: 10, completed: 8, score: 78 },
-        { name: 'Level 2: Intermediate', progress: 0, lessons: 12, completed: 0, score: 0 },
-        { name: 'Level 3: Advanced', progress: 0, lessons: 15, completed: 0, score: 0 },
-      ]
-    } else if (userLevel === 'intermediate') {
-      return [
-        { name: 'Level 1: Beginner', progress: 100, lessons: 10, completed: 10, score: 92 },
-        { name: 'Level 2: Intermediate', progress: 65, lessons: 12, completed: 8, score: 78 },
-        { name: 'Level 3: Advanced', progress: 0, lessons: 15, completed: 0, score: 0 },
-      ]
-    } else {
-      return [
-        { name: 'Level 1: Beginner', progress: 100, lessons: 10, completed: 10, score: 92 },
-        { name: 'Level 2: Intermediate', progress: 100, lessons: 12, completed: 12, score: 88 },
-        { name: 'Level 3: Advanced', progress: 45, lessons: 15, completed: 7, score: 75 },
-      ]
-    }
-  }
-
-  const courseProgress = getCourseProgress()
-
-  const achievements = [
-    { 
-      name: 'First Blood', 
-      description: 'Complete your first lesson', 
-      earned: progress.completed_lessons >= 1, 
-      icon: '🎯' 
-    },
-    { 
-      name: 'Fast Learner', 
-      description: 'Complete 5 lessons', 
-      earned: progress.completed_lessons >= 5, 
-      icon: '⚡' 
-    },
-    { 
-      name: 'Quiz Starter', 
-      description: 'Take your first quiz', 
-      earned: progress.total_quiz_attempts >= 1, 
-      icon: '📝' 
-    },
-    { 
-      name: 'Quiz Master', 
-      description: 'Pass 3 quizzes', 
-      earned: progress.quizzes_passed >= 3, 
-      icon: '🏆' 
-    },
-    { 
-      name: 'Streak Master', 
-      description: 'Maintain a 7-day learning streak', 
-      earned: progress.streak_count >= 7, 
-      icon: '🔥' 
-    },
-    { 
-      name: 'Level Up!', 
-      description: 'Advance to the next level', 
-      earned: progress.current_level !== 'beginner', 
-      icon: '⭐' 
-    },
-  ]
-
-  const weeklyActivity = [
-    { day: 'Mon', completed: Math.floor(Math.random() * 3), total: 3 },
-    { day: 'Tue', completed: Math.floor(Math.random() * 3), total: 3 },
-    { day: 'Wed', completed: Math.floor(Math.random() * 3), total: 3 },
-    { day: 'Thu', completed: Math.floor(Math.random() * 3), total: 3 },
-    { day: 'Fri', completed: Math.floor(Math.random() * 3), total: 3 },
-    { day: 'Sat', completed: Math.floor(Math.random() * 2), total: 2 },
-    { day: 'Sun', completed: Math.floor(Math.random() * 2), total: 2 },
-  ]
-
   useEffect(() => {
     fetchProgress()
   }, [])
@@ -102,8 +26,11 @@ export default function Progress() {
       setLoading(true)
       setError(null)
       
-      // Use the correct endpoint from your urls.py
-      const response = await api.get('/profile/dashboard/')
+      // ✅ CORRECT ENDPOINT - matches your URL structure
+      // Main urls.py: path('api/progress/', include('progress.urls'))
+      // Progress urls.py: path("profile/dashboard/", UserProgressDashboardView.as_view())
+      // Full URL: /api/progress/profile/dashboard/
+      const response = await api.get('/progress/profile/dashboard/')
       
       // Get user level info from the authenticated user
       const userLevel = user?.level || 'beginner'
@@ -122,28 +49,27 @@ export default function Progress() {
     } catch (err) {
       console.error('Error fetching progress:', err)
       
-      // Use user data from auth context as fallback
+      // Fallback to user data from auth context
       if (user) {
         const userLevel = user?.level || 'beginner'
         const userStreak = user?.streak_count || 0
         
-        // Estimate progress based on user level
         let completedLessons = 0
         let quizzesPassed = 0
         let totalAttempts = 0
         
         if (userLevel === 'beginner') {
-          completedLessons = 8
-          quizzesPassed = 2
-          totalAttempts = 3
+          completedLessons = 0
+          quizzesPassed = 0
+          totalAttempts = 0
         } else if (userLevel === 'intermediate') {
-          completedLessons = 18
-          quizzesPassed = 5
-          totalAttempts = 7
+          completedLessons = 0
+          quizzesPassed = 0
+          totalAttempts = 0
         } else if (userLevel === 'advanced') {
-          completedLessons = 25
-          quizzesPassed = 8
-          totalAttempts = 12
+          completedLessons = 0
+          quizzesPassed = 0
+          totalAttempts = 0
         }
         
         setProgress({
@@ -163,9 +89,6 @@ export default function Progress() {
     }
   }
 
-  const totalLessons = courseProgress.reduce((acc, c) => acc + c.completed, 0)
-  const avgScore = courseProgress.filter(c => c.score > 0).reduce((acc, c, _, arr) => acc + c.score / arr.length, 0)
-  
   const getLevelDisplay = (level) => {
     const levels = {
       'beginner': 'Beginner (ጀማሪ)',
@@ -184,7 +107,7 @@ export default function Progress() {
     )
   }
 
-  if (error && !user) {
+  if (error) {
     return (
       <div className="progress-error">
         <p>{error}</p>
@@ -237,7 +160,7 @@ export default function Progress() {
         <div className="stat-card-large">
           <div className="stat-card-icon">📚</div>
           <div className="stat-card-info">
-            <p className="stat-card-value">{courseProgress.filter(c => c.progress === 100).length}/{courseProgress.length}</p>
+            <p className="stat-card-value">0/0</p>
             <p className="stat-card-label">Courses Completed</p>
           </div>
         </div>
@@ -251,7 +174,7 @@ export default function Progress() {
         <div className="stat-card-large">
           <div className="stat-card-icon">⭐</div>
           <div className="stat-card-info">
-            <p className="stat-card-value">{Math.round(avgScore)}%</p>
+            <p className="stat-card-value">0%</p>
             <p className="stat-card-label">Average Score</p>
           </div>
         </div>
@@ -272,24 +195,9 @@ export default function Progress() {
             <h3>Course Progress</h3>
             <Link to="/levels" className="view-all">Continue Learning →</Link>
           </div>
-          <div className="course-list">
-            {courseProgress.map((course, index) => (
-              <div key={index} className="course-item">
-                <div className="course-info">
-                  <div className="course-name">{course.name}</div>
-                  <div className="course-stats">
-                    <span>{course.completed}/{course.lessons} lessons</span>
-                    <span>Score: {course.score}%</span>
-                  </div>
-                </div>
-                <div className="course-progress">
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${course.progress}%` }}></div>
-                  </div>
-                  <span className="progress-percent">{course.progress}%</span>
-                </div>
-              </div>
-            ))}
+          <div className="empty-state">
+            <p>No courses started yet.</p>
+            <Link to="/levels" className="start-learning-btn">Start Learning</Link>
           </div>
         </div>
 
@@ -299,19 +207,8 @@ export default function Progress() {
             <h3>Weekly Activity</h3>
             <span className="week-info">This week</span>
           </div>
-          <div className="activity-chart">
-            {weeklyActivity.map((day, index) => (
-              <div key={index} className="chart-bar">
-                <div className="bar-container">
-                  <div 
-                    className="bar-fill" 
-                    style={{ height: `${(day.completed / day.total) * 100}%` }}
-                  ></div>
-                </div>
-                <span className="bar-label">{day.day}</span>
-                <span className="bar-value">{day.completed}/{day.total}</span>
-              </div>
-            ))}
+          <div className="empty-state">
+            <p>No activity this week.</p>
           </div>
         </div>
       </div>
@@ -346,23 +243,10 @@ export default function Progress() {
       <div className="achievements-section">
         <div className="card-header">
           <h3>Achievements</h3>
-          <span className="achievements-count">{achievements.filter(a => a.earned).length}/{achievements.length} Unlocked</span>
+          <span className="achievements-count">0/0 Unlocked</span>
         </div>
-        <div className="achievements-grid">
-          {achievements.map((achievement, index) => (
-            <div key={index} className={`achievement-card ${achievement.earned ? 'earned' : 'locked'}`}>
-              <div className="achievement-icon">{achievement.icon}</div>
-              <div className="achievement-info">
-                <p className="achievement-name">{achievement.name}</p>
-                <p className="achievement-desc">{achievement.description}</p>
-              </div>
-              {achievement.earned ? (
-                <span className="achievement-badge-earned">✓ Earned</span>
-              ) : (
-                <span className="achievement-badge-locked">🔒 Locked</span>
-              )}
-            </div>
-          ))}
+        <div className="empty-state">
+          <p>Complete lessons and quizzes to earn achievements!</p>
         </div>
       </div>
 
@@ -370,10 +254,10 @@ export default function Progress() {
       <div className="recommendation-card">
         <div className="recommendation-icon">🎯</div>
         <div className="recommendation-content">
-          <h4>Ready for the next level?</h4>
-          <p>You're making great progress! Based on your performance, keep going to unlock advanced content.</p>
+          <h4>Ready to start learning?</h4>
+          <p>Begin your learning journey by exploring our course levels!</p>
         </div>
-        <Link to="/levels" className="recommendation-btn">Continue Learning →</Link>
+        <Link to="/levels" className="recommendation-btn">Start Learning →</Link>
       </div>
     </div>
   )

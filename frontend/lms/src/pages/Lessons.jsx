@@ -4,46 +4,93 @@ import { getLessons } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import '../styles/lessons.css'
 
 export default function Lessons() {
   const { courseId } = useParams()
   const { data, loading, error, reload } = useAsync(() => getLessons(courseId), [courseId])
+  
   if (loading) return <Spinner />
-  if (error) return <div className="max-w-4xl mx-auto px-4 py-10"><ErrorState error={error} onRetry={reload} /></div>
-  const lessons = (data?.results || data || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  if (error) return <div className="lessons-container"><ErrorState error={error} onRetry={reload} /></div>
+  
+  const lessons = Array.isArray(data) ? data : (data?.results || [])
+  const sortedLessons = [...lessons].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold text-slate-900">Lessons</h1>
-      {lessons.length === 0 ? (
-        <div className="mt-6"><EmptyState title="No lessons in this course yet" /></div>
+    <div className="lessons-container">
+      <div className="lessons-header">
+        <div>
+          <h1 className="lessons-title">Course Lessons</h1>
+          <p className="lessons-subtitle">Complete each lesson and pass the quiz to unlock the next lesson</p>
+        </div>
+        <Link to="#" onClick={() => window.history.back()} className="back-button">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Courses
+        </Link>
+      </div>
+
+      {sortedLessons.length === 0 ? (
+        <EmptyState title="No lessons in this course yet" />
       ) : (
-        <ul className="mt-6 space-y-3">
-          {lessons.map((l, i) => {
-            const locked = l.locked === true || l.is_locked === true
-            const completed = l.completed === true || l.is_completed === true
-            const Row = (
-              <div className={`flex items-center justify-between rounded-xl border p-4 ${
-                locked ? 'bg-slate-50 border-slate-200 opacity-70' :
-                'bg-white border-slate-200 hover:border-brand-500'}`}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 grid place-items-center rounded-full text-sm font-semibold ${
-                    completed ? 'bg-emerald-100 text-emerald-700' : 'bg-brand-50 text-brand-700'
-                  }`}>
-                    {completed ? '✓' : i + 1}
-                  </div>
-                  <div>
-                    <div className="font-medium text-slate-900">{l.title}</div>
-                    {l.description && <div className="text-xs text-slate-500 line-clamp-1">{l.description}</div>}
-                  </div>
-                </div>
-                <div className="text-xs text-slate-500">
-                  {locked ? '🔒 Locked' : completed ? 'Completed' : 'Open'}
-                </div>
-              </div>
-            )
+        <ul className="lessons-list">
+          {sortedLessons.map((lesson, index) => {
+            // Backend sends 'unlocked' based on can_access_lesson()
+            // This checks if previous lesson AND its quiz are completed/passed
+            const locked = lesson.unlocked === false
+            const completed = lesson.completed === true
+            const hasQuiz = lesson.has_quiz === true
+            
             return (
-              <li key={l.id}>
-                {locked ? Row : <Link to={`/lesson/${l.id}`}>{Row}</Link>}
+              <li key={lesson.id} className="lesson-item">
+                {locked ? (
+                  <div className="lesson-card locked">
+                    <div className="lesson-left">
+                      <div className="lesson-number">{index + 1}</div>
+                      <div className="lesson-info">
+                        <div className="lesson-title">{lesson.title}</div>
+                        {lesson.description && (
+                          <div className="lesson-description">{lesson.description}</div>
+                        )}
+                        <div className="lesson-hint">
+                          {index === 0 
+                            ? "🔒 Complete previous lessons and pass quizzes to unlock" 
+                            : "🔒 Complete previous lesson and pass its quiz first"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lesson-status">
+                      <span className="status-badge locked">🔒 Locked</span>
+                    </div>
+                  </div>
+                ) : (
+                  <Link to={`/lesson/${lesson.id}`} className="lesson-card-link">
+                    <div className="lesson-card unlocked">
+                      <div className="lesson-left">
+                        <div className={`lesson-number ${completed ? 'completed' : ''}`}>
+                          {completed ? '✓' : index + 1}
+                        </div>
+                        <div className="lesson-info">
+                          <div className="lesson-title">{lesson.title}</div>
+                          {lesson.description && (
+                            <div className="lesson-description">{lesson.description}</div>
+                          )}
+                          {hasQuiz && !completed && (
+                            <div className="lesson-warning">⚠️ Quiz required after this lesson</div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="lesson-status">
+                        {completed ? (
+                          <span className="status-badge completed">✓ Completed</span>
+                        ) : (
+                          <span className="status-badge open">Start →</span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                )}
               </li>
             )
           })}

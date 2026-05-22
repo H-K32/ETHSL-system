@@ -18,7 +18,9 @@ export const getQuiz = (quizId) =>
 export const getProfile = () =>
   api.get('/users/profile/').then((r) => r.data)
 
-export const completeLesson = async () => ({ success: true })
+export const completeLesson = async () => 
+   api.post(`/progress/complete-lesson/${lessonId}/`).then((r) => r.data)
+
 
 export const getPlacementQuiz = async () => ([])
 

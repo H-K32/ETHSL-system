@@ -2,6 +2,9 @@ import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-do
 import { useAuth } from '../context/AuthContext.jsx'
 import '../styles/layout.css'
 
+
+
+
 export default function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
