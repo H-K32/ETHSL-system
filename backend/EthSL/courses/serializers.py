@@ -20,7 +20,7 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 class LessonWriteSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Lesson
         fields = [
@@ -32,11 +32,7 @@ class LessonWriteSerializer(serializers.ModelSerializer):
             "order",
             "duration",
             "thumbnail",
-        ]
-    class Meta:
-        model = Lesson
-        fields = "__all__"
-        
+        ]  
         
 class LessonReadSerializer(serializers.ModelSerializer):
     is_completed = serializers.SerializerMethodField()

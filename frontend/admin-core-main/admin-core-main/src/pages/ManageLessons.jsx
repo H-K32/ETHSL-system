@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import API from "../api/axiosConfig";
 import "../styles/table.css";
 
+
+
 const emptyForm = {
   title: "",
   description: "",
@@ -19,6 +21,9 @@ const ManageLessons = () => {
   const [mode, setMode] = useState("list"); // list | form
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // ---------------- FETCH DATA ----------------
   const fetchLessons = async () => {
@@ -71,46 +76,47 @@ const ManageLessons = () => {
     fetchLessons();
   };
 
-  // ---------------- SUBMIT ----------------
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const formData = new FormData();
+  setError("");
+  setSuccess("");
 
-    formData.append("title", form.title);
-    formData.append("description", form.description);
-    formData.append("course", form.course);
-    formData.append("order", form.order);
-    formData.append("duration", form.duration);
+  const formData = new FormData();
+  console.log("FORM STATE:", form);
 
-    if (form.video) formData.append("video", form.video);
-    if (form.thumbnail) formData.append("thumbnail", form.thumbnail);
+  formData.append("title", form.title);
+  formData.append("description", form.description);
+  formData.append("course", form.course);
+  formData.append("order", form.order);
+  formData.append("duration", form.duration);
 
-    const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    };
+  if (form.video) formData.append("video", form.video);
+  if (form.thumbnail) formData.append("thumbnail", form.thumbnail);
 
-    try {
-      if (editingId) {
-        // ✅ FIX: PATCH instead of PUT (prevents 400 error)
-        await API.patch(
-          `/courses/lesson/${editingId}/`,
-          formData,
-          config
-        );
-      } else {
-        await API.post("/courses/lesson/", formData, config);
-      }
+  try {
+    console.log("Submitting lesson...", Object.fromEntries(formData));
 
-      setMode("list");
-      fetchLessons();
-    } catch (err) {
-      console.error("Lesson save error:", err.response?.data || err);
+    if (editingId) {
+      await API.patch(`/courses/lesson/${editingId}/`, formData);
+    } else {
+      await API.post("/courses/lesson/", formData);
     }
-  };
 
+    setSuccess("Lesson saved successfully!");
+    setMode("list");
+    fetchLessons();
+
+  } catch (err) {
+    console.log("FULL ERROR:", err);
+
+    setError(
+      err.response?.data
+        ? JSON.stringify(err.response.data)
+        : err.message
+    );
+  }
+};
   // ---------------- UI ----------------
   return (
     <>
@@ -170,6 +176,18 @@ const ManageLessons = () => {
           </div>
         </>
       )}
+
+      {error && (
+  <div style={{ color: "red", marginBottom: 10 }}>
+    ❌ {error}
+  </div>
+)}
+
+{success && (
+  <div style={{ color: "green", marginBottom: 10 }}>
+    ✅ {success}
+  </div>
+)}
 
       {/* ================= FORM ================= */}
       {mode === "form" && (
@@ -255,6 +273,7 @@ const ManageLessons = () => {
 
             <button type="submit" className="btn-add">
               {editingId ? "Update Lesson" : "Create Lesson"}
+               
             </button>
 
             <button
