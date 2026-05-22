@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'courses',
     'progress',
     'community',
+    'certificates',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
