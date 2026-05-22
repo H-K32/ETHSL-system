@@ -443,16 +443,80 @@ const updateOption = (qIndex, oIndex, field, value) => {
       marginBottom: 10,
     }}
   >
-    {/* ================= QUESTION ================= */}
-    <input
-      type="text"
-      placeholder="Question"
-      value={q.question_text}
-      onChange={(e) =>
-        updateQuestion(qIndex, "question_text", e.target.value)
-      }
-    />
+    {/* ================= QUESTION TYPE ================= */}
+    <select
+      value={q.question_type || "text"}
+      onChange={(e) => {
+        const type = e.target.value;
 
+        updateQuestion(qIndex, "question_type", type);
+
+        // reset unused fields
+        if (type === "text") {
+          updateQuestion(qIndex, "question_image", null);
+          updateQuestion(qIndex, "question_video", null);
+        }
+
+        if (type === "image") {
+          updateQuestion(qIndex, "question_text", "");
+          updateQuestion(qIndex, "question_video", null);
+        }
+
+        if (type === "video") {
+          updateQuestion(qIndex, "question_text", "");
+          updateQuestion(qIndex, "question_image", null);
+        }
+      }}
+    >
+      <option value="text">Text Question</option>
+      <option value="image">Image Question</option>
+      <option value="video">Video Question</option>
+    </select>
+
+    {/* ================= QUESTION INPUT ================= */}
+
+    {(!q.question_type || q.question_type === "text") && (
+      <input
+        type="text"
+        placeholder="Question text"
+        value={q.question_text}
+        onChange={(e) =>
+          updateQuestion(
+            qIndex,
+            "question_text",
+            e.target.value
+          )
+        }
+      />
+    )}
+
+    {q.question_type === "image" && (
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) =>
+          updateQuestion(
+            qIndex,
+            "question_image",
+            e.target.files[0]
+          )
+        }
+      />
+    )}
+
+    {q.question_type === "video" && (
+      <input
+        type="file"
+        accept="video/*"
+        onChange={(e) =>
+          updateQuestion(
+            qIndex,
+            "question_video",
+            e.target.files[0]
+          )
+        }
+      />
+    )}
     {/* POINTS */}
     <input
       type="number"
