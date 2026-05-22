@@ -137,46 +137,69 @@ const updateQuestion = (index, field, value) => {
   }));
 };
   // ================= OPTIONS =================
-  const addOption = (qIndex) => {
-    const updated = form.questions.map((q, i) => {
-      if (i !== qIndex) return q;
+ const addOption = (qIndex) => {
+  setForm((prev) => {
+    const updatedQuestions = [...prev.questions];
 
-      return {
-        ...q,
-        options: [
-          ...q.options,
-          {
-            option_text: "",
-            is_correct: false,
-          },
-        ],
-      };
-    });
+    const q = updatedQuestions[qIndex];
 
-    setForm({
-      ...form,
-      questions: updated,
-    });
-  };
+    updatedQuestions[qIndex] = {
+      ...q,
+      options: [
+        ...q.options,
+        {
+          option_type: "text",
+          option_text: "",
+          option_image: null,
+          option_video: null,
+          is_correct: false,
+        },
+      ],
+    };
+
+    return { ...prev, questions: updatedQuestions };
+  });
+};
 
 const updateOption = (qIndex, oIndex, field, value) => {
-  const updated = form.questions.map((q, i) => {
-    if (i !== qIndex) return q;
+  setForm((prev) => {
+    const updatedQuestions = [...prev.questions];
 
-    return {
+    const q = updatedQuestions[qIndex];
+
+    const updatedOptions = q.options.map((o, j) => {
+      if (j !== oIndex) return o;
+
+      let updated = { ...o, [field]: value };
+
+      // HANDLE TYPE SWITCH CLEANLY
+      if (field === "option_type") {
+        if (value === "text") {
+          updated.option_image = null;
+          updated.option_video = null;
+        }
+
+        if (value === "image") {
+          updated.option_text = "";
+          updated.option_video = null;
+        }
+
+        if (value === "video") {
+          updated.option_text = "";
+          updated.option_image = null;
+        }
+      }
+
+      return updated;
+    });
+
+    updatedQuestions[qIndex] = {
       ...q,
-      options: q.options.map((o, j) => {
-        if (j !== oIndex) return o;
-
-        return {
-          ...o,
-          [field]: value,
-        };
-      }),
+      options: updatedOptions,
     };
-  });
 
-  setForm({ ...form, questions: updated });
+    return { ...prev, questions: updatedQuestions };
+  });
 };
 
   // ================= SUBMIT =================
