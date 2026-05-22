@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
@@ -9,6 +9,9 @@ import Lessons from './pages/Lessons.jsx'
 import LessonDetail from './pages/LessonDetail.jsx'
 import Quiz from './pages/Quiz.jsx'
 import Profile from './pages/Profile.jsx'
+import Progress from './pages/Progress.jsx'
+import Community from './pages/Community.jsx'
+import Notifications from './pages/Notifications.jsx'
 import NotFound from './pages/NotFound.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Layout from './components/Layout.jsx'
@@ -17,13 +20,19 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Protected Routes (require authentication) */}
         <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<div />} />
           <Route path="/placement" element={<Placement />} />
           <Route path="/levels" element={<Levels />} />
+          <Route path="/progress" element={<Progress />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/courses/:levelId" element={<Courses />} />
           <Route path="/lessons/:courseId" element={<Lessons />} />
           <Route path="/lesson/:id" element={<LessonDetail />} />
@@ -31,6 +40,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
         </Route>
 
+        {/* 404 Route */}
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

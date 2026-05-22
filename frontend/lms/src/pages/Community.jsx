@@ -17,7 +17,9 @@ export default function Community() {
   const [newComment, setNewComment] = useState('')
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportReason, setReportReason] = useState('')
-  const [reportingUser, setReportingUser] = useState(null)
+  const [reportingUserId, setReportingUserId] = useState(null)
+  const [reportingUsername, setReportingUsername] = useState('')
+  const [reportSubmitting, setReportSubmitting] = useState(false)
 
   useEffect(() => {
     fetchPosts()
@@ -80,7 +82,7 @@ export default function Community() {
       // Update comment count in posts
       setPosts(posts.map(post => 
         post.id === postId 
-          ? { ...post, comments: [...(post.comments || []), response.data] }
+          ? { ...post, replies: (post.replies || 0) + 1 }
           : post
       ))
     } catch (err) {
@@ -89,21 +91,39 @@ export default function Community() {
     }
   }
 
-  const handleReportUser = async (reportedUser) => {
-    if (!reportReason.trim()) return
+  const handleReportUser = async () => {
+    if (!reportReason.trim() || !reportingUserId) return
 
     try {
-      await api.post('/community/report/', {
-        reported_user: reportedUser.id,
+      setReportSubmitting(true)
+      
+      // Match your backend's expected format
+      const reportData = {
+        reported_user: reportingUserId,
         reason: reportReason
-      })
-      alert('User reported successfully')
-      setShowReportModal(false)
-      setReportReason('')
-      setReportingUser(null)
+      }
+      
+      const response = await api.post('/community/report/', reportData)
+      
+      if (response.status === 200 || response.status === 201) {
+        alert('User reported successfully')
+        setShowReportModal(false)
+        setReportReason('')
+        setReportingUserId(null)
+        setReportingUsername('')
+      }
     } catch (err) {
       console.error('Error reporting user:', err)
-      alert('Failed to report user')
+      
+      // Better error message
+      if (err.response?.data) {
+        const errorMsg = Object.values(err.response.data).flat().join(', ')
+        alert(`Failed to report user: ${errorMsg}`)
+      } else {
+        alert('Failed to report user. Please try again.')
+      }
+    } finally {
+      setReportSubmitting(false)
     }
   }
 
@@ -173,19 +193,20 @@ export default function Community() {
               <div className="post-header">
                 <div className="post-author">
                   <div className="author-avatar">
-                    {post.user?.username?.[0]?.toUpperCase() || 'U'}
+                    {post.username?.[0]?.toUpperCase() || post.user?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
                   <div className="author-info">
-                    <span className="author-name">{post.user?.username || 'Anonymous'}</span>
+                    <span className="author-name">{post.username || post.user?.username || 'Anonymous'}</span>
                     <span className="post-date">{formatDate(post.created_at)}</span>
                   </div>
                 </div>
-                {user && user.id !== post.user?.id && (
+                {user && user.id !== post.user && (
                   <button 
                     className="report-btn"
                     onClick={(e) => {
                       e.stopPropagation()
-                      setReportingUser(post.user)
+                      setReportingUserId(post.user)
+                      setReportingUsername(post.username || post.user?.username || 'this user')
                       setShowReportModal(true)
                     }}
                   >
@@ -197,7 +218,7 @@ export default function Community() {
               <p className="post-content">{post.content}</p>
               <div className="post-footer">
                 <div className="post-stats">
-                  <span>💬 {post.comments?.length || 0} comments</span>
+                  <span>💬 {post.replies || post.comments?.length || 0} comments</span>
                 </div>
               </div>
             </div>
@@ -259,10 +280,10 @@ export default function Community() {
             <div className="post-detail">
               <div className="post-author-large">
                 <div className="author-avatar large">
-                  {selectedPost.user?.username?.[0]?.toUpperCase() || 'U'}
+                  {selectedPost.username?.[0]?.toUpperCase() || selectedPost.user?.username?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <div>
-                  <div className="author-name">{selectedPost.user?.username || 'Anonymous'}</div>
+                  <div className="author-name">{selectedPost.username || selectedPost.user?.username || 'Anonymous'}</div>
                   <div className="post-date">{formatDate(selectedPost.created_at)}</div>
                 </div>
               </div>
@@ -277,16 +298,17 @@ export default function Community() {
                     <div className="comment-header">
                       <div className="comment-author">
                         <div className="author-avatar small">
-                          {comment.user?.username?.[0]?.toUpperCase() || 'U'}
+                          {comment.username?.[0]?.toUpperCase() || comment.user?.username?.[0]?.toUpperCase() || 'U'}
                         </div>
-                        <span className="author-name">{comment.user?.username || 'Anonymous'}</span>
+                        <span className="author-name">{comment.username || comment.user?.username || 'Anonymous'}</span>
                         <span className="comment-date">{formatDate(comment.created_at)}</span>
                       </div>
-                      {user && user.id !== comment.user?.id && (
+                      {user && user.id !== comment.user && (
                         <button 
                           className="report-small-btn"
                           onClick={() => {
-                            setReportingUser(comment.user)
+                            setReportingUserId(comment.user)
+                            setReportingUsername(comment.username || comment.user?.username || 'this user')
                             setShowReportModal(true)
                           }}
                         >
@@ -327,7 +349,7 @@ export default function Community() {
               <button className="modal-close" onClick={() => setShowReportModal(false)}>×</button>
             </div>
             <div className="form-group">
-              <label>Reason for reporting {reportingUser?.username}</label>
+              <label>Reason for reporting <strong>{reportingUsername}</strong></label>
               <textarea
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value)}
@@ -337,13 +359,20 @@ export default function Community() {
               />
             </div>
             <div className="modal-footer">
-              <button className="cancel-btn" onClick={() => setShowReportModal(false)}>Cancel</button>
+              <button className="cancel-btn" onClick={() => {
+                setShowReportModal(false)
+                setReportReason('')
+                setReportingUserId(null)
+                setReportingUsername('')
+              }}>
+                Cancel
+              </button>
               <button 
-                className="submit-btn report" 
-                onClick={() => handleReportUser(reportingUser)}
-                disabled={!reportReason.trim()}
+                className={`submit-btn report ${reportSubmitting ? 'disabled' : ''}`} 
+                onClick={handleReportUser}
+                disabled={!reportReason.trim() || reportSubmitting}
               >
-                Submit Report
+                {reportSubmitting ? 'Submitting...' : 'Submit Report'}
               </button>
             </div>
           </div>
