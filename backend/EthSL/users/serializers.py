@@ -64,6 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
             "warning_message",
             "level",
             "placement_required",
+            "is_active",
             
         ]
         read_only_fields = ["username", "role", "streak_count"]

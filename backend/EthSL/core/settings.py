@@ -206,10 +206,13 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:3000",
+
     "https://ethsl-system-jl5a.vercel.app",
     "https://ethsl-system-lv12v44xi-sekina-s-projects.vercel.app",
     "https://ethsl-system.vercel.app",
-    #"https://ethsl-system.vercel.app/login"
+
+    "http://10.4.118.252:8080",
+    "http://localhost:8080",
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
@@ -223,5 +226,7 @@ CORS_ALLOW_HEADERS = [
     "origin",
     "x-requested-with",
 ]
+
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
  

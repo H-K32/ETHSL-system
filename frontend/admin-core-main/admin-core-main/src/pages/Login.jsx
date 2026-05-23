@@ -78,6 +78,13 @@ const Login = () => {
           Sign In
         </button>
       </form>
+      <p
+  onClick={() =>
+    navigate("/admin-forgot-password")
+  }
+>
+  Forgot Password?
+</p>
     </div>
   );
 };

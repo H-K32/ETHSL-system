@@ -15,6 +15,9 @@ const emptyForm = {
 };
 
 const ManageLessons = () => {
+  const [lessonToDelete, setLessonToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [lessons, setLessons] = useState([]);
   const [courses, setCourses] = useState([]);
 
@@ -65,17 +68,30 @@ const ManageLessons = () => {
   };
 
   // ---------------- DELETE ----------------
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this lesson?"
-    );
+const handleDelete = (lesson) => {
+  setLessonToDelete(lesson);
+  setShowDeleteModal(true);
+};
 
-    if (!confirmDelete) return;
+const confirmDelete = async () => {
+  try {
+    await API.delete(`/courses/lesson/${lessonToDelete.id}/`);
 
-    await API.delete(`/courses/lesson/${id}/`);
     fetchLessons();
-  };
 
+    setShowDeleteModal(false);
+    setLessonToDelete(null);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const cancelDelete = () => {
+  setShowDeleteModal(false);
+  setLessonToDelete(null);
+};
+    // ---------------- submit ----------------
  const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -163,7 +179,7 @@ const ManageLessons = () => {
 
                       <button
                         className="btn-action danger"
-                        onClick={() => handleDelete(l.id)}
+                        onClick={() => handleDelete(l)}
                       >
                         Delete
                       </button>
@@ -285,6 +301,69 @@ const ManageLessons = () => {
           </form>
         </div>
       )}
+
+       {/* DELETE MODAL */}
+{showDeleteModal && (
+  <div
+    className="modal-overlay"
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      background: "rgba(0,0,0,0.4)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999,
+    }}
+  >
+    <div
+      className="delete-modal"
+      style={{
+        background: "#fff",
+        padding: "24px",
+        borderRadius: "12px",
+        width: "400px",
+        maxWidth: "90%",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        textAlign: "center",
+      }}
+    >
+      <h3 style={{ marginBottom: "12px" }}>Delete Lesson</h3>
+
+<p style={{ marginBottom: "20px", color: "#555" }}>
+  Are you sure you want to delete lesson{" "}
+  <strong style={{ color: "red" }}>
+    "{lessonToDelete?.title}"
+  </strong>?
+</p>
+      <div
+        className="modal-actions"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "12px",
+        }}
+      >
+        <button
+          className="btn-action"
+          onClick={cancelDelete}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="btn-action danger"
+          onClick={confirmDelete}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 };

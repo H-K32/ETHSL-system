@@ -27,6 +27,12 @@ const emptyForm = {
 };
 
 const ManageQuizzes = () => {
+
+  const [quizToDelete, setQuizToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+
+
   const [quizzes, setQuizzes] = useState([]);
 
   const [lessons, setLessons] = useState([]);
@@ -108,17 +114,31 @@ const ManageQuizzes = () => {
   };
 
   // ================= DELETE =================
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this quiz?"
+const handleDelete = (quiz) => {
+  setQuizToDelete(quiz);
+  setShowDeleteModal(true);
+};
+
+const confirmDelete = async () => {
+  try {
+    await API.delete(
+      `/courses/quiz/${quizToDelete.id}/`
     );
 
-    if (!confirmDelete) return;
-
-    await API.delete(`/courses/quiz/${id}/`);
-
     fetchQuizzes();
-  };
+
+    setShowDeleteModal(false);
+    setQuizToDelete(null);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const cancelDelete = () => {
+  setShowDeleteModal(false);
+  setQuizToDelete(null);
+};
 
   // ================= QUESTIONS =================
   const addQuestion = () => {
@@ -307,7 +327,7 @@ const updateOption = (qIndex, oIndex, field, value) => {
                       Edit
                     </button>
 
-                    <button onClick={() => handleDelete(q.id)}>
+                    <button onClick={() => handleDelete(q)}>
                       Delete
                     </button>
                   </td>
@@ -702,6 +722,72 @@ const updateOption = (qIndex, oIndex, field, value) => {
 </button>
         </form>
       )}
+
+             {/* DELETE MODAL */}
+{showDeleteModal && (
+  <div
+    className="modal-overlay"
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      background: "rgba(0,0,0,0.4)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999,
+    }}
+  >
+    <div
+      className="delete-modal"
+      style={{
+        background: "#fff",
+        padding: "24px",
+        borderRadius: "12px",
+        width: "400px",
+        maxWidth: "90%",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        textAlign: "center",
+      }}
+    >
+      <h3 style={{ marginBottom: "12px" }}>Delete Quiz</h3>
+
+<p style={{ marginBottom: "20px", color: "#555" }}>
+  Are you sure you want to delete this{" "}
+  <strong>
+    {quizToDelete?.lesson && "Lesson Quiz"}
+    {quizToDelete?.course && "Course Final Quiz"}
+    {quizToDelete?.level && "Level Final Quiz"}
+  </strong>
+  ?
+</p>
+      <div
+        className="modal-actions"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "12px",
+        }}
+      >
+        <button
+          className="btn-action"
+          onClick={cancelDelete}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="btn-action danger"
+          onClick={confirmDelete}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 };

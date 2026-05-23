@@ -9,6 +9,9 @@ const emptyForm = {
 };
 
 const ManageCourses = () => {
+
+  const [courseToDelete, setCourseToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [courses, setCourses] = useState([]);
   const [levels, setLevels] = useState([]);
 
@@ -50,17 +53,29 @@ const ManageCourses = () => {
     setMode("form");
   };
 
-  // ---------------- DELETE ----------------
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this course?"
-    );
+ // ---------------- DELETE ----------------
+const handleDelete = (course) => {
+  setCourseToDelete(course);
+  setShowDeleteModal(true);
+};
 
-    if (!confirmDelete) return;
+const confirmDelete = async () => {
+  try {
+    await API.delete(`/courses/course/${courseToDelete.id}/`);
 
-    await API.delete(`/courses/course/${id}/`);
     fetchCourses();
-  };
+
+    setShowDeleteModal(false);
+    setCourseToDelete(null);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const cancelDelete = () => {
+  setShowDeleteModal(false);
+  setCourseToDelete(null);
+};
 
   // ---------------- SUBMIT ----------------
   const handleSubmit = async (e) => {
@@ -121,7 +136,7 @@ const ManageCourses = () => {
 
                       <button
                         className="btn-action danger"
-                        onClick={() => handleDelete(c.id)}
+                        onClick={() => handleDelete(c)}
                       >
                         Delete
                       </button>
@@ -188,6 +203,67 @@ const ManageCourses = () => {
           </form>
         </div>
       )}
+      {/* DELETE MODAL */}
+{showDeleteModal && (
+  <div
+    className="modal-overlay"
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      background: "rgba(0,0,0,0.4)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999,
+    }}
+  >
+    <div
+      className="delete-modal"
+      style={{
+        background: "#fff",
+        padding: "24px",
+        borderRadius: "12px",
+        width: "400px",
+        maxWidth: "90%",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        textAlign: "center",
+      }}
+    >
+      <h3 style={{ marginBottom: "12px" }}>Delete Course</h3>
+
+      <p style={{ marginBottom: "20px", color: "#555" }}>
+  Are you sure you want to delete the course {" "}
+  <strong style={{ color: "red" }}> "{courseToDelete?.title}"</strong>?
+</p>
+
+      <div
+        className="modal-actions"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "12px",
+        }}
+      >
+        <button
+          className="btn-action"
+          onClick={cancelDelete}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="btn-action danger"
+          onClick={confirmDelete}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 };

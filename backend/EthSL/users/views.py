@@ -16,6 +16,11 @@ from .password_serializers import (
     PasswordResetConfirmSerializer
 )
 
+from .admin_password_serializer import (
+    AdminPasswordResetRequestSerializer,
+    AdminPasswordResetConfirmSerializer
+)
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -173,23 +178,134 @@ class WarnUserView(APIView):
         except User.DoesNotExist:
             return Response({"detail": "User not found"}, status=404)
 
-# ---------------- REMOVE USER ----------------
-class RemoveUserView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminUserRole]
+ 
+ 
+# ---------------- DEACTIVATE USER ----------------
+class DeactivateUserView(APIView):
+    permission_classes = [
+        IsAuthenticated,
+        IsAdminUserRole
+    ]
 
-    def delete(self, request, user_id):
+    def post(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
 
-            user.delete()
+            # Prevent admin/superadmin deactivation
+            if (
+                user.role == "admin"
+                or user.is_superuser
+            ):
+                return Response(
+                    {
+                        "detail":
+                        "Admin accounts cannot be deactivated."
+                    },
+                    status=403
+                )
+
+            user.is_active = False
+            user.save()
 
             return Response({
-                "detail": "User removed successfully"
+                "detail":
+                "User deactivated successfully"
             })
 
         except User.DoesNotExist:
-            return Response({"detail": "Not found"}, status=404)
+            return Response(
+                {"detail": "User not found"},
+                status=404
+            )
 
+# ---------------- ACTIVATE USER ----------------
 
+class ActivateUserView(APIView):
+    permission_classes = [
+        IsAuthenticated,
+        IsAdminUserRole
+    ]
+
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+
+            if (
+                user.role == "admin"
+                or user.is_superuser
+            ):
+                return Response(
+                    {
+                        "detail":
+                        "Admin accounts cannot be modified."
+                    },
+                    status=403
+                )
+
+            user.is_active = True
+            user.save()
+
+            return Response({
+                "detail":
+                "User activated successfully"
+            })
+
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"},
+                status=404
+            )
  
  
+
+
+# ---------------- ADMIN PASSWORD RESET ----------------
+
+class AdminPasswordResetRequestView(APIView):
+
+    def post(self, request):
+
+        serializer = (
+            AdminPasswordResetRequestSerializer(
+                data=request.data
+            )
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        return Response({
+            "message":
+            "If admin account exists, reset email sent."
+        })
+
+
+class AdminPasswordResetConfirmView(APIView):
+
+    def post(
+        self,
+        request,
+        uidb64,
+        token
+    ):
+
+        data = request.data.copy()
+
+        data["uidb64"] = uidb64
+        data["token"] = token
+
+        serializer = (
+            AdminPasswordResetConfirmSerializer(
+                data=data
+            )
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        return Response({
+            "message":
+            "Admin password updated."
+        })

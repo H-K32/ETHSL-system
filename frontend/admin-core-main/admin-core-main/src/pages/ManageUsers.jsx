@@ -35,26 +35,32 @@ const ManageUsers = () => {
       alert("Failed to warn user");
     }
   };
+//=============deactivateUser================
+  const deactivateUser = async (id) => {
+  try {
+    await API.post(`/users/deactivate/${id}/`);
 
-  // ---------------- REMOVE USER ----------------
-  const removeUser = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to remove this user?"
-    );
+    fetchUsers();
 
-    if (!confirmed) return;
+    alert("User deactivated");
 
-    try {
-      await API.delete(`/users/remove/${id}/`);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-      setUsers(users.filter((u) => u.id !== id));
+const activateUser = async (id) => {
+  try {
+    await API.post(`/users/activate/${id}/`);
 
-      alert("User removed");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to remove user");
-    }
-  };
+    fetchUsers();
+
+    alert("User activated");
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   // ---------------- FILTER ----------------
   const filtered = users.filter((u) => {
@@ -124,37 +130,57 @@ const ManageUsers = () => {
                 <td>{u.streak_count}</td>
                 <td>{u.reports_count}</td>
 
-                <td style={{ display: "flex", gap: "8px" }}>
+<td style={{ display: "flex", gap: "8px" }}>
 
-                  <button
-                    onClick={() => warnUser(u.id)}
-                    style={{
-                      background: "orange",
-                      color: "white",
-                      border: "none",
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Warn
-                  </button>
+  {u.role !== "admin" && !u.is_superuser && (
+    <>
+      <button
+        onClick={() => warnUser(u.id)}
+        style={{
+          background: "orange",
+          color: "white",
+          border: "none",
+          padding: "6px 10px",
+          borderRadius: "6px",
+          cursor: "pointer",
+        }}
+      >
+        Warn
+      </button>
 
-                  <button
-                    onClick={() => removeUser(u.id)}
-                    style={{
-                      background: "red",
-                      color: "white",
-                      border: "none",
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Remove
-                  </button>
+      {u.is_active ? (
+        <button
+          onClick={() => deactivateUser(u.id)}
+          style={{
+            background:"red",
+            color:"white",
+            border:"none",
+            padding:"6px 10px",
+            borderRadius:"6px",
+            cursor:"pointer"
+          }}
+        >
+          Deactivate
+        </button>
+      ) : (
+        <button
+          onClick={() => activateUser(u.id)}
+          style={{
+            background:"green",
+            color:"white",
+            border:"none",
+            padding:"6px 10px",
+            borderRadius:"6px",
+            cursor:"pointer"
+          }}
+        >
+          Activate
+        </button>
+      )}
+    </>
+  )}
 
-                </td>
+</td>
               </tr>
             ))}
 
