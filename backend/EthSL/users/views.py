@@ -263,7 +263,7 @@ class ActivateUserView(APIView):
 # ---------------- ADMIN PASSWORD RESET ----------------
 
 class AdminPasswordResetRequestView(APIView):
-
+    permission_classes = [AllowAny]
     def post(self, request):
 
         serializer = (
@@ -283,6 +283,8 @@ class AdminPasswordResetRequestView(APIView):
 
 
 class AdminPasswordResetConfirmView(APIView):
+
+    permission_classes = [AllowAny]
 
     def post(
         self,
