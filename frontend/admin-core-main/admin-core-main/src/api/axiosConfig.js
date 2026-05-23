@@ -5,13 +5,28 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access");  
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const token = localStorage.getItem("access");
+
+  const url = config.url || "";
+
+  const excluded =
+
+    url.includes("/users/login/") ||
+
+    url.includes("/users/admin/password-reset/") ||
+
+    url.includes("/users/admin/password-reset-confirm/");
+
+  if (token && !excluded) {
+
+    config.headers.Authorization =
+      `Bearer ${token}`;
+
   }
 
   return config;
+
 });
 
 // optional but good
