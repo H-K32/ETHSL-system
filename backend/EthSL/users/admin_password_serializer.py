@@ -7,6 +7,7 @@ from rest_framework import serializers
 from django.conf import settings
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
+from rest_framework.permissions import AllowAny
 
 User = get_user_model()
 
