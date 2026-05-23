@@ -12,6 +12,7 @@ User = get_user_model()
 
 
 class AdminPasswordResetRequestSerializer(serializers.Serializer):
+    permission_classes = [AllowAny]
     email = serializers.EmailField()
 
     def validate(self, attrs):
@@ -58,6 +59,7 @@ class AdminPasswordResetRequestSerializer(serializers.Serializer):
 class AdminPasswordResetConfirmSerializer(
     serializers.Serializer
 ):
+    permission_classes = [AllowAny]
     password = serializers.CharField()
     uidb64 = serializers.CharField()
     token = serializers.CharField()
