@@ -1,65 +1,100 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import '../styles/home.css'
+
 export default function Home() {
   const { user } = useAuth()
+
   return (
-    <div>
-      <section className="bg-gradient-to-b from-brand-50 to-white">
-        <div className="max-w-6xl mx-auto px-4 py-20 md:py-28 text-center">
-          <span className="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-medium">
-            ETHSL Learner Platform
-          </span>
-          <h1 className="mt-4 text-4xl md:text-6xl font-bold tracking-tight text-slate-900">
-            Learn at your level.<br className="hidden md:block" /> Progress at your pace.
-          </h1>
-          <p className="mt-5 max-w-2xl mx-auto text-slate-600 text-lg">
-            Take a placement test, unlock courses by level, and track every lesson and quiz in one place.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            {user ? (
-              <Link to="/levels" className="px-5 py-3 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-700">
-                Continue learning
-              </Link>
-            ) : (
-              <>
-                <Link to="/register" className="px-5 py-3 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-700">
-                  Get started
-                </Link>
-                <Link to="/login" className="px-5 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50">
-                  Login
-                </Link>
-              </>
-            )}
+    <div className="home">
+      {/* HERO */}
+      <section className="hero">
+        <header className="hero__top">
+          <div className="hero__brand">ETHSL<span>°</span></div>
+          <div className="hero__meta">Learner Platform — Est. 2025</div>
+        </header>
+
+        <div className="hero__main">
+          <div className="hero__eyebrow">
+            <span className="dot" /> Now enrolling
           </div>
+
+          <h1 className="hero__title">
+            Learn at your <em>level.</em><br />
+            Progress at your <em>pace.</em>
+          </h1>
+
+          <div className="hero__bottom">
+            <p className="hero__lede">
+              A short placement test, courses that unlock as you grow, and a clear record of every lesson and quiz you complete.
+            </p>
+            <div className="hero__actions">
+              {user ? (
+                <Link to="/levels" className="btn btn--primary">Continue learning →</Link>
+              ) : (
+                <>
+                  <Link to="/register" className="btn btn--primary">Get started →</Link>
+                  <Link to="/login" className="btn btn--link">Login</Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="hero__rule" />
+      </section>
+
+      {/* FEATURES */}
+      <section className="features">
+        <aside className="features__aside">
+          <div className="features__index">Index — 01</div>
+          <h2 className="features__title">A platform that respects your time.</h2>
+          <p className="features__note">
+            Three principles shape every lesson, every quiz, and every page you'll see.
+          </p>
+        </aside>
+
+        <div className="features__list">
+          {[
+            { n: '01', t: 'Smart placement', d: 'A short quiz places you at the right starting level — no guessing, no wasted hours.' },
+            { n: '02', t: 'Structured levels', d: 'Levels unlock courses, courses unlock lessons. Always a clear next step.' },
+            { n: '03', t: 'Track everything', d: 'Lesson completion, quiz scores, and overall progress in one calm dashboard.' },
+          ].map((f) => (
+            <article key={f.t} className="feature">
+              <div className="feature__num">{f.n}</div>
+              <div className="feature__body">
+                <h3 className="feature__title">{f.t}</h3>
+                <p className="feature__desc">{f.d}</p>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-3 gap-6">
-        {[
-          { t: 'Smart placement', d: 'A short quiz places you at the right starting level.' },
-          { t: 'Structured levels', d: 'Levels unlock courses, courses unlock lessons.' },
-          { t: 'Track everything', d: 'Lesson completion, quiz scores, and overall progress.' },
-        ].map((f) => (
-          <div key={f.t} className="rounded-xl bg-white border border-slate-200 p-6">
-            <div className="w-10 h-10 rounded-lg bg-brand-100 text-brand-700 grid place-items-center font-bold">★</div>
-            <h3 className="mt-4 font-semibold text-slate-900">{f.t}</h3>
-            <p className="text-sm text-slate-600 mt-1">{f.d}</p>
+      {/* HOW IT WORKS */}
+      <section className="how">
+        <div className="how__inner">
+          <div className="how__head">
+            <span className="how__index">Index — 02</span>
+            <h2 className="how__title">
+              How it <em>works.</em>
+            </h2>
           </div>
-        ))}
-      </section>
 
-      <section className="bg-slate-900 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-16 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold">How it works</h2>
-          <ol className="mt-8 grid md:grid-cols-4 gap-6 text-left">
+          <ol className="how__steps">
             {['Create an account', 'Take placement', 'Unlock levels & courses', 'Complete lessons & quizzes'].map((s, i) => (
-              <li key={s} className="rounded-lg bg-slate-800 p-5">
-                <div className="text-brand-500 font-bold">Step {i + 1}</div>
-                <div className="mt-1 font-medium">{s}</div>
+              <li key={s} className="step">
+                <div className="step__num">{String(i + 1).padStart(2, '0')}</div>
+                <div className="step__text">{s}</div>
               </li>
             ))}
           </ol>
+
+          <div className="how__cta">
+            {!user && (
+              <Link to="/register" className="btn btn--cream">Begin your placement →</Link>
+            )}
+          </div>
         </div>
       </section>
     </div>

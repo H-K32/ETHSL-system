@@ -1,7 +1,9 @@
+// src/pages/Login.jsx
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import '../styles/login.css'
+
 export default function Login() {
   const { login } = useAuth()
   const nav = useNavigate()
@@ -23,57 +25,72 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-12">
-      <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
-      <p className="text-sm text-slate-500 mt-1">Login to continue your learning.</p>
-      <form onSubmit={onSubmit} className="mt-6 space-y-4 bg-white p-6 rounded-xl border border-slate-200">
-        <Field label="Username or Email">
-          <input
-            className="input"
-            value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-            required
-          />
-        </Field>
-        <Field label="Password">
-          <input
-            type="password"
-            className="input"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required
-          />
-        </Field>
-        {err && <p className="text-sm text-red-600">{err}</p>}
-        <button disabled={loading} className="btn-primary w-full">
-          {loading ? 'Signing in…' : 'Sign in'}
-        </button>
-        <p className="text-sm text-slate-500 text-center">
-          New here? <Link to="/register" className="text-brand-600 hover:underline">Create an account</Link>
-        </p>
-      </form>
-      <Style />
+    <div className="lp-stage">
+      {/* organic background shapes */}
+      <span className="lp-blob lp-blob--a" />
+      <span className="lp-blob lp-blob--b" />
+      <span className="lp-blob lp-blob--c" />
+      <span className="lp-grid" />
+
+      <div className="lp-card">
+        <div className="lp-tag">
+          <span className="lp-dot" />
+          <span>secure entry</span>
+        </div>
+
+        <h1 className="lp-title">
+          Hello again<span className="lp-period">.</span>
+        </h1>
+        <p className="lp-sub">Sign in to keep climbing.</p>
+
+        <form onSubmit={onSubmit} className="lp-form">
+          <div className="lp-field">
+            <input
+              id="lp-user"
+              className="lp-input"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              placeholder=" "
+              required
+            />
+            <label htmlFor="lp-user">Username or Email</label>
+          </div>
+
+          <div className="lp-field">
+            <input
+              id="lp-pass"
+              type="password"
+              className="lp-input"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder=" "
+              required
+            />
+            <label htmlFor="lp-pass">Password</label>
+            
+          </div>
+
+          {err && <p className="lp-error">{err}</p>}
+
+          <button disabled={loading} className="lp-btn">
+            <span>{loading ? 'Signing in…' : 'Sign in'}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M13 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <div className="lp-foot-row">
+  <span className="lp-foot-line" />
+  <a href="/forgot-password" className="lp-forgot">Forgot password?</a>
+  <span className="lp-foot-line" />
+</div>
+
+
+          <p className="lp-foot">
+            New here? <Link to="/register" className="lp-link">Create an account</Link>
+          </p> 
+          
+        </form>
+      </div>
     </div>
-  )
-}
-
-function Field({ label, children }) {
-  return (
-    <label className="block">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
-      <div className="mt-1">{children}</div>
-    </label>
-  )
-}
-
-function Style() {
-  return (
-    <style>{`
-      .input{width:100%;padding:.6rem .75rem;border:1px solid #e2e8f0;border-radius:.5rem;outline:none}
-      .input:focus{border-color:#3b6ef7;box-shadow:0 0 0 3px rgba(59,110,247,.15)}
-      .btn-primary{background:#2f5be0;color:#fff;padding:.6rem .9rem;border-radius:.5rem;font-weight:500}
-      .btn-primary:hover{background:#2548b8}
-      .btn-primary:disabled{opacity:.6}
-    `}</style>
   )
 }

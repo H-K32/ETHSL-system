@@ -1,0 +1,219 @@
+/* ==========================================================================
+   LESSONS.CSS — Scholarly Lesson List, matched to Levels design system
+   ========================================================================== */
+
+.lessons-page {
+  background-color: var(--color-bone-100);
+  background-image:
+    radial-gradient(var(--color-bone-300) 1.2px, transparent 1.2px),
+    linear-gradient(rgba(27, 56, 31, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px, 40px 40px;
+  min-height: 100vh;
+  padding: 3rem 1rem;
+}
+
+.lessons-shell {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+/* Header */
+.lessons-eyebrow {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--color-sienna-dim);
+  color: var(--color-sienna-600);
+  border: 1px solid rgba(203, 83, 51, 0.15);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.lessons-title {
+  font-family: var(--font-serif);
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-forest-900);
+  margin-top: 0.85rem;
+  line-height: 1.15;
+}
+
+.lessons-subtitle {
+  font-family: var(--font-sans);
+  color: var(--color-forest-600);
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.lessons-divider {
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent,
+    var(--color-bone-300) 20%,
+    var(--color-bone-300) 80%,
+    transparent);
+  margin: 1.75rem 0;
+}
+
+/* List */
+.lessons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Row card */
+.lesson-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem 1.1rem 1.5rem;
+  background-color: var(--color-bone-50);
+  border: 1px solid var(--color-bone-300);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 12px -4px rgba(27, 56, 31, 0.05);
+  text-decoration: none;
+  color: inherit;
+}
+
+.lesson-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background-color: var(--color-forest-700);
+  transition: background-color 0.25s ease;
+}
+
+.lesson-row.is-open:hover {
+  transform: translateX(4px);
+  border-color: var(--color-sienna-500);
+  background-color: #ffffff;
+  box-shadow: 0 14px 30px -8px rgba(14, 30, 16, 0.12);
+}
+
+.lesson-row.is-open:hover::before {
+  background-color: var(--color-sienna-500);
+}
+
+.lesson-row.is-completed::before {
+  background-color: var(--color-sienna-500);
+}
+
+.lesson-row.is-locked {
+  background-color: rgba(241, 235, 216, 0.35);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.lesson-row.is-locked::before {
+  background-color: var(--color-bone-400);
+}
+
+/* Left side */
+.lesson-row-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.lesson-index {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-serif);
+  font-weight: 800;
+  font-size: 1rem;
+  background-color: var(--color-bone-100);
+  color: var(--color-forest-700);
+  border: 1px solid var(--color-bone-300);
+  transition: all 0.25s ease;
+}
+
+.lesson-row.is-completed .lesson-index {
+  background-color: var(--color-forest-dim);
+  color: var(--color-forest-700);
+  border-color: rgba(27, 56, 31, 0.15);
+}
+
+.lesson-row.is-locked .lesson-index {
+  background-color: var(--color-bone-200);
+  color: var(--color-bone-400);
+}
+
+.lesson-row.is-open:hover .lesson-index {
+  background-color: var(--color-sienna-600);
+  color: #fff;
+  border-color: var(--color-sienna-600);
+}
+
+.lesson-meta { min-width: 0; }
+
+.lesson-name {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-forest-900);
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+}
+
+.lesson-blurb {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--color-forest-600);
+  margin-top: 0.15rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Status pill */
+.lesson-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lesson-status.open {
+  background-color: var(--color-forest-dim);
+  color: var(--color-forest-700);
+  border: 1px solid rgba(27, 56, 31, 0.1);
+}
+
+.lesson-status.completed {
+  background-color: var(--color-sienna-dim);
+  color: var(--color-sienna-600);
+  border: 1px solid rgba(203, 83, 51, 0.15);
+}
+
+.lesson-status.locked {
+  background-color: var(--color-bone-200);
+  color: var(--color-bone-400);
+  border: 1px solid var(--color-bone-300);
+}
