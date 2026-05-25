@@ -1,24 +1,24 @@
 /* ==========================================================================
-   SIENNA & SPRUCE LITERARY CORE CSS
-   Theme: Warm Bone, Deep Forest Green, Burnt Sienna
+   VIBRANT BLUE LITERARY CORE CSS
+   Theme: Electric Blue, Deep Navy, Crisp White
    Aesthetic: Asymmetric, Scholastic, Audacious, Confident
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..950;1,9..144,100..950&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..950;1,9..144,100..950&family=Inter:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 :root {
-  /* Dynamic Paint Palette */
-  --color-bone-bg:     #faf6ed; /* Soft, warm tactile ivory bone */
-  --color-bone-card:   #fdfcf9; /* Slightly brighter highlight for cards */
-  --color-bone-dark:   #e9e2d3; /* Shadow/depth bone tones */
+  /* Dynamic Paint Palette - Vibrant Blue Theme */
+  --color-bone-bg:     #e8f0fe; /* Soft blue-tinted background */
+  --color-bone-card:   #ffffff; /* Pure white for cards */
+  --color-bone-dark:   #c5d5ea; /* Shadow/depth blue tones */
   
-  --color-forest-deep: #15381f; /* Regal, dark woodland spruce green */
-  --color-forest-mid:  #2c5531; 
-  --color-forest-light:#edf4ee;
+  --color-forest-deep: #003d99; /* Deep vibrant navy blue */
+  --color-forest-mid:  #0066ff; /* Vibrant electric blue */
+  --color-forest-light: #e6f0ff;
 
-  --color-sienna-hot:  #cb5333; /* Rich burnt sienna terracotta */
-  --color-sienna-soft: #fdf5f2;
-  --color-sienna-dark: #93331b;
+  --color-sienna-hot:  #0066ff; /* Vibrant blue primary action */
+  --color-sienna-soft: #f0f6ff;
+  --color-sienna-dark: #0044cc;
   
   /* Artistic Typography */
   --font-serif: "Fraunces", Georgia, serif;
@@ -33,9 +33,9 @@
    GLOBAL OR ENCLOSING CONTAINER
    ========================================================================== */
 
-/* The backdrop uses a warm bone tint that is calm on the eyes */
+/* The backdrop uses a soft blue gradient for vibrant feel */
 .register-container-wrapper, body {
-  background-color: var(--color-bone-bg);
+  background: linear-gradient(135deg, #0066ff 0%, #0044cc 50%, #003399 100%);
   font-family: var(--font-sans);
   color: var(--color-forest-deep);
   min-height: 100vh;
@@ -130,7 +130,7 @@ h1, .serif-display {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-forest-deep);
+  background: linear-gradient(135deg, #0066ff, #0044cc);
   color: var(--color-bone-bg);
   padding: 0.9rem 1.7rem;
   
@@ -144,21 +144,21 @@ h1, .serif-display {
   border-radius: 4px;
   cursor: pointer;
   
-  /* Fierce burnt sienna shadow offset */
-  box-shadow: 4px 4px 0px 0px var(--color-sienna-hot);
+  /* Fierce vibrant blue shadow offset */
+  box-shadow: 4px 4px 0px 0px #003d99;
   transition: all var(--transition-confident);
 }
 
 /* Confident mechanical click feedback */
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-forest-mid);
+  background: linear-gradient(135deg, #1a75ff, #0066ff);
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px var(--color-sienna-hot);
+  box-shadow: 6px 6px 0px 0px #003d99;
 }
 
 .btn-primary:active:not(:disabled) {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px var(--color-sienna-hot);
+  box-shadow: 2px 2px 0px 0px #003d99;
 }
 
 .btn-primary:disabled {

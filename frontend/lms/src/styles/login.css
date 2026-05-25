@@ -1,21 +1,24 @@
 /* src/styles/login.css */
 :root {
-  --bone: #f3ece0;
-  --bone-2: #ebe1cf;
-  --ink: #1d1f1a;
-  --forest: #1f3a2d;
-  --forest-deep: #122218;
-  --sienna: #b9532a;
-  --sienna-soft: #d97a4a;
+  --mist: #e8f0fe;
+  --mist-2: #d4e2f7;
+  --ink: #0a1c2f;
+  --deep-blue: #0a4a8a;
+  --navy-deep: #062041;
+  --aqua-bright: #1e6cb5;
+  --aqua-soft: #3a85c9;
+  --accent-glow: #2a7bc2;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 .lp-stage {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  background: radial-gradient(120% 80% at 80% 10%, var(--bone) 0%, var(--bone-2) 100%);
+  background: radial-gradient(120% 80% at 80% 10%, var(--mist) 0%, var(--mist-2) 100%);
   display: grid;
   place-items: center;
   padding: 2rem;
@@ -32,35 +35,53 @@
   pointer-events: none;
   animation: lp-float 14s ease-in-out infinite;
 }
+
 .lp-blob--a {
-  width: 380px; height: 380px;
-  background: var(--forest);
-  top: -120px; left: -80px;
-  opacity: 0.35;
-}
-.lp-blob--b {
-  width: 300px; height: 300px;
-  background: var(--sienna);
-  bottom: -100px; right: -60px;
+  width: 380px;
+  height: 380px;
+  background: var(--deep-blue);
+  top: -120px;
+  left: -80px;
   opacity: 0.4;
+}
+
+.lp-blob--b {
+  width: 300px;
+  height: 300px;
+  background: var(--aqua-bright);
+  bottom: -100px;
+  right: -60px;
+  opacity: 0.45;
   animation-delay: -5s;
 }
+
 .lp-blob--c {
-  width: 220px; height: 220px;
-  background: var(--sienna-soft);
-  top: 40%; right: 18%;
-  opacity: 0.25;
+  width: 220px;
+  height: 220px;
+  background: var(--aqua-soft);
+  top: 40%;
+  right: 18%;
+  opacity: 0.35;
   animation-delay: -9s;
 }
+
 @keyframes lp-float {
-  0%, 100% { transform: translate(0,0) scale(1); }
-  50%      { transform: translate(20px,-30px) scale(1.08); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(20px, -30px) scale(1.08);
+  }
 }
 
 /* subtle dotted texture */
 .lp-grid {
-  position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(29,31,26,0.08) 1px, transparent 1px);
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(10, 28, 47, 0.1) 1px, transparent 1px);
   background-size: 22px 22px;
   mask-image: radial-gradient(circle at 50% 50%, #000 30%, transparent 75%);
   pointer-events: none;
@@ -71,20 +92,19 @@
   position: relative;
   width: 100%;
   max-width: 420px;
-  background: var(--bone);
-  border: 1.5px solid rgba(31,58,45,0.18);
+  background: var(--mist);
+  border: 1.5px solid rgba(10, 74, 138, 0.2);
   border-radius: 28px;
   padding: 2.5rem 2.25rem 2rem;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.6) inset,
-    0 30px 60px -20px rgba(31,58,45,0.35),
-    0 8px 20px -12px rgba(185,83,42,0.25);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 30px 60px -20px rgba(6, 32, 65, 0.4), 0 8px 20px -12px rgba(30, 108, 181, 0.3);
   backdrop-filter: blur(8px);
 }
+
 .lp-card::before {
   content: '';
-  position: absolute; inset: 8px;
-  border: 1px dashed rgba(31,58,45,0.35);
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(10, 74, 138, 0.35);
   border-radius: 22px;
   pointer-events: none;
 }
@@ -93,8 +113,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--forest);
-  color: var(--bone);
+  background: var(--deep-blue);
+  color: white;
   padding: 0.35rem 0.8rem 0.35rem 0.65rem;
   border-radius: 999px;
   font-size: 0.72rem;
@@ -102,83 +122,100 @@
   text-transform: uppercase;
   font-weight: 600;
 }
+
 .lp-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--sienna-soft);
-  box-shadow: 0 0 0 3px rgba(217,122,74,0.25);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--aqua-soft);
+  box-shadow: 0 0 0 3px rgba(58, 133, 201, 0.35);
   animation: lp-pulse 2s ease-in-out infinite;
 }
+
 @keyframes lp-pulse {
-  50% { box-shadow: 0 0 0 6px rgba(217,122,74,0); }
+  50% {
+    box-shadow: 0 0 0 6px rgba(58, 133, 201, 0);
+  }
 }
 
 .lp-title {
   font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 2.6rem;
   line-height: 1.05;
   letter-spacing: -0.02em;
   margin: 1.25rem 0 0.4rem;
-  color: var(--forest-deep);
+  color: var(--navy-deep);
 }
-.lp-period { color: var(--sienna); }
+
+.lp-period {
+  color: var(--aqua-bright);
+}
 
 .lp-sub {
   font-size: 0.98rem;
-  color: rgba(29,31,26,0.65);
+  color: rgba(10, 28, 47, 0.7);
   margin: 0 0 1.75rem;
 }
 
 /* —— form —— */
-.lp-form { display: flex; flex-direction: column; gap: 1.1rem; }
+.lp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
 
 .lp-field {
   position: relative;
 }
+
 .lp-input {
   width: 100%;
   padding: 1.15rem 1rem 0.6rem;
   font-size: 1rem;
   font-family: inherit;
   color: var(--ink);
-  background: rgba(255,255,255,0.55);
-  border: 1.5px solid rgba(31,58,45,0.2);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(10, 74, 138, 0.25);
   border-radius: 14px;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
+
 .lp-input:focus {
-  border-color: var(--forest);
+  border-color: var(--deep-blue);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(31,58,45,0.12);
+  box-shadow: 0 0 0 4px rgba(10, 74, 138, 0.15);
 }
+
 .lp-field label {
   position: absolute;
   left: 1rem;
   top: 0.95rem;
   font-size: 0.95rem;
-  color: rgba(29,31,26,0.5);
+  color: rgba(10, 28, 47, 0.55);
   pointer-events: none;
   transition: all 0.18s ease;
 }
-.lp-input:focus + label,
-.lp-input:not(:placeholder-shown) + label {
+
+.lp-input:focus+label,
+.lp-input:not(:placeholder-shown)+label {
   top: 0.3rem;
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--forest);
-  font-weight: 600;
+  color: var(--deep-blue);
+  font-weight: 700;
 }
 
 .lp-error {
   margin: 0;
   font-size: 0.9rem;
-  color: var(--sienna);
-  background: rgba(185,83,42,0.1);
+  color: #c7254e;
+  background: rgba(199, 37, 78, 0.08);
   padding: 0.6rem 0.8rem;
   border-radius: 10px;
-  border-left: 3px solid var(--sienna);
+  border-left: 3px solid #c7254e;
 }
 
 /* —— button —— */
@@ -190,8 +227,8 @@
   justify-content: center;
   gap: 0.6rem;
   padding: 1rem 1.25rem;
-  background: var(--forest);
-  color: var(--bone);
+  background: var(--deep-blue);
+  color: white;
   border: none;
   border-radius: 14px;
   font-family: inherit;
@@ -200,77 +237,113 @@
   letter-spacing: 0.02em;
   cursor: pointer;
   overflow: hidden;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.12) inset,
-    0 10px 24px -10px rgba(31,58,45,0.6);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 10px 24px -10px rgba(6, 32, 65, 0.7);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
-.lp-btn svg { width: 18px; height: 18px; transition: transform 0.25s ease; }
+
+.lp-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.25s ease;
+}
+
 .lp-btn::before {
   content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(120deg, transparent 30%, var(--sienna) 50%, transparent 70%);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, var(--aqua-bright) 50%, transparent 70%);
   transform: translateX(-110%);
   transition: transform 0.6s ease;
 }
+
 .lp-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.12) inset,
-    0 18px 30px -12px rgba(31,58,45,0.7),
-    0 0 0 4px rgba(185,83,42,0.15);
+  background: #0c5a9e;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 18px 30px -12px rgba(6, 32, 65, 0.75), 0 0 0 4px rgba(30, 108, 181, 0.2);
 }
-.lp-btn:hover:not(:disabled) svg { transform: translateX(4px); }
-.lp-btn:hover:not(:disabled)::before { transform: translateX(110%); }
-.lp-btn:active:not(:disabled) { transform: translateY(0); }
-.lp-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.lp-btn > span, .lp-btn > svg { position: relative; z-index: 1; }
 
-/* —— forgot password (moved to bottom) —— */
+.lp-btn:hover:not(:disabled) svg {
+  transform: translateX(4px);
+}
+
+.lp-btn:hover:not(:disabled)::before {
+  transform: translateX(110%);
+}
+
+.lp-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.lp-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lp-btn>span,
+.lp-btn>svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* —— forgot password row —— */
 .lp-foot-row {
   display: flex;
   align-items: center;
   gap: 0.9rem;
   margin-top: 1.4rem;
 }
+
 .lp-foot-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(31,58,45,0.25), transparent);
+  background: linear-gradient(90deg, transparent, rgba(10, 74, 138, 0.3), transparent);
 }
+
 .lp-forgot {
   font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: 0.92rem;
-  color: var(--sienna);
+  color: var(--aqua-bright);
   text-decoration: none;
-  border-bottom: 1px solid rgba(185,83,42,0.4);
+  border-bottom: 1px solid rgba(30, 108, 181, 0.5);
   padding-bottom: 1px;
   transition: color 0.2s, border-color 0.2s;
   white-space: nowrap;
 }
+
 .lp-forgot:hover {
-  color: var(--forest);
-  border-color: var(--forest);
+  color: var(--deep-blue);
+  border-color: var(--deep-blue);
 }
 
 .lp-foot {
   text-align: center;
   font-size: 0.92rem;
-  color: rgba(29,31,26,0.7);
+  color: rgba(10, 28, 47, 0.7);
   margin: 1rem 0 0;
 }
+
 .lp-link {
-  color: var(--sienna);
-  font-weight: 600;
+  color: var(--aqua-bright);
+  font-weight: 700;
   text-decoration: none;
-  border-bottom: 1.5px solid rgba(185,83,42,0.4);
-  transition: border-color 0.2s;
+  border-bottom: 1.5px solid rgba(30, 108, 181, 0.5);
+  transition: border-color 0.2s, color 0.2s;
 }
-.lp-link:hover { border-bottom-color: var(--sienna); }
+
+.lp-link:hover {
+  color: var(--deep-blue);
+  border-bottom-color: var(--deep-blue);
+}
 
 /* responsive */
 @media (max-width: 480px) {
-  .lp-card { padding: 2rem 1.5rem 1.5rem; border-radius: 22px; }
-  .lp-title { font-size: 2.1rem; }
+  .lp-card {
+    padding: 2rem 1.5rem 1.5rem;
+    border-radius: 22px;
+  }
+
+  .lp-title {
+    font-size: 2.1rem;
+  }
 }
