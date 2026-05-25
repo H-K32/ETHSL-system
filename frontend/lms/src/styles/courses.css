@@ -1,0 +1,268 @@
+/* Courses — matches Levels parchment/bone/forest/sienna theme */
+
+.courses-page {
+  min-height: 100vh;
+  background-color: var(--color-bone-100);
+  background-image:
+    linear-gradient(var(--color-bone-200) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-bone-200) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+  padding: 3rem 1.5rem 5rem;
+}
+
+.courses-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Header */
+.courses-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1.75rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--color-bone-300);
+}
+
+.courses-eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-sienna-600);
+  margin-bottom: 0.6rem;
+}
+
+.courses-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  color: var(--color-forest-900);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.courses-subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--color-forest-600);
+  margin: 0.6rem 0 0;
+}
+
+.courses-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-forest-700);
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--color-bone-300);
+  border-radius: 999px;
+  background: var(--color-bone-50);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.courses-back:hover {
+  border-color: var(--color-sienna-600);
+  color: var(--color-sienna-600);
+  transform: translateX(-2px);
+}
+
+.courses-back svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Grid */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card */
+.course-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bone-50);
+  border: 1px solid var(--color-bone-300);
+  border-radius: 14px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.course-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    color-mix(in oklab, var(--color-sienna-600) 4%, transparent) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.course-card:hover {
+  border-color: var(--color-sienna-600);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px -22px color-mix(in oklab, var(--color-forest-900) 50%, transparent);
+}
+
+.course-card:hover::before {
+  opacity: 1;
+}
+
+.course-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  border-radius: 10px;
+  background: var(--color-bone-200);
+  border: 1px solid var(--color-bone-300);
+  margin-bottom: 1.1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.course-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--color-forest-900);
+  line-height: 1.25;
+  margin: 0 0 0.5rem;
+  position: relative;
+  z-index: 1;
+  transition: color 0.2s ease;
+}
+
+.course-card:hover .course-title {
+  color: var(--color-sienna-600);
+}
+
+.course-description {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: var(--color-forest-600);
+  line-height: 1.55;
+  margin: 0 0 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Progress */
+.course-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--color-bone-200);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-sienna-600),
+    color-mix(in oklab, var(--color-sienna-600) 70%, var(--color-forest-700))
+  );
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.progress-text {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--color-forest-700);
+  min-width: 38px;
+  text-align: right;
+}
+
+/* Buttons */
+.course-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  position: relative;
+  z-index: 1;
+}
+
+.course-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.lessons-btn {
+  background: var(--color-forest-900);
+  color: var(--color-bone-50);
+  border-color: var(--color-forest-900);
+}
+
+.lessons-btn:hover {
+  background: var(--color-sienna-600);
+  border-color: var(--color-sienna-600);
+}
+
+.quiz-btn {
+  background: transparent;
+  color: var(--color-forest-700);
+  border-color: var(--color-bone-300);
+}
+
+.quiz-btn:hover {
+  border-color: var(--color-sienna-600);
+  color: var(--color-sienna-600);
+  background: var(--color-bone-100);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .courses-page { padding: 2rem 1rem 3rem; }
+  .courses-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .courses-grid { grid-template-columns: 1fr; }
+}

@@ -4,6 +4,7 @@ import useAsync from '../utils/useAsync.js'
 import { getLesson, completeLesson } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
+import '../styles/LessonDetail.css'
 
 function VideoPlayer({ url }) {
   if (!url) return null
@@ -12,6 +13,7 @@ function VideoPlayer({ url }) {
 
   if (yt) {
     return (
+<<<<<<< HEAD
       <div className="aspect-video rounded-xl overflow-hidden bg-black">
         <iframe
           className="w-full h-full"
@@ -19,14 +21,20 @@ function VideoPlayer({ url }) {
           allowFullScreen
           title="lesson"
         />
+=======
+      <div className="lesson-media lesson-media-aspect">
+        <iframe className="lesson-iframe" src={`https://www.youtube.com/embed/${yt[1]}`} allowFullScreen title="lesson" />
+>>>>>>> lud-branch
       </div>
     )
   }
 
   return (
-    <video controls className="w-full rounded-xl bg-black">
-      <source src={url} />
-    </video>
+    <div className="lesson-media">
+      <video controls className="lesson-video">
+        <source src={url} />
+      </video>
+    </div>
   )
 }
 
@@ -43,6 +51,7 @@ export default function LessonDetail() {
   const [done, setDone] = useState(false)
 
   if (loading) return <Spinner />
+<<<<<<< HEAD
 
   if (error)
     return (
@@ -58,6 +67,9 @@ export default function LessonDetail() {
   const completed = done || lesson?.completed === true
 
   const quizId = lesson?.quiz?.id || lesson?.quiz_id
+=======
+  if (error) return <div className="lesson-detail-page"><div className="lesson-detail-shell"><ErrorState error={error} onRetry={reload} /></div></div>
+>>>>>>> lud-branch
 
   const onComplete = async () => {
     setCompleting(true)
@@ -72,6 +84,7 @@ export default function LessonDetail() {
   }
 
   return (
+<<<<<<< HEAD
     <div className="max-w-4xl mx-auto px-4 py-8">
       <Link to={-1} className="text-sm text-slate-500 hover:text-brand-600">
         ← Back
@@ -118,7 +131,34 @@ export default function LessonDetail() {
           >
             Take quiz →
           </button>
+=======
+    <div className="lesson-detail-page">
+      <div className="lesson-detail-shell">
+        <Link to={-1} className="lesson-back">← Back to lessons</Link>
+        <span className="lesson-detail-eyebrow">Lesson</span>
+        <h1 className="lesson-detail-title">{lesson?.title}</h1>
+
+        <YouTubeOrVideo url={lesson?.video_url} />
+
+        {lesson?.description && (
+          <div className="lesson-body">{lesson.description}</div>
+>>>>>>> lud-branch
         )}
+
+        <div className="lesson-actions">
+          <button
+            disabled={completing || completed}
+            onClick={onComplete}
+            className={`lesson-btn ${completed ? 'lesson-btn-success' : 'lesson-btn-primary'}`}
+          >
+            {completed ? '✓ Completed' : completing ? 'Saving…' : 'Mark as complete'}
+          </button>
+          {quizId && (
+            <button onClick={() => nav(`/quiz/${quizId}`)} className="lesson-btn lesson-btn-ghost">
+              Take quiz →
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

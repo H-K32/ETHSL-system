@@ -1,0 +1,169 @@
+/* ==========================================================================
+   LESSON-DETAIL.CSS — Single Lesson Reading View
+   ========================================================================== */
+
+.lesson-detail-page {
+  background-color: var(--color-bone-100);
+  background-image:
+    radial-gradient(var(--color-bone-300) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+  min-height: 100vh;
+  padding: 2.5rem 1rem 4rem;
+}
+
+.lesson-detail-shell {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+/* Back link */
+.lesson-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-forest-600);
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-bone-300);
+  background-color: var(--color-bone-50);
+  transition: all 0.2s ease;
+}
+.lesson-back:hover {
+  color: var(--color-sienna-600);
+  border-color: var(--color-sienna-500);
+  background-color: #fff;
+}
+
+/* Title block */
+.lesson-detail-eyebrow {
+  display: inline-block;
+  margin-top: 1.25rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background-color: var(--color-sienna-dim);
+  color: var(--color-sienna-600);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(203, 83, 51, 0.15);
+}
+
+.lesson-detail-title {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-forest-900);
+  margin-top: 0.6rem;
+  line-height: 1.15;
+}
+
+/* Media frame */
+.lesson-media {
+  margin-top: 1.75rem;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--color-bone-300);
+  background-color: #000;
+  box-shadow: 0 18px 40px -10px rgba(14, 30, 16, 0.18);
+  position: relative;
+}
+
+.lesson-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.lesson-media .lesson-iframe,
+.lesson-media .lesson-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.lesson-media-aspect {
+  aspect-ratio: 16 / 9;
+}
+
+/* Description block — parchment card */
+.lesson-body {
+  margin-top: 2rem;
+  background-color: var(--color-bone-50);
+  border: 1px solid var(--color-bone-300);
+  border-left: 3px solid var(--color-forest-700);
+  border-radius: 16px;
+  padding: 1.75rem 1.85rem;
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--color-forest-800, #243a26);
+  white-space: pre-wrap;
+  box-shadow: 0 4px 18px -6px rgba(27, 56, 31, 0.06);
+}
+
+/* Action row */
+.lesson-actions {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.lesson-btn {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.4rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lesson-btn-primary {
+  background-color: var(--color-sienna-600);
+  color: #fff;
+  box-shadow: 0 8px 18px -6px rgba(203, 83, 51, 0.45);
+}
+.lesson-btn-primary:hover:not(:disabled) {
+  background-color: var(--color-sienna-500, #d56042);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(203, 83, 51, 0.55);
+}
+
+.lesson-btn-success {
+  background-color: var(--color-forest-dim);
+  color: var(--color-forest-700);
+  border-color: rgba(27, 56, 31, 0.15);
+  cursor: default;
+}
+
+.lesson-btn-ghost {
+  background-color: var(--color-bone-50);
+  color: var(--color-forest-700);
+  border-color: var(--color-bone-300);
+}
+.lesson-btn-ghost:hover {
+  border-color: var(--color-sienna-500);
+  color: var(--color-sienna-600);
+  background-color: #fff;
+  transform: translateY(-2px);
+}
+
+.lesson-btn:disabled { opacity: 0.65; cursor: not-allowed; }
