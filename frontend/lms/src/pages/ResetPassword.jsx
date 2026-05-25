@@ -17,7 +17,7 @@ export default function ResetPassword() {
 
     try {
       await axios.post(
-        `http://127.0.0.1:8000/api/users/password-reset-confirm/${uidb64}/${token}/`,
+        `https://ethsl-system.onrender.com/api/users/password-reset-confirm/${uidb64}/${token}/`,
         { password }
       )
 

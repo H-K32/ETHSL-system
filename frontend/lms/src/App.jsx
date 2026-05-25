@@ -27,6 +27,9 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
+        
 
         {/* Protected Routes (require authentication) */}
         <Route element={<ProtectedRoute />}>
@@ -42,8 +45,7 @@ export default function App() {
           <Route path="/quiz/:id" element={<Quiz />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/certificates" element={<Certificates />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
+          
         </Route>
 
         {/* 404 Route */}
