@@ -1,14 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-# Create your models here.
-
- 
-
-
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-
 class User(AbstractUser):
     ROLE_CHOICE = (
         ('learner', 'Learner'),
@@ -19,6 +11,17 @@ class User(AbstractUser):
         ('beginner', 'ጀማሪ'),
         ('intermediate', 'መካከለኛ'),
         ('advanced', 'ከፍተኛ'),
+    )
+    email_verified = models.BooleanField(default=False)
+    
+    gender = models.CharField(
+    max_length=10,
+    choices=[
+        ("male", "Male"),
+        ("female", "Female")
+    ],
+    null=True,
+    blank=True
     )
 
     email = models.EmailField(unique=True)

@@ -21,7 +21,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             uid = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
 
-            reset_link = f"http://127.0.0.1:8000/api/users/password-reset-confirm/{uid}/{token}/"
+            reset_link = f"https://ethsl-system-jl5a.vercel.app/api/users/password-reset-confirm/{uid}/{token}/"
 
             send_mail(
                 subject="Password Reset Request",

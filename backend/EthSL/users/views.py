@@ -12,6 +12,9 @@ from progress.models import LessonProgress
 from community.models import Report
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
  
 from .password_serializers import (
     PasswordResetRequestSerializer,
@@ -30,7 +33,7 @@ class RegisterView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
 
-        user = User.objects.get(email=request.data["email"])
+        user = serializer.instance
 
         refresh = RefreshToken.for_user(user)
 
@@ -41,6 +44,25 @@ class RegisterView(generics.CreateAPIView):
             "access": str(refresh.access_token),
             "refresh": str(refresh),
         })
+        
+        
+class VerifyEmailView(APIView):
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+
+            if default_token_generator.check_token(user, token):
+                user.email_verified = True
+                user.save()
+                return Response({"message": "Email verified successfully"})
+
+            return Response({"error": "Invalid token"}, status=400)
+
+        except Exception:
+            return Response({"error": "Invalid link"}, status=400)
+        
+        
 class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)

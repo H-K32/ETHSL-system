@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
     RegisterView,
+    VerifyEmailView,
 
     PasswordResetRequestView,
     PasswordResetConfirmView,
@@ -70,4 +71,9 @@ urlpatterns = [
 
     # Reports
     path("report/", ReportUserView.as_view(), name="report_user"),
+    
+    
+ 
+    path('verify-email/<uidb64>/<token>/', VerifyEmailView.as_view()),
+ 
 ]

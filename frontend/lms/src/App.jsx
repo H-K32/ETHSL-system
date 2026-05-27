@@ -20,6 +20,8 @@ import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import CompleteProfile from './pages/CompleteProfile.jsx'
 import AuthLayout from './components/AuthLayout.jsx'
+import CheckEmail from './pages/CheckEmail.jsx'
+import VerifyEmail from './pages/VerifyEmail.jsx'
 
 export default function App() {
   return (
@@ -33,6 +35,10 @@ export default function App() {
         <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />
         <Route path="/placement" element={<Placement />} />
+        <Route path="/check-email" element={<CheckEmail />} />
+        <Route path="/verify-email/:uid/:token" element={<VerifyEmail />} />
+        
+        
       </Route>
 
       {/* ================= MAIN APP (WITH NAVBAR/LAYOUT) ================= */}
