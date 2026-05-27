@@ -1,198 +1,249 @@
-import { useState } from 'react'
-import useAsync from '../utils/useAsync.js'
-import { getProfile } from '../api/lms.js'
-import Spinner from '../components/Spinner.jsx'
-import ErrorState from '../components/ErrorState.jsx'
-import ProgressBar from '../components/ProgressBar.jsx'
+// src/pages/Profile.jsx
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import api from '../api/client.js'
 import '../styles/profile.css'
 
 export default function Profile() {
-  const { user, logout, refreshUser } = useAuth()
-  const { data, loading, error, reload } = useAsync(getProfile, [])
-  const [isEditing, setIsEditing] = useState(false)
-  const [isChangingPassword, setIsChangingPassword] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [formData, setFormData] = useState({
+  const { user, login, logout } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState({ text: '', type: '' })
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [form, setForm] = useState({
+    username: '',
     first_name: '',
     last_name: '',
-    email: ''
+    avatar: null
   })
-  const [passwordData, setPasswordData] = useState({
+  const [passwordForm, setPasswordForm] = useState({
     current_password: '',
     new_password: '',
     confirm_password: ''
   })
-  const [message, setMessage] = useState({ type: '', text: '' })
   const [avatarPreview, setAvatarPreview] = useState(null)
+  const [courses, setCourses] = useState([])
+  const [coursesLoading, setCoursesLoading] = useState(true)
+  const [refreshingUser, setRefreshingUser] = useState(false)
 
-  if (loading) return (
-    <div className="profile-loading">
-      <div className="loading-spinner"></div>
-      <p>Loading profile...</p>
-    </div>
-  )
-  
-  if (error) return (
-    <div className="profile-container">
-      <div className="profile-error">
-        <p>{error?.message || 'Failed to load profile'}</p>
-        <button onClick={reload} className="retry-btn">Try Again</button>
-      </div>
-    </div>
-  )
-
-  const p = data || user || {}
-  const stats = p.stats || {
-    completed_lessons: p.completed_lessons || 0,
-    quiz_average: p.quiz_average || null,
-    current_level: p.current_level?.name || p.level?.name || 'Beginner',
-  }
-  const courses = p.course_progress || p.courses || []
-
-  // Handle edit form - NOTE: username is NOT included (read-only in backend)
-  const handleEditClick = () => {
-    setFormData({
-      first_name: p.first_name || '',
-      last_name: p.last_name || '',
-      email: p.email || ''
-    })
-    setIsEditing(true)
-    setMessage({ type: '', text: '' })
-  }
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
-
-  const handlePasswordChange = (e) => {
-    setPasswordData({
-      ...passwordData,
-      [e.target.name]: e.target.value
-    })
-  }
-
-  // Update profile - using full_name from backend
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault()
-    setMessage({ type: '', text: '' })
-    
+  // Fetch fresh user data from backend
+  const fetchFreshUserData = async () => {
     try {
-      // Backend expects full_name field
-      const fullName = `${formData.first_name} ${formData.last_name}`.trim()
-      
-      const updateData = {
-        email: formData.email,
-        full_name: fullName
+      setRefreshingUser(true)
+      const response = await api.get('/users/profile/')
+      console.log('Fetched user data:', response.data)
+      if (login && response.data) {
+        login(response.data)
       }
-      
-      const response = await api.patch('/users/profile/', updateData)
-      
-      setMessage({ type: 'success', text: 'Profile updated successfully!' })
-      setIsEditing(false)
-      await refreshUser()
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
+      return response.data
     } catch (err) {
-      console.error('Update error:', err)
-      
-      let errorText = 'Failed to update profile'
-      if (err.response?.data?.email) {
-        errorText = err.response.data.email[0]
-      } else if (err.response?.data?.detail) {
-        errorText = err.response.data.detail
-      }
-      
-      setMessage({ type: 'error', text: errorText })
+      console.error('Error fetching fresh user data:', err)
+      return null
+    } finally {
+      setRefreshingUser(false)
     }
   }
 
-  // Change password
-  const handleChangePassword = async (e) => {
-    e.preventDefault()
-    
-    if (passwordData.new_password !== passwordData.confirm_password) {
-      setMessage({ type: 'error', text: 'New passwords do not match' })
-      return
-    }
-    
-    if (passwordData.new_password.length < 8) {
-      setMessage({ type: 'error', text: 'Password must be at least 8 characters' })
-      return
-    }
-    
-    setMessage({ type: '', text: '' })
-    
-    try {
-      await api.post('/users/change-password/', {
-        current_password: passwordData.current_password,
-        new_password: passwordData.new_password
-      })
-      
-      setMessage({ type: 'success', text: 'Password changed successfully!' })
-      setPasswordData({ current_password: '', new_password: '', confirm_password: '' })
-      setIsChangingPassword(false)
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
-    } catch (err) {
-      setMessage({ 
-        type: 'error', 
-        text: err.response?.data?.detail || 'Failed to change password' 
+  useEffect(() => {
+    if (user) {
+      console.log('Current user data:', user)
+      setForm({
+        username: user.username || '',
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        avatar: null
       })
     }
+    fetchCourseProgress()
+    fetchFreshUserData()
+  }, [user?.id])
+
+  const fetchCourseProgress = async () => {
+    try {
+      const response = await api.get('/progress/courses/')
+      setCourses(response.data)
+    } catch (err) {
+      console.error('Error fetching course progress:', err)
+    } finally {
+      setCoursesLoading(false)
+    }
   }
 
-  // Upload avatar
-  const handleAvatarUpload = async (e) => {
+  const showMessage = (text, type) => {
+    setMessage({ text, type })
+    setTimeout(() => setMessage({ text: '', type: '' }), 3000)
+  }
+
+  const handleAvatarChange = (e) => {
     const file = e.target.files[0]
-    if (!file) return
-    
-    if (file.size > 5 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'Image must be less than 5MB' })
-      return
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showMessage('Avatar image must be less than 5MB', 'error')
+        return
+      }
+      if (!file.type.startsWith('image/')) {
+        showMessage('Please upload an image file', 'error')
+        return
+      }
+      setForm(prev => ({ ...prev, avatar: file }))
+      const previewUrl = URL.createObjectURL(file)
+      setAvatarPreview(previewUrl)
     }
+  }
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault()
     
-    if (!file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'Please upload an image file' })
-      return
-    }
-    
-    setIsUploading(true)
-    setMessage({ type: '', text: '' })
-    
-    const formData = new FormData()
-    formData.append('avatar', file)
-    
+    console.log('Submitting form data:', {
+      username: form.username,
+      first_name: form.first_name,
+      last_name: form.last_name,
+      has_avatar: !!form.avatar
+    })
+
+    setLoading(true)
+
     try {
+      // Use FormData for all requests to handle avatar properly
+      const formData = new FormData()
+      formData.append('username', form.username)
+      formData.append('first_name', form.first_name)
+      formData.append('last_name', form.last_name)
+      
+      if (form.avatar) {
+        formData.append('avatar', form.avatar)
+      }
+
+      // Send as PATCH request with FormData
       const response = await api.patch('/users/profile/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
+
+      console.log('Update response:', response.data)
+
+      if (login && response.data) {
+        login(response.data)
+      }
+
+      setAvatarPreview(null)
+      showMessage('Profile updated successfully!', 'success')
+      setShowEditModal(false)
       
-      setAvatarPreview(URL.createObjectURL(file))
-      setMessage({ type: 'success', text: 'Avatar updated successfully!' })
-      await refreshUser()
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
+      // Refresh user data
+      await fetchFreshUserData()
+      setForm(prev => ({ ...prev, avatar: null }))
+      
     } catch (err) {
-      setMessage({ 
-        type: 'error', 
-        text: err.response?.data?.detail || 'Failed to upload avatar' 
-      })
+      console.error('Error updating profile:', err)
+      console.error('Error response:', err.response)
+      console.error('Error data:', err.response?.data)
+      
+      if (err.response?.data) {
+        const errorData = err.response.data
+        if (typeof errorData === 'object') {
+          const errorMessages = []
+          for (const [key, value] of Object.entries(errorData)) {
+            errorMessages.push(`${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+          }
+          showMessage(errorMessages.join(' | '), 'error')
+        } else if (errorData.detail) {
+          showMessage(errorData.detail, 'error')
+        } else {
+          showMessage('Failed to update profile. Please try again.', 'error')
+        }
+      } else {
+        showMessage('Network error. Please check your connection.', 'error')
+      }
     } finally {
-      setIsUploading(false)
+      setLoading(false)
     }
+  }
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault()
+    
+    if (passwordForm.new_password !== passwordForm.confirm_password) {
+      showMessage('New passwords do not match', 'error')
+      return
+    }
+
+    if (passwordForm.new_password.length < 8) {
+      showMessage('Password must be at least 8 characters', 'error')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await api.post('/users/change-password/', {
+        current_password: passwordForm.current_password,
+        new_password: passwordForm.new_password
+      })
+
+      console.log('Password change response:', response.data)
+      showMessage('Password changed successfully!', 'success')
+      setShowPasswordModal(false)
+      setPasswordForm({
+        current_password: '',
+        new_password: '',
+        confirm_password: ''
+      })
+    } catch (err) {
+      console.error('Error changing password:', err)
+      showMessage(err.response?.data?.detail || 'Failed to change password', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getInitials = () => {
+    if (user?.first_name && user?.first_name.length > 0) {
+      const firstInitial = user.first_name[0]?.toUpperCase() || ''
+      const lastInitial = user.last_name?.[0]?.toUpperCase() || ''
+      return `${firstInitial}${lastInitial}`.trim() || user?.email?.[0]?.toUpperCase() || 'U'
+    }
+    return user?.email?.[0]?.toUpperCase() || 'U'
+  }
+
+  const getFullName = () => {
+    const firstName = user?.first_name || ''
+    const lastName = user?.last_name || ''
+    if (firstName || lastName) {
+      return `${firstName} ${lastName}`.trim()
+    }
+    return user?.username || 'User'
   }
 
   const getAvatarUrl = () => {
     if (avatarPreview) return avatarPreview
-    if (p.avatar) return p.avatar
+    if (user?.avatar) {
+      let avatarUrl = user.avatar
+      if (avatarUrl.startsWith('http')) return avatarUrl
+      if (avatarUrl.startsWith('/media/')) return `https://ethsl-system.onrender.com${avatarUrl}`
+      if (avatarUrl.startsWith('media/')) return `https://ethsl-system.onrender.com/${avatarUrl}`
+      if (!avatarUrl.startsWith('/')) return `https://ethsl-system.onrender.com/media/${avatarUrl}`
+      return `https://ethsl-system.onrender.com${avatarUrl}`
+    }
     return null
+  }
+
+  const getProgressPercentage = (course) => {
+    if (!course.total_lessons || course.total_lessons === 0) return 0
+    return Math.round((course.completed_lessons / course.total_lessons) * 100)
+  }
+
+  if (!user || refreshingUser) {
+    return (
+      <div className="profile-loading">
+        <div className="loading-spinner"></div>
+        <p>{refreshingUser ? 'Refreshing profile...' : 'Loading profile...'}</p>
+      </div>
+    )
   }
 
   return (
     <div className="profile-container">
-      {/* Message Toast */}
+      {/* Toast Message */}
       {message.text && (
         <div className={`message-toast ${message.type}`}>
           {message.text}
@@ -204,116 +255,188 @@ export default function Profile() {
         <div className="avatar-section">
           <div className="profile-avatar-wrapper">
             {getAvatarUrl() ? (
-              <img src={getAvatarUrl()} alt="Avatar" className="profile-avatar-img" />
+              <img 
+                src={getAvatarUrl()} 
+                alt="Avatar" 
+                className="profile-avatar-img"
+                onError={(e) => {
+                  console.error('Avatar failed to load:', getAvatarUrl())
+                  e.target.style.display = 'none'
+                  const parent = e.target.parentElement
+                  if (parent) {
+                    const initials = getInitials()
+                    parent.innerHTML = `<div class="profile-avatar">${initials}</div>`
+                  }
+                }}
+              />
             ) : (
               <div className="profile-avatar">
-                {(p.full_name || p.username || 'U').slice(0, 1).toUpperCase()}
+                {getInitials()}
               </div>
             )}
             <label className="avatar-upload-label">
-              <span>{isUploading ? '⏳' : '📷'}</span>
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleAvatarUpload}
-                disabled={isUploading}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
               />
+              📷
             </label>
           </div>
         </div>
-        
+
         <div className="profile-info">
-          <h1 className="profile-name">{p.full_name || p.username}</h1>
-          <p className="profile-email">{p.email}</p>
-          <p className="profile-username">@{p.username}</p>
+          <h1 className="profile-name">
+            {getFullName()}
+          </h1>
+          <p className="profile-email">{user.email}</p>
+          <p className="profile-username">@{user.username}</p>
+          
           <div className="profile-actions">
-            <button onClick={handleEditClick} className="edit-btn">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              Edit Profile
+            <button className="edit-btn" onClick={() => setShowEditModal(true)}>
+              ✏️ Edit Profile
             </button>
-            <button onClick={() => setIsChangingPassword(true)} className="password-btn">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-              Change Password
+            <button className="password-btn" onClick={() => setShowPasswordModal(true)}>
+              🔒 Change Password
             </button>
-            <button onClick={logout} className="logout-button">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Logout
+            <button className="logout-button" onClick={logout}>
+              🚪 Logout
             </button>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Grid */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-label">Completed Lessons</div>
-          <div className="stat-value">{stats.completed_lessons ?? 0}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Quiz Average</div>
-          <div className="stat-value">
-            {stats.quiz_average != null ? `${Math.round(stats.quiz_average)}%` : '—'}
-          </div>
+          <div className="stat-label">Learning Streak</div>
+          <div className="stat-value">{user.streak_count || 0} days</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Current Level</div>
-          <div className="stat-value">{stats.current_level || '—'}</div>
+          <div className="stat-value">
+            {user.level === 'beginner' ? '🌟 Beginner' : 
+             user.level === 'intermediate' ? '📚 Intermediate' : '🎯 Advanced'}
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Role</div>
+          <div className="stat-value">{user.role || 'Learner'}</div>
         </div>
       </div>
 
-      {/* Edit Profile Modal - NO username field */}
-      {isEditing && (
-        <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+      {/* Course Progress Section */}
+      <div className="course-progress-wrapper">
+        <h2 className="section-title">📖 Course Progress</h2>
+        
+        {coursesLoading ? (
+          <div className="loading-spinner" style={{ margin: '2rem auto' }} />
+        ) : courses.length > 0 ? (
+          <div className="course-list">
+            {courses.map((course) => (
+              <div key={course.id} className="course-progress-card">
+                <div className="course-header">
+                  <span className="course-title">{course.title}</span>
+                  <span className="course-lesson-count">
+                    {course.completed_lessons} / {course.total_lessons} lessons
+                  </span>
+                </div>
+                <div className="course-progress-bar">
+                  <div style={{
+                    height: '8px',
+                    background: 'rgba(0, 102, 255, 0.1)',
+                    borderRadius: '4px',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      width: `${getProgressPercentage(course)}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #0066ff, #0044cc)',
+                      borderRadius: '4px',
+                      transition: 'width 0.3s ease'
+                    }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>No courses started yet. Begin your learning journey!</p>
+          </div>
+        )}
+      </div>
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Edit Profile</h2>
-              <button className="modal-close" onClick={() => setIsEditing(false)}>×</button>
+              <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
             </div>
-            <form onSubmit={handleUpdateProfile}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>First Name</label>
-                  <input
-                    type="text"
-                    name="first_name"
-                    value={formData.first_name}
-                    onChange={handleInputChange}
-                    placeholder="First name"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Last Name</label>
-                  <input
-                    type="text"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleInputChange}
-                    placeholder="Last name"
-                  />
-                </div>
-              </div>
+            <form onSubmit={handleProfileUpdate}>
               <div className="form-group">
-                <label>Email</label>
+                <label>Username</label>
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
+                  type="text"
+                  value={form.username}
+                  onChange={(e) => setForm({ ...form, username: e.target.value })}
                   required
+                  placeholder="Choose a unique username"
                 />
               </div>
-              <div className="info-note">
-                <small>⚠️ Username cannot be changed</small>
+
+              <div className="form-group">
+                <label>First Name</label>
+                <input
+                  type="text"
+                  value={form.first_name}
+                  onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+                  required
+                  placeholder="Your first name"
+                />
               </div>
+
+              <div className="form-group">
+                <label>Last Name</label>
+                <input
+                  type="text"
+                  value={form.last_name}
+                  onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+                  placeholder="Your last name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Change Avatar</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  style={{
+                    padding: '0.5rem',
+                    border: '1.5px solid rgba(0, 102, 255, 0.2)',
+                    borderRadius: '12px',
+                    width: '100%',
+                    cursor: 'pointer'
+                  }}
+                />
+                {avatarPreview && (
+                  <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <img src={avatarPreview} alt="Preview" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} />
+                    <small style={{ color: '#0066ff' }}>New avatar will be saved</small>
+                  </div>
+                )}
+              </div>
+
               <div className="modal-footer">
-                <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
-                <button type="submit" className="submit-btn">Save Changes</button>
+                <button type="button" className="cancel-btn" onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </button>
               </div>
             </form>
           </div>
@@ -321,74 +444,54 @@ export default function Profile() {
       )}
 
       {/* Change Password Modal */}
-      {isChangingPassword && (
-        <div className="modal-overlay" onClick={() => setIsChangingPassword(false)}>
+      {showPasswordModal && (
+        <div className="modal-overlay" onClick={() => setShowPasswordModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Change Password</h2>
-              <button className="modal-close" onClick={() => setIsChangingPassword(false)}>×</button>
+              <button className="modal-close" onClick={() => setShowPasswordModal(false)}>×</button>
             </div>
-            <form onSubmit={handleChangePassword}>
+            <form onSubmit={handlePasswordChange}>
               <div className="form-group">
                 <label>Current Password</label>
                 <input
                   type="password"
-                  name="current_password"
-                  value={passwordData.current_password}
-                  onChange={handlePasswordChange}
+                  value={passwordForm.current_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })}
                   required
                 />
               </div>
+              
               <div className="form-group">
                 <label>New Password</label>
                 <input
                   type="password"
-                  name="new_password"
-                  value={passwordData.new_password}
-                  onChange={handlePasswordChange}
+                  value={passwordForm.new_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
                   required
                 />
               </div>
+              
               <div className="form-group">
                 <label>Confirm New Password</label>
                 <input
                   type="password"
-                  name="confirm_password"
-                  value={passwordData.confirm_password}
-                  onChange={handlePasswordChange}
+                  value={passwordForm.confirm_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirm_password: e.target.value })}
                   required
                 />
               </div>
+
               <div className="modal-footer">
-                <button type="button" className="cancel-btn" onClick={() => setIsChangingPassword(false)}>Cancel</button>
-                <button type="submit" className="submit-btn">Update Password</button>
+                <button type="button" className="cancel-btn" onClick={() => setShowPasswordModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn" disabled={loading}>
+                  {loading ? 'Changing...' : 'Change Password'}
+                </button>
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {/* Course Progress Section */}
-      <div className="section-title">Course Progress</div>
-      {courses.length === 0 ? (
-        <div className="empty-state">
-          <p>No course progress yet. Start learning to see your progress!</p>
-        </div>
-      ) : (
-        <div className="course-list">
-          {courses.map((c) => (
-            <div key={c.id || c.course?.id} className="course-progress-card">
-              <div className="course-header">
-                <span className="course-title">{c.title || c.course?.title}</span>
-                <span className="course-lesson-count">
-                  {c.completed_lessons ?? 0}/{c.total_lessons ?? '?'} lessons
-                </span>
-              </div>
-              <div className="course-progress-bar">
-                <ProgressBar value={c.progress ?? 0} />
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </div>

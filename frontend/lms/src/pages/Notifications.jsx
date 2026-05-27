@@ -12,56 +12,67 @@ export default function Notifications() {
   const [activeTab, setActiveTab] = useState('warnings')
 
   useEffect(() => {
-    fetchNotifications()
+    fetchWarnings()
     fetchReports()
   }, [])
 
-  const fetchNotifications = async () => {
+  const fetchWarnings = async () => {
     try {
-      setLoading(true)
-      // Get user's warning message from their profile
       const response = await api.get('/users/profile/')
       const userData = response.data
       
       const warningNotifications = []
       
-      if (userData.warning_message) {
+      if (userData.warning_message && userData.warning_message !== "") {
         warningNotifications.push({
-          id: 1,
+          id: 'warning-1',
           type: 'warning',
           title: 'Admin Warning',
           message: userData.warning_message,
-          date: userData.warning_date || new Date().toISOString(),
+          date: new Date().toISOString(),
           is_read: false
         })
       }
       
       setNotifications(warningNotifications)
     } catch (err) {
-      console.error('Error fetching notifications:', err)
-      setError('Failed to load notifications')
-    } finally {
-      setLoading(false)
+      console.error('Error fetching warnings:', err)
+      setError('Failed to load warnings')
     }
   }
 
   const fetchReports = async () => {
     try {
-      // Note: You might need to create an endpoint to fetch reports received by the user
-      // For now, we'll use mock data or a placeholder
-      const response = await api.get('/users/reports-received/').catch(() => ({ data: [] }))
-      setReports(response.data || [])
+      // Since there's no GET endpoint for reports, 
+      // we'll check if the user has been reported by checking 
+      // if they appear in any reports (this would require backend changes)
+      
+      // For now, we'll show a message that this feature needs backend implementation
+      console.log('Note: To fetch reports, backend endpoint GET /community/reports/ is needed')
+      
+      // Option 1: If you have admin access, you could fetch all reports
+      // and filter on frontend (only works if user is admin)
+      if (user?.role === 'admin') {
+        try {
+          // This would require an admin endpoint - doesn't exist yet
+          console.log('Admin role detected but no admin reports endpoint available')
+        } catch (err) {
+          console.log('No admin reports endpoint')
+        }
+      }
+      
+      // For now, set empty array
+      setReports([])
     } catch (err) {
       console.error('Error fetching reports:', err)
       setReports([])
+    } finally {
+      setLoading(false)
     }
   }
 
-  const dismissNotification = (id) => {
-    setNotifications(notifications.filter(n => n.id !== id))
-  }
-
   const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown date'
     const date = new Date(dateString)
     const now = new Date()
     const diffMs = now - date
@@ -89,7 +100,7 @@ export default function Notifications() {
     return (
       <div className="notifications-error">
         <p>{error}</p>
-        <button onClick={fetchNotifications} className="retry-btn">Try Again</button>
+        <button onClick={fetchWarnings} className="retry-btn">Try Again</button>
       </div>
     )
   }
@@ -100,7 +111,7 @@ export default function Notifications() {
       <div className="notifications-header">
         <div>
           <h1 className="notifications-title">Notifications</h1>
-          <p className="notifications-subtitle">Stay updated with warnings and reports</p>
+          <p className="notifications-subtitle">Stay updated with warnings</p>
         </div>
         <div className="notifications-stats">
           <span className="stats-badge">
@@ -109,7 +120,7 @@ export default function Notifications() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Only show warnings tab since reports endpoint doesn't exist */}
       <div className="notifications-tabs">
         <button 
           className={`tab-btn ${activeTab === 'warnings' ? 'active' : ''}`}
@@ -120,18 +131,9 @@ export default function Notifications() {
           </svg>
           Warnings
         </button>
-        <button 
-          className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
-          onClick={() => setActiveTab('reports')}
-        >
-          <svg className="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Reports Against You
-        </button>
       </div>
 
-      {/* Warnings Tab Content */}
+      {/* Warnings Tab Content - No dismiss button */}
       {activeTab === 'warnings' && (
         <div className="notifications-list">
           {notifications.length === 0 ? (
@@ -142,7 +144,7 @@ export default function Notifications() {
             </div>
           ) : (
             notifications.map((notification) => (
-              <div key={notification.id} className={`notification-card warning`}>
+              <div key={notification.id} className="notification-card warning">
                 <div className="notification-icon">
                   <span>⚠️</span>
                 </div>
@@ -152,46 +154,8 @@ export default function Notifications() {
                     <span className="notification-date">{formatDate(notification.date)}</span>
                   </div>
                   <p className="notification-message">{notification.message}</p>
-                  <div className="notification-actions">
-                    <button 
-                      className="dismiss-btn"
-                      onClick={() => dismissNotification(notification.id)}
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* Reports Tab Content */}
-      {activeTab === 'reports' && (
-        <div className="notifications-list">
-          {reports.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🛡️</div>
-              <h3>No Reports</h3>
-              <p>No one has reported you. Keep being a positive community member!</p>
-            </div>
-          ) : (
-            reports.map((report) => (
-              <div key={report.id} className="notification-card report">
-                <div className="notification-icon">
-                  <span>📢</span>
-                </div>
-                <div className="notification-content">
-                  <div className="notification-header">
-                    <h3 className="notification-title">Report from {report.reporter?.username || 'User'}</h3>
-                    <span className="notification-date">{formatDate(report.created_at)}</span>
-                  </div>
-                  <p className="notification-message">
-                    <strong>Reason:</strong> {report.reason}
-                  </p>
                   <div className="notification-warning">
-                    <small>Please review our community guidelines.</small>
+                    <small>⚠️ This is an official warning from an admin. Please review our community guidelines.</small>
                   </div>
                 </div>
               </div>
@@ -213,7 +177,7 @@ export default function Notifications() {
           <div className="info-icon">🤝</div>
           <div className="info-content">
             <h4>Need Help?</h4>
-            <p>If you have questions about a warning or report, please contact an admin.</p>
+            <p>If you have questions about a warning, please contact an admin.</p>
           </div>
         </div>
       </div>

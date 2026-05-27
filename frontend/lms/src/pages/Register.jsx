@@ -1,7 +1,9 @@
+// src/pages/Register.jsx
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import '../styles/register.css'
+
 export default function Register() {
   const { register } = useAuth()
   const nav = useNavigate()
@@ -11,14 +13,17 @@ export default function Register() {
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    setErr(null); setLoading(true)
+    setErr(null)
+    setLoading(true)
     try {
       await register(form)
-      nav('/placement', { replace: true })
+      nav('/complete-profile')  
     } catch (e) {
       const data = e?.response?.data
       setErr(typeof data === 'string' ? data : data?.detail || JSON.stringify(data || {}) || 'Could not register')
-    } finally { setLoading(false) }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
