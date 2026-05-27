@@ -32,6 +32,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />
+        <Route path="/placement" element={<Placement />} />
       </Route>
 
       {/* ================= MAIN APP (WITH NAVBAR/LAYOUT) ================= */}
@@ -42,7 +43,7 @@ export default function App() {
         {/* ================= PROTECTED ROUTES ================= */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<div />} />
-          <Route path="/placement" element={<Placement />} />
+          
           <Route path="/levels" element={<Levels />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/community" element={<Community />} />
