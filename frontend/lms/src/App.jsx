@@ -18,6 +18,7 @@ import Layout from './components/Layout.jsx'
 import Certificates from './pages/learner/Certificates.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
+import CompleteProfile from './pages/CompleteProfile.jsx'
 
 export default function App() {
   return (
@@ -29,7 +30,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
-        <Route path="/complete-profile" element={<CompleteProfile />} />
+        
         
 
         {/* Protected Routes (require authentication) */}
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/quiz/:id" element={<Quiz />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/certificates" element={<Certificates />} />
+          <Route path="/complete-profile" element={<CompleteProfile />} />
           
         </Route>
 
