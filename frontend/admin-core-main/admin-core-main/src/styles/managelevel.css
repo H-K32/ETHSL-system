@@ -1,110 +1,70 @@
 /* ========================================
-   MANAGE LEVELS - COMPLETE STYLES
+   MANAGE LEVELS - PROFESSIONAL STYLES
    ======================================== */
 
 /* Page Header */
-.page-header {
+.levels-header {
   margin-bottom: 2rem;
   padding: 0 0.5rem;
 }
 
-.page-header h1 {
-  font-size: 2rem;
+.levels-header h1 {
+  font-size: 1.875rem;
   font-weight: 700;
-  color: var(--text, #1e293b);
+  color: #1e293b;
   margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
 }
 
-.page-header p {
-  color: var(--text-light, #64748b);
+.levels-header p {
+  color: #64748b;
   font-size: 0.875rem;
 }
 
-/* Table Toolbar */
-.table-toolbar {
+/* Toolbar */
+.levels-toolbar {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 1.5rem;
 }
 
 /* Buttons */
-.btn-add {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+.btn-add-level {
+  background: #4f46e5;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  padding: 0.625rem 1.5rem;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.btn-add:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.25);
-  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
-}
-
-.btn-add:active {
-  transform: translateY(0);
-}
-
-.btn-action {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
   transition: all 0.2s ease;
-  margin: 0 0.25rem;
 }
 
-.btn-action.edit {
-  background: #eff6ff;
-  color: #3b82f6;
-}
-
-.btn-action.edit:hover {
-  background: #3b82f6;
-  color: white;
+.btn-add-level:hover {
+  background: #4338ca;
   transform: translateY(-1px);
 }
 
-.btn-action.danger {
-  background: #fef2f2;
-  color: #ef4444;
-}
-
-.btn-action.danger:hover {
-  background: #ef4444;
-  color: white;
-  transform: translateY(-1px);
-}
-
-/* Data Table */
-.data-table-wrapper {
+/* Table */
+.levels-table-wrapper {
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
 }
 
-.data-table {
+.levels-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
 
-.data-table thead {
+.levels-table thead {
   background: #f8fafc;
 }
 
-.data-table th {
+.levels-table th {
   text-align: left;
   padding: 1rem 1.25rem;
   font-weight: 600;
@@ -112,355 +72,167 @@
   border-bottom: 1px solid #e2e8f0;
   font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-.data-table td {
+.levels-table td {
   padding: 1rem 1.25rem;
   color: #1e293b;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.data-table tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-.data-table tbody tr:hover {
+.levels-table tbody tr:hover {
   background-color: #f8fafc;
 }
 
-.data-table tbody tr:last-child td {
+.levels-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* Level Badge Styling */
-.data-table td:first-child {
+/* Level Name Styling */
+.levels-table td:first-child {
   font-weight: 600;
   color: #4f46e5;
 }
 
-/* Order Number Badge */
-.data-table td:nth-child(2) {
+/* Order Number Styling */
+.levels-table td:nth-child(2) {
   font-weight: 600;
   color: #64748b;
 }
 
-/* ========================================
-   FORM CONTAINER - SIMPLE & ELEGANT
-   ======================================== */
+/* Action Buttons */
+.btn-edit-level {
+  background: #eff6ff;
+  color: #3b82f6;
+  padding: 0.375rem 1rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
 
-.form-container {
+.btn-edit-level:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-delete-level {
+  background: #fef2f2;
+  color: #ef4444;
+  padding: 0.375rem 1rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-delete-level:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* Form Container */
+.levels-form-container {
   max-width: 600px;
   margin: 0 auto;
   background: white;
-  border-radius: 24px;
-  padding: 2.5rem;
-  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
-  animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.form-container h2 {
-  font-size: 1.75rem;
+.levels-form-container h2 {
+  font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
 }
 
-.form-container h2::before {
+.levels-form-container h2::before {
   content: '';
   display: inline-block;
   width: 4px;
-  height: 28px;
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  height: 24px;
+  background: #4f46e5;
   border-radius: 2px;
   margin-right: 0.75rem;
   vertical-align: middle;
 }
 
-.form-column {
+.levels-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
 }
 
-/* Input Fields */
-.form-column input {
+.levels-form input {
   width: 100%;
-  padding: 1rem 1.25rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  font-size: 0.9375rem;
-  font-family: inherit;
-  transition: all 0.3s ease;
-  background: white;
-  color: #1e293b;
-  box-sizing: border-box;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
 }
 
-.form-column input:focus {
+.levels-form input:focus {
   outline: none;
   border-color: #4f46e5;
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 0 3px #eef2ff;
 }
 
-.form-column input:hover {
+.levels-form input:hover {
   border-color: #4f46e5;
 }
 
-.form-column input::placeholder {
-  color: #94a3b8;
-}
-
-/* Number Input Specific */
-.form-column input[type="number"] {
+/* Number Input */
+.levels-form input[type="number"] {
   -moz-appearance: textfield;
 }
 
-.form-column input[type="number"]::-webkit-inner-spin-button,
-.form-column input[type="number"]::-webkit-outer-spin-button {
+.levels-form input[type="number"]::-webkit-inner-spin-button,
+.levels-form input[type="number"]::-webkit-outer-spin-button {
   opacity: 0.5;
 }
 
 /* Form Buttons */
-.form-column button {
-  padding: 1rem;
-  border-radius: 16px;
-  font-size: 0.9375rem;
+.levels-form button[type="submit"] {
+  background: #4f46e5;
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.form-column button[type="submit"] {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-  color: white;
   margin-top: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.form-column button[type="submit"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.25);
-  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+.levels-form button[type="submit"]:hover {
+  background: #4338ca;
 }
 
-.form-column button[type="button"] {
+.levels-form button[type="button"] {
   background: #f1f5f9;
   color: #64748b;
+  padding: 0.75rem;
   border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.form-column button[type="button"]:hover {
+.levels-form button[type="button"]:hover {
   background: #e2e8f0;
   color: #1e293b;
-  transform: translateY(-1px);
 }
 
-/* Level Name Input - Add icon suggestion */
-.form-column input:first-of-type {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: left 1rem center;
-  background-size: 1.25rem;
-  padding-left: 3rem;
-}
-
-/* Order Input - Add icon suggestion */
-.form-column input:nth-of-type(2) {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: left 1rem center;
-  background-size: 1.25rem;
-  padding-left: 3rem;
-}
-
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
-
-@media (max-width: 768px) {
-  .page-header h1 {
-    font-size: 1.5rem;
-  }
-  
-  .page-header p {
-    font-size: 0.813rem;
-  }
-  
-  .table-toolbar {
-    flex-direction: column;
-  }
-  
-  .btn-add {
-    width: 100%;
-  }
-  
-  .data-table th,
-  .data-table td {
-    padding: 0.75rem 1rem;
-  }
-  
-  .form-container {
-    margin: 1rem;
-    padding: 1.5rem;
-    max-width: calc(100% - 2rem);
-  }
-  
-  .form-container h2 {
-    font-size: 1.25rem;
-  }
-  
-  .form-column {
-    gap: 1rem;
-  }
-  
-  .form-column input {
-    padding: 0.875rem 1rem;
-  }
-  
-  /* Remove icons on mobile for cleaner look */
-  .form-column input:first-of-type,
-  .form-column input:nth-of-type(2) {
-    padding-left: 1rem;
-    background-image: none;
-  }
-  
-  .form-column button {
-    padding: 0.875rem;
-  }
-}
-
-/* ========================================
-   ANIMATIONS & UTILITIES
-   ======================================== */
-
-/* Subtle animation for buttons */
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-.btn-add:active {
-  animation: pulse 0.1s ease;
-}
-
-/* Scrollbar Styling */
-.data-table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.data-table-wrapper::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-.data-table-wrapper::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-.data-table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Loading State for Buttons */
-.btn-add:disabled,
-.btn-action:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Empty State Styling */
-.data-table tbody:empty::before {
-  content: "No levels found. Click 'Add Level' to create one.";
-  display: block;
+/* Empty State */
+.levels-empty {
   text-align: center;
   padding: 3rem;
   color: #64748b;
   font-size: 0.875rem;
-}
-
-/* Order Badge - Make it look like a badge */
-.data-table td:nth-child(2) {
-  position: relative;
-}
-
-/* Optional: Add color coding based on order */
-.data-table tr td:nth-child(2)[data-order="1"] {
-  background: #eef2ff;
-  border-radius: 20px;
-  width: fit-content;
-}
-
-/* Form Help Text */
-.form-help-text {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: -0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-/* Success/Error Messages for Levels */
-.level-success {
-  background: #ecfdf5;
-  color: #10b981;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  border-left: 3px solid #10b981;
-  animation: slideDown 0.3s ease;
-}
-
-.level-error {
-  background: #fef2f2;
-  color: #ef4444;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  border-left: 3px solid #ef4444;
-  animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive Table for Levels */
-@media (max-width: 640px) {
-  .data-table th,
-  .data-table td {
-    padding: 0.625rem 0.875rem;
-  }
-  
-  .btn-action {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.688rem;
-  }
 }
