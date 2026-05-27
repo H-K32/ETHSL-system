@@ -19,21 +19,27 @@ import Certificates from './pages/learner/Certificates.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import CompleteProfile from './pages/CompleteProfile.jsx'
+import AuthLayout from './components/AuthLayout.jsx'
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+ <Routes>
+
+      {/* ================= PUBLIC AUTH PAGES ================= */}
+      <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
-        
-        
+        <Route path="/complete-profile" element={<CompleteProfile />} />
+      </Route>
 
-        {/* Protected Routes (require authentication) */}
+      {/* ================= MAIN APP (WITH NAVBAR/LAYOUT) ================= */}
+      <Route element={<Layout />}>
+
+        <Route path="/" element={<Home />} />
+
+        {/* ================= PROTECTED ROUTES ================= */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<div />} />
           <Route path="/placement" element={<Placement />} />
@@ -47,13 +53,13 @@ export default function App() {
           <Route path="/quiz/:id" element={<Quiz />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/certificates" element={<Certificates />} />
-          <Route path="/complete-profile" element={<CompleteProfile />} />
-          
         </Route>
 
-        {/* 404 Route */}
-        <Route path="*" element={<NotFound />} />
       </Route>
+
+      {/* ================= 404 ================= */}
+      <Route path="*" element={<NotFound />} />
+
     </Routes>
   )
 }
