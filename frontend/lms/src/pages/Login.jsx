@@ -80,7 +80,9 @@ export default function Login() {
           </button>
           <div className="lp-foot-row">
   <span className="lp-foot-line" />
-  <a href="/forgot-password" className="lp-forgot">Forgot password?</a>
+  <Link to="/forgot-password" className="lp-forgot">
+  Forgot password?
+</Link>
   <span className="lp-foot-line" />
 </div>
 

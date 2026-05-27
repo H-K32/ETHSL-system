@@ -16,9 +16,6 @@ import NotFound from './pages/NotFound.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Layout from './components/Layout.jsx'
 import Certificates from './pages/learner/Certificates.jsx'
-import ForgotPassword from './pages/ForgotPassword.jsx'
-import ResetPassword from './pages/ResetPassword.jsx'
-import CompleteProfile from './pages/CompleteProfile.jsx'
 
 export default function App() {
   return (
@@ -33,6 +30,8 @@ export default function App() {
       {/* Routes with Layout (has navigation bar) */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Protected Routes (require authentication) */}
         <Route element={<ProtectedRoute />}>
@@ -48,6 +47,7 @@ export default function App() {
           <Route path="/quiz/:id" element={<Quiz />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/certificates" element={<Certificates />} />
+          
         </Route>
 
         {/* 404 Route */}

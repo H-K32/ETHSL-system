@@ -29,11 +29,7 @@ class AdminPasswordResetRequestSerializer(serializers.Serializer):
             uid = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
 
-            reset_link = (
-                f"{settings.FRONTEND_URL}"
-                f"/admin-reset-password/"
-                f"{uid}/{token}"
-            )
+            reset_link = f"https://ethsl-system.onrender.com/api/users/admin/password-reset-confirm/{uid}/{token}/"
 
             try:
                 send_mail(
