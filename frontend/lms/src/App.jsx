@@ -29,6 +29,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
+        <Route path="/complete-profile" element={<CompleteProfile />} />
         
 
         {/* Protected Routes (require authentication) */}
