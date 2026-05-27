@@ -1,4 +1,13 @@
-/* managequiz.css */
+/* ========================================
+   MANAGE QUIZZES - COMPLETE CSS
+   ======================================== */
+
+/* ============ MAIN CONTAINER ============ */
+.manage-quizzes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
 /* ============ PAGE HEADER ============ */
 .page-header {
@@ -20,6 +29,13 @@
   margin: 0;
 }
 
+/* ============ TABLE TOOLBAR - PUSHES BUTTON TO RIGHT ============ */
+.table-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
 /* ============ ADD BUTTON ============ */
 .btn-add {
   display: inline-flex;
@@ -33,7 +49,6 @@
   font-weight: 500;
   border-radius: var(--radius);
   cursor: pointer;
-  margin-bottom: 20px;
   transition: background 0.2s ease, transform 0.1s ease;
   box-shadow: var(--shadow);
 }
@@ -124,6 +139,7 @@
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   max-width: 800px;
+  margin: 0 auto;
 }
 
 .form-column h3 {
@@ -150,6 +166,7 @@
   background: var(--white);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .form-column input:focus,
@@ -165,24 +182,30 @@
   resize: vertical;
 }
 
-/* Question card (the inline-styled div) */
-.form-column > div {
+/* Question card */
+.question-card {
   background: var(--bg);
   border-radius: var(--radius) !important;
   border: 1px solid var(--border) !important;
   padding: 16px !important;
+  margin-bottom: 16px;
 }
 
 /* Option rows */
-.form-column > div > div {
+.option-row {
   background: var(--white);
   border-radius: 8px;
   padding: 10px;
   border: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 /* Checkbox label */
-.form-column label {
+.correct-check {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -217,8 +240,8 @@
   background: var(--primary-hover);
 }
 
-/* "+ Add Option" smaller secondary look */
-.form-column > div button[type="button"]:first-of-type {
+/* "+ Add Option" button */
+.question-card button[type="button"]:first-of-type {
   background: var(--info-bg);
   color: var(--info);
   padding: 6px 12px;
@@ -226,58 +249,111 @@
   margin-top: 10px;
 }
 
-.form-column > div button[type="button"]:first-of-type:hover {
+.question-card button[type="button"]:first-of-type:hover {
   background: var(--info);
   color: var(--white);
 }
 
-/* Delete question button (inline red text) */
-.form-column > div button[type="button"]:last-of-type {
-  background: var(--danger-bg);
+/* Delete question button */
+.delete-question-btn {
+  background: var(--danger-bg) !important;
   color: var(--danger) !important;
   font-size: 13px;
   padding: 6px 12px;
+  margin-top: 10px;
 }
 
-.form-column > div button[type="button"]:last-of-type:hover {
-  background: var(--danger);
+.delete-question-btn:hover {
+  background: var(--danger) !important;
   color: var(--white) !important;
 }
 
-/* Cancel button (last button in form) */
-.form-column > button[type="button"] {
+/* Add Question button */
+.form-column > button[type="button"]:nth-last-of-type(2) {
+  background: var(--info-bg);
+  color: var(--info);
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+
+.form-column > button[type="button"]:nth-last-of-type(2):hover {
+  background: var(--info);
+  color: var(--white);
+}
+
+/* Cancel button */
+.form-column > button[type="button"]:last-of-type {
   background: var(--white);
   color: var(--text-light);
   border: 1px solid var(--border);
 }
 
-.form-column > button[type="button"]:hover {
+.form-column > button[type="button"]:last-of-type:hover {
   background: var(--bg);
   color: var(--text);
 }
 
+/* Save button */
+.form-column > button[type="submit"] {
+  background: var(--success);
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+
+.form-column > button[type="submit"]:hover {
+  background: #059669;
+}
+
 /* ============ DELETE MODAL ============ */
 .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
   backdrop-filter: blur(3px);
   animation: fadeIn 0.2s ease;
 }
 
 .delete-modal {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
   animation: popIn 0.25s ease;
+  box-shadow: var(--shadow-lg);
 }
 
 .delete-modal h3 {
   color: var(--danger);
   font-size: 18px;
   font-weight: 600;
+  margin-bottom: 12px;
 }
 
 .delete-modal p {
   font-size: 14px;
   line-height: 1.5;
+  color: var(--text-light);
+  margin-bottom: 20px;
 }
 
-.btn-action {
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.modal-actions button {
   padding: 9px 18px;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -289,17 +365,17 @@
   transition: all 0.2s ease;
 }
 
-.btn-action:hover {
+.modal-actions button:first-child:hover {
   background: var(--bg);
 }
 
-.btn-action.danger {
+.modal-actions button:last-child {
   background: var(--danger);
   color: var(--white);
   border-color: var(--danger);
 }
 
-.btn-action.danger:hover {
+.modal-actions button:last-child:hover {
   background: #dc2626;
   border-color: #dc2626;
 }
@@ -307,24 +383,85 @@
 /* ============ ANIMATIONS ============ */
 @keyframes fadeIn {
   from { opacity: 0; }
-  to   { opacity: 1; }
+  to { opacity: 1; }
 }
 
 @keyframes popIn {
-  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: scale(0.95) translateY(-10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
 }
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
-  .page-header { padding: 16px; }
-  .form-column { padding: 16px; }
-  .data-table { font-size: 13px; }
+  .manage-quizzes-container {
+    padding: 10px;
+  }
+  
+  .page-header { 
+    padding: 16px; 
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .form-column { 
+    padding: 16px; 
+  }
+  
+  .data-table { 
+    font-size: 13px; 
+  }
+  
   .data-table th,
-  .data-table td { padding: 10px; }
-  .data-table td button { display: block; margin: 4px 0; width: 100%; }
+  .data-table td { 
+    padding: 10px; 
+  }
+  
+  .data-table td button { 
+    display: block; 
+    margin: 4px 0; 
+    width: 100%; 
+  }
+  
+  .option-row {
+    flex-wrap: wrap;
+  }
+  
+  .option-row select {
+    width: 100%;
+  }
+  
+  .option-row input[type="text"] {
+    width: 100%;
+  }
+  
+  .table-toolbar {
+    width: 100%;
+  }
+  
+  .btn-add {
+    width: 100%;
+    justify-content: center;
+  }
 }
+
 @media (max-width: 480px) {
-  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .btn-add { width: 100%; justify-content: center; }
+  .delete-modal {
+    width: 90%;
+    padding: 20px;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-actions button {
+    width: 100%;
+  }
 }
