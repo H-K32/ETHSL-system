@@ -16,7 +16,9 @@ import NotFound from './pages/NotFound.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Layout from './components/Layout.jsx'
 import Certificates from './pages/learner/Certificates.jsx'
-
+import CompleteProfile from './pages/CompleteProfile.jsx'
+import ForgotPassword from './pages/ForgotPassword.jsx'
+import ResetPassword from './pages/ResetPassword.jsx'
 export default function App() {
   return (
     <Routes>
