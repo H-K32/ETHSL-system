@@ -15,6 +15,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import smart_bytes
  
 from .password_serializers import (
     PasswordResetRequestSerializer,
@@ -168,7 +173,7 @@ class UserProfileView(APIView):
     def patch(self, request):
         return self.put(request)
     
- 
+
 
 
 # ---------------- REPORT USER ----------------
@@ -300,17 +305,51 @@ class ActivateUserView(APIView):
 
 class AdminPasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request):
 
-        serializer = (
-            AdminPasswordResetRequestSerializer(
-                data=request.data
-            )
+        serializer = AdminPasswordResetRequestSerializer(
+            data=request.data
         )
 
-        serializer.is_valid(
-            raise_exception=True
-        )
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(
+                email=email,
+                role="admin",
+                is_active=True
+            )
+
+            uid = urlsafe_base64_encode(
+                smart_bytes(user.id)
+            )
+
+            token = PasswordResetTokenGenerator().make_token(user)
+
+            reset_link = (
+                f"https://ethsl-system.vercel.app/"
+                f"admin-reset-password/{uid}/{token}"
+            )
+
+            send_mail(
+                subject="Admin Password Reset",
+                message=f"Click below:\n\n{reset_link}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
+        except User.DoesNotExist:
+            pass
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=500
+            )
 
         return Response({
             "message":
