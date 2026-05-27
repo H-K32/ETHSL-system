@@ -1,15 +1,15 @@
 /* ========================================
-   MANAGE QUIZZES - CARD STYLE COMPACT
+   MANAGE QUIZZES - COMPACT BOXED LAYOUT
    ======================================== */
 
-/* Page Container */
-.manage-quizzes {
-  padding: 1.5rem;
-  background: #f8fafc;
-  min-height: 100vh;
+/* Main Container - Centers everything */
+.manage-quizzes-container {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
-/* Header */
+/* Page Header */
 .page-header {
   margin-bottom: 1.5rem;
 }
@@ -18,12 +18,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
-}
-
-.page-header p {
-  color: #64748b;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 /* ========================================
@@ -34,34 +29,32 @@
   background: #4f46e5;
   color: white;
   border: none;
-  padding: 0.5rem 1.25rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   cursor: pointer;
-  margin-bottom: 1.25rem;
+  width: 100%;
+  margin-bottom: 1rem;
 }
 
 .btn-add:hover {
   background: #4338ca;
 }
 
-.data-table-wrapper {
-  background: white;
-  border-radius: 12px;
-  overflow-x: auto;
-  border: 1px solid #e2e8f0;
-}
-
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  font-size: 0.75rem;
 }
 
 .data-table th {
   text-align: left;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
   background: #f8fafc;
   font-weight: 600;
   color: #475569;
@@ -69,324 +62,190 @@
 }
 
 .data-table td {
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
   border-bottom: 1px solid #e2e8f0;
   color: #1e293b;
 }
 
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table button {
+  background: #eef2ff;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.688rem;
+  cursor: pointer;
+  margin-right: 0.25rem;
+}
+
+.data-table button:first-child {
+  color: #4f46e5;
+}
+
+.data-table button:last-child {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.data-table button:hover {
+  opacity: 0.8;
+}
+
 /* ========================================
-   FORM VIEW - CARD LAYOUT (LIKE IMAGE)
+   FORM VIEW - THE BOX
    ======================================== */
 
-.form-container {
-  max-width: 700px;
-  margin: 0 auto;
+.form-column {
   background: white;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.form-container h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-/* Two Column Layout */
-.form-two-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.form-field label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.form-field input,
-.form-field select,
-.form-field textarea {
+/* Form Elements */
+.form-column select,
+.form-column input,
+.form-column textarea {
+  width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 0.813rem;
-  background: white;
+  font-size: 0.75rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
-.form-field input:focus,
-.form-field select:focus,
-.form-field textarea:focus {
+.form-column select:focus,
+.form-column input:focus,
+.form-column textarea:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
 }
 
-.form-field textarea {
+.form-column textarea {
   min-height: 60px;
   resize: vertical;
 }
 
-/* Full width field */
-.form-field-full {
-  grid-column: span 2;
-}
-
-/* Quiz Type Selector - Like Image Buttons */
-.quiz-type-selector {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.quiz-type-btn {
-  flex: 1;
-  padding: 0.5rem;
-  text-align: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.quiz-type-btn:hover {
-  border-color: #4f46e5;
-  background: #eef2ff;
-}
-
-.quiz-type-btn.active {
-  background: #4f46e5;
-  color: white;
-  border-color: #4f46e5;
-}
-
-/* ========================================
-   QUESTIONS SECTION - COMPACT
-   ======================================== */
-
-.questions-section {
-  margin-top: 1.25rem;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.section-header h3 {
+.form-column h3 {
   font-size: 0.875rem;
   font-weight: 700;
   color: #1e293b;
+  margin: 1rem 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.question-count {
-  background: #eef2ff;
-  color: #4f46e5;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.688rem;
-  font-weight: 600;
-}
+/* ========================================
+   QUESTION CARD
+   ======================================== */
 
-/* Question Card - Like Image Card */
-.question-card {
+.form-column > div[style*="border: 1px solid #ccc"] {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 0.875rem !important;
+  margin-bottom: 1rem !important;
   background: #fafbfc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
 }
 
-.question-title-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Question Type Select */
+.form-column > div[style*="border"] select:first-of-type {
+  width: auto;
+  min-width: 120px;
   margin-bottom: 0.75rem;
 }
 
-.question-number {
-  font-weight: 700;
-  font-size: 0.75rem;
-  color: #4f46e5;
+/* Question Text Input */
+.form-column > div[style*="border"] input[type="text"] {
+  width: 100%;
+  margin-bottom: 0.75rem;
 }
 
-.delete-question {
+/* Points Input */
+.form-column > div[style*="border"] input[type="number"] {
+  width: 80px;
+  margin-bottom: 0.75rem;
+}
+
+/* Add Option Button */
+.form-column > div[style*="border"] > button:first-of-type {
+  background: white;
+  border: 1px dashed #4f46e5;
+  color: #4f46e5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.688rem;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+}
+
+.form-column > div[style*="border"] > button:first-of-type:hover {
+  background: #eef2ff;
+}
+
+/* Option Rows */
+.form-column > div[style*="border"] > div[style*="display: flex"] {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-column > div[style*="border"] > div[style*="display: flex"] select {
+  width: 70px;
+  margin-bottom: 0;
+  font-size: 0.688rem;
+  padding: 0.375rem;
+}
+
+.form-column > div[style*="border"] > div[style*="display: flex"] input[type="text"] {
+  flex: 1;
+  margin-bottom: 0;
+  font-size: 0.7rem;
+  padding: 0.375rem 0.5rem;
+}
+
+.form-column > div[style*="border"] > div[style*="display: flex"] label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.688rem;
+  white-space: nowrap;
+}
+
+.form-column > div[style*="border"] > div[style*="display: flex"] input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+}
+
+/* Delete Question Button */
+.form-column > div[style*="border"] > button:last-of-type {
   background: none;
   border: none;
   color: #ef4444;
   font-size: 0.688rem;
   cursor: pointer;
-  padding: 0.125rem 0.375rem;
+  margin-top: 0.5rem;
+  padding: 0;
 }
 
-.delete-question:hover {
-  background: #fef2f2;
-  border-radius: 4px;
-}
-
-/* Question Type - Like Image Badges */
-.question-types {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.question-type {
-  padding: 0.25rem 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  font-size: 0.688rem;
-  cursor: pointer;
-  background: white;
-}
-
-.question-type:hover {
-  border-color: #4f46e5;
-}
-
-.question-type.active {
-  background: #4f46e5;
-  color: white;
-  border-color: #4f46e5;
-}
-
-/* Question Input */
-.question-input {
-  margin-bottom: 0.75rem;
-}
-
-.question-input input,
-.question-input textarea {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.813rem;
-}
-
-/* Points - Like Image Small Input */
-.points-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.points-row label {
-  font-size: 0.688rem;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.points-row input {
-  width: 60px;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  text-align: center;
-  font-size: 0.75rem;
+.form-column > div[style*="border"] > button:last-of-type:hover {
+  text-decoration: underline;
 }
 
 /* ========================================
-   OPTIONS - LIKE IMAGE STYLE
+   ADD QUESTION BUTTON
    ======================================== */
 
-.options-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.options-header span {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.add-option {
-  background: none;
-  border: 1px dashed #4f46e5;
-  color: #4f46e5;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.688rem;
-  cursor: pointer;
-}
-
-/* Option Row - Like Image Layout */
-.option-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  background: white;
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.option-type-select {
-  width: 65px;
-  padding: 0.375rem 0.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.688rem;
-  background: white;
-}
-
-.option-text-input {
-  flex: 1;
-  padding: 0.375rem 0.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.75rem;
-}
-
-.correct-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  white-space: nowrap;
-}
-
-.correct-checkbox input {
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  cursor: pointer;
-  accent-color: #10b981;
-}
-
-.correct-checkbox label {
-  font-size: 0.688rem;
-  cursor: pointer;
-  color: #1e293b;
-}
-
-/* ========================================
-   BUTTONS - LIKE IMAGE
-   ======================================== */
-
-.add-question-btn {
+.form-column > button[type="button"]:first-of-type {
   width: 100%;
   background: white;
   border: 1px dashed #cbd5e1;
@@ -396,61 +255,57 @@
   font-weight: 500;
   color: #4f46e5;
   cursor: pointer;
-  margin-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
+  margin: 0.5rem 0;
 }
 
-.add-question-btn:hover {
+.form-column > button[type="button"]:first-of-type:hover {
   background: #eef2ff;
   border-color: #4f46e5;
 }
 
-.form-buttons {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
-}
+/* ========================================
+   FORM ACTION BUTTONS
+   ======================================== */
 
-.btn-create {
-  flex: 1;
+/* Save Button */
+.form-column > button[type="submit"] {
   background: #4f46e5;
   color: white;
   border: none;
-  padding: 0.5rem;
-  border-radius: 8px;
+  padding: 0.625rem;
+  border-radius: 10px;
   font-weight: 600;
   font-size: 0.813rem;
   cursor: pointer;
+  margin-top: 0.5rem;
+  width: 100%;
 }
 
-.btn-create:hover {
+.form-column > button[type="submit"]:hover {
   background: #4338ca;
 }
 
-.btn-cancel-form {
-  flex: 1;
+/* Cancel Button */
+.form-column > button[type="button"]:last-of-type {
   background: white;
   color: #64748b;
   border: 1px solid #e2e8f0;
-  padding: 0.5rem;
-  border-radius: 8px;
+  padding: 0.625rem;
+  border-radius: 10px;
   font-weight: 600;
   font-size: 0.813rem;
   cursor: pointer;
+  margin-top: 0.5rem;
+  width: 100%;
 }
 
-.btn-cancel-form:hover {
+.form-column > button[type="button"]:last-of-type:hover {
   background: #f1f5f9;
   color: #1e293b;
 }
 
 /* ========================================
-   MODAL
+   MODAL STYLES
    ======================================== */
 
 .modal-overlay {
@@ -470,7 +325,8 @@
   background: white;
   border-radius: 16px;
   padding: 1.25rem;
-  width: 350px;
+  width: 320px;
+  max-width: 90%;
   text-align: center;
 }
 
@@ -478,12 +334,13 @@
   font-size: 1.125rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: #1e293b;
 }
 
 .delete-modal p {
-  font-size: 0.813rem;
+  font-size: 0.75rem;
   color: #64748b;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .modal-actions {
@@ -501,34 +358,43 @@
   border: none;
 }
 
+.modal-actions button:first-child {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.modal-actions button:first-child:hover {
+  background: #e2e8f0;
+}
+
+.modal-actions button:last-child {
+  background: #ef4444;
+  color: white;
+}
+
+.modal-actions button:last-child:hover {
+  background: #dc2626;
+}
+
 /* ========================================
    RESPONSIVE
    ======================================== */
 
 @media (max-width: 640px) {
-  .form-two-columns {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+  .manage-quizzes-container {
+    padding: 0.75rem;
   }
   
-  .form-field-full {
-    grid-column: span 1;
-  }
-  
-  .form-container {
-    margin: 0.5rem;
+  .form-column {
     padding: 1rem;
   }
   
-  .option-row {
+  .form-column > div[style*="border"] > div[style*="display: flex"] {
     flex-wrap: wrap;
   }
   
-  .option-type-select {
+  .form-column > div[style*="border"] > div[style*="display: flex"] select {
     width: 100%;
-  }
-  
-  .form-buttons {
-    flex-direction: column;
+    margin-bottom: 0.5rem;
   }
 }
