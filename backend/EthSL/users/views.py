@@ -11,6 +11,7 @@ from rest_framework import status
 from progress.models import LessonProgress
 from community.models import Report
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
  
 from .password_serializers import (
     PasswordResetRequestSerializer,
@@ -26,7 +27,19 @@ from .admin_password_serializer import (
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
-    
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        user = User.objects.get(email=request.data["email"])
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "user": RegisterSerializer(user).data,
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        })
+        
 class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
