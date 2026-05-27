@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../api/axiosConfig";
-import "../styles/table.css";
+import "../styles/managelevel.css";
 
 const emptyForm = {
   name: "",
