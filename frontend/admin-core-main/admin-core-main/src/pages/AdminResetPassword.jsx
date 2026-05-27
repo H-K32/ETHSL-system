@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import API from "../api/axiosConfig";
+import "../styles/adminresetpassword.css";
 
 function AdminResetPassword() {
 
