@@ -1,213 +1,318 @@
-/* ==========================================================================
-   VIBRANT BLUE LITERARY CORE CSS
-   Theme: Electric Blue, Deep Navy, Crisp White
-   Aesthetic: Asymmetric, Scholastic, Audacious, Confident
-   ========================================================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..950;1,9..144,100..950&family=Inter:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
+/* src/styles/register.css */
 :root {
-  /* Dynamic Paint Palette - Vibrant Blue Theme */
-  --color-bone-bg:     #e8f0fe; /* Soft blue-tinted background */
-  --color-bone-card:   #ffffff; /* Pure white for cards */
-  --color-bone-dark:   #c5d5ea; /* Shadow/depth blue tones */
-  
-  --color-forest-deep: #003d99; /* Deep vibrant navy blue */
-  --color-forest-mid:  #0066ff; /* Vibrant electric blue */
-  --color-forest-light: #e6f0ff;
-
-  --color-sienna-hot:  #0066ff; /* Vibrant blue primary action */
-  --color-sienna-soft: #f0f6ff;
-  --color-sienna-dark: #0044cc;
-  
-  /* Artistic Typography */
-  --font-serif: "Fraunces", Georgia, serif;
-  --font-sans:  "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono:  "JetBrains Mono", monospace;
-  
-  /* Bold Transitional Effects */
-  --transition-confident: 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --mist: #e8f0fe;
+  --mist-2: #d4e2f7;
+  --ink: #0a1c2f;
+  --deep-blue: #0a4a8a;
+  --navy-deep: #062041;
+  --aqua-bright: #1e6cb5;
+  --aqua-soft: #3a85c9;
+  --accent-glow: #2a7bc2;
 }
 
-/* ==========================================================================
-   GLOBAL OR ENCLOSING CONTAINER
-   ========================================================================== */
+* {
+  box-sizing: border-box;
+}
 
-/* The backdrop uses a soft blue gradient for vibrant feel */
-.register-container-wrapper, body {
-  background: linear-gradient(135deg, #0066ff 0%, #0044cc 50%, #003399 100%);
-  font-family: var(--font-sans);
-  color: var(--color-forest-deep);
+.rp-stage {
+  position: relative;
   min-height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(120% 80% at 80% 10%, var(--mist) 0%, var(--mist-2) 100%);
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
 }
 
-/* ==========================================================================
-   TYPOGRAPHY
-   ========================================================================== */
-
-/* Confident, high-contrast serif display title */
-h1, .serif-display {
-  font-family: var(--font-serif);
-  color: var(--color-forest-deep);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+/* —— floating organic shapes —— */
+.rp-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: rp-float 14s ease-in-out infinite;
 }
 
-/* Meta-elements, badges, and labels use scholastic monospace indicators */
-.font-mono, .field-label {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 700;
-  color: var(--color-forest-mid);
+.rp-blob--a {
+  width: 380px;
+  height: 380px;
+  background: var(--deep-blue);
+  top: -120px;
+  left: -80px;
+  opacity: 0.4;
 }
 
-/* ==========================================================================
-   ASYMMETRIC CONTAINER (THE REGISTRATION CARD)
-   ========================================================================== */
-
-/* Confident outline container styled with a raw, bold 3D slab shadow */
-.register-card {
-  background-color: var(--color-bone-card);
-  padding: 2.5rem;
-  border: 2px solid var(--color-forest-deep);
-  
-  /* Asymmetric border-radius skews */
-  border-top-left-radius: 6px;
-  border-top-right-radius: 28px;
-  border-bottom-right-radius: 8px;
-  border-bottom-left-radius: 36px;
-  
-  /* Punchy, tactile flat shadow offset outwards */
-  box-shadow: 8px 8px 0px 0px var(--color-forest-deep);
-  transition: transform var(--transition-confident), box-shadow var(--transition-confident);
+.rp-blob--b {
+  width: 300px;
+  height: 300px;
+  background: var(--aqua-bright);
+  bottom: -100px;
+  right: -60px;
+  opacity: 0.45;
+  animation-delay: -5s;
 }
 
-/* Subtle physical interactive lift on card hover */
-.register-card:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 11px 11px 0px 0px var(--color-sienna-hot);
+.rp-blob--c {
+  width: 220px;
+  height: 220px;
+  background: var(--aqua-soft);
+  top: 40%;
+  right: 18%;
+  opacity: 0.35;
+  animation-delay: -9s;
 }
 
-/* ==========================================================================
-   FORM INPUTS
-   ========================================================================== */
+@keyframes rp-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -30px) scale(1.08);
+  }
+}
 
-.input {
+/* subtle dotted texture */
+.rp-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(10, 28, 47, 0.1) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(circle at 50% 50%, #000 30%, transparent 75%);
+  pointer-events: none;
+}
+
+/* —— card —— */
+.rp-card {
+  position: relative;
   width: 100%;
-  padding: 0.8rem 1.1rem;
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--color-forest-deep);
-  background-color: var(--color-bone-card);
-  
-  /* Handcrafted flat-border aesthetic */
-  border: 2px solid var(--color-bone-dark);
-  border-radius: 6px;
-  outline: none;
-  transition: all var(--transition-confident);
+  max-width: 420px;
+  background: var(--mist);
+  border: 1.5px solid rgba(10, 74, 138, 0.2);
+  border-radius: 28px;
+  padding: 2.5rem 2.25rem 2rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 30px 60px -20px rgba(6, 32, 65, 0.4), 0 8px 20px -12px rgba(30, 108, 181, 0.3);
+  backdrop-filter: blur(8px);
 }
 
-.input::placeholder {
-  color: #adb5bd;
+.rp-card::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(10, 74, 138, 0.35);
+  border-radius: 22px;
+  pointer-events: none;
 }
 
-/* Focused inputs assertive feedback */
-.input:focus {
-  border-color: var(--color-sienna-hot);
-  background-color: #ffffff;
-  /* Double-layer confident outline */
-  box-shadow: 4px 4px 0px 0px var(--color-forest-deep);
+.rp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--deep-blue);
+  color: white;
+  padding: 0.35rem 0.8rem 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
-/* ==========================================================================
-   PRIMARY ACTION BUTTON
-   ========================================================================== */
+.rp-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--aqua-soft);
+  box-shadow: 0 0 0 3px rgba(58, 133, 201, 0.35);
+  animation: rp-pulse 2s ease-in-out infinite;
+}
 
-.btn-primary {
+@keyframes rp-pulse {
+  50% {
+    box-shadow: 0 0 0 6px rgba(58, 133, 201, 0);
+  }
+}
+
+.rp-title {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 2.6rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 1.25rem 0 0.4rem;
+  color: var(--navy-deep);
+}
+
+.rp-period {
+  color: var(--aqua-bright);
+}
+
+.rp-sub {
+  font-size: 0.98rem;
+  color: rgba(10, 28, 47, 0.7);
+  margin: 0 0 1.75rem;
+}
+
+/* —— form —— */
+.rp-form {
   display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.rp-field {
+  position: relative;
+}
+
+.rp-input {
+  width: 100%;
+  padding: 1.15rem 1rem 0.6rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(10, 74, 138, 0.25);
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.rp-input:focus {
+  border-color: var(--deep-blue);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(10, 74, 138, 0.15);
+}
+
+.rp-field label {
+  position: absolute;
+  left: 1rem;
+  top: 0.95rem;
+  font-size: 0.95rem;
+  color: rgba(10, 28, 47, 0.55);
+  pointer-events: none;
+  transition: all 0.18s ease;
+}
+
+.rp-input:focus + label,
+.rp-input:not(:placeholder-shown) + label {
+  top: 0.3rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--deep-blue);
+  font-weight: 700;
+}
+
+/* —— error message —— */
+.rp-error {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #c7254e;
+  background: rgba(199, 37, 78, 0.08);
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  border-left: 3px solid #c7254e;
+}
+
+/* —— button —— */
+.rp-btn {
+  position: relative;
+  margin-top: 0.4rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0066ff, #0044cc);
-  color: var(--color-bone-bg);
-  padding: 0.9rem 1.7rem;
-  
-  font-family: var(--font-serif);
-  font-weight: 800;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
-  text-align: center;
-  
-  border: 2px solid var(--color-forest-deep);
-  border-radius: 4px;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  background: var(--deep-blue);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  
-  /* Fierce vibrant blue shadow offset */
-  box-shadow: 4px 4px 0px 0px #003d99;
-  transition: all var(--transition-confident);
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 10px 24px -10px rgba(6, 32, 65, 0.7);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
 
-/* Confident mechanical click feedback */
-.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1a75ff, #0066ff);
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px #003d99;
+.rp-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.25s ease;
 }
 
-.btn-primary:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px #003d99;
+.rp-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, var(--aqua-bright) 50%, transparent 70%);
+  transform: translateX(-110%);
+  transition: transform 0.6s ease;
 }
 
-.btn-primary:disabled {
-  opacity: 0.55;
+.rp-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #0c5a9e;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 18px 30px -12px rgba(6, 32, 65, 0.75), 0 0 0 4px rgba(30, 108, 181, 0.2);
+}
+
+.rp-btn:hover:not(:disabled) svg {
+  transform: translateX(4px);
+}
+
+.rp-btn:hover:not(:disabled)::before {
+  transform: translateX(110%);
+}
+
+.rp-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.rp-btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
 }
 
-/* ==========================================================================
-   HAND-CRAFTED SCHOLASTIC STYLING UTILITIES
-   ========================================================================== */
-
-/* Asymmetric badge element for notifications, modules, or states */
-.asymmetric-badge {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  padding: 0.15rem 0.65rem;
-  
-  border: 1px solid var(--color-forest-deep);
-  background-color: var(--color-sienna-soft);
-  color: var(--color-sienna-dark);
-  
-  border-top-left-radius: 10px;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 12px;
-  border-bottom-left-radius: 4px;
+.rp-btn > span,
+.rp-btn > svg {
+  position: relative;
+  z-index: 1;
 }
 
-/* Decorative vertical rule on titles representing confident asymmetry */
-.asymmetric-rule-left {
-  border-left: 4px solid var(--color-sienna-hot);
-  padding-left: 1.25rem;
+/* —— footer links —— */
+.rp-foot {
+  text-align: center;
+  font-size: 0.92rem;
+  color: rgba(10, 28, 47, 0.7);
+  margin: 1rem 0 0;
 }
 
-.link-academic {
-  color: var(--color-sienna-hot);
-  font-family: var(--font-serif);
-  font-weight: 800;
+.rp-link {
+  color: var(--aqua-bright);
+  font-weight: 700;
   text-decoration: none;
-  border-bottom: 2px dashed var(--color-sienna-hot);
-  transition: color 0.15s ease-out, border-color 0.15s ease-out;
+  border-bottom: 1.5px solid rgba(30, 108, 181, 0.5);
+  transition: border-color 0.2s, color 0.2s;
 }
 
-.link-academic:hover {
-  color: var(--color-forest-deep);
-  border-bottom: 2px solid var(--color-forest-deep);
+.rp-link:hover {
+  color: var(--deep-blue);
+  border-bottom-color: var(--deep-blue);
+}
+
+/* responsive */
+@media (max-width: 480px) {
+  .rp-card {
+    padding: 2rem 1.5rem 1.5rem;
+    border-radius: 22px;
+  }
+
+  .rp-title {
+    font-size: 2.1rem;
+  }
 }

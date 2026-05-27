@@ -1,206 +1,224 @@
-import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
+// src/pages/CompleteProfile.jsx
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import { useEffect } from 'react'
-import '../styles/layout.css'
+import api from '../api/client.js' // Make sure this path is correct
+import '../styles/complete-profile.css'
 
-export default function Layout() {
-  const { user, logout } = useAuth()
+export default function CompleteProfile() {
+  const { user, login } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
-  
-  const navLinkClass = ({ isActive }) =>
-    `nav-link ${isActive ? 'nav-link-active' : 'nav-link-inactive'}`
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [form, setForm] = useState({
+    full_name: '',
+    level: 'beginner',
+    avatar: null
+  })
+  const [avatarPreview, setAvatarPreview] = useState(null)
 
-  // Check if user needs to take placement test
-  useEffect(() => {
-    if (user && user.placement_required && user.level !== 'beginner') {
-      // Only redirect if not already on placement page
-      if (location.pathname !== '/placement') {
-        navigate('/placement')
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+    if (error) setError(null)
+  }
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Avatar image must be less than 5MB')
+        return
       }
+      if (!file.type.startsWith('image/')) {
+        setError('Please upload an image file')
+        return
+      }
+      setForm(prev => ({ ...prev, avatar: file }))
+      const previewUrl = URL.createObjectURL(file)
+      setAvatarPreview(previewUrl)
     }
-  }, [user, location.pathname, navigate])
+  }
 
-  // Check if current page is auth pages (no sidebar for login/register)
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register'
-  const isPlacementPage = location.pathname === '/placement'
-  const showSidebar = user && !isAuthPage && !isPlacementPage
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!form.full_name) {
+      setError('Please enter your full name')
+      return
+    }
 
-  // Dashboard stats
-  const stats = [
-    { label: 'Courses Enrolled', value: '3', icon: '📚', color: '#4f46e5' },
-    { label: 'Lessons Completed', value: '12', icon: '✅', color: '#10b981' },
-    { label: 'Quiz Score', value: '85%', icon: '📊', color: '#f59e0b' },
-    { label: 'Current Streak', value: '7', icon: '🔥', color: '#ef4444' },
-  ]
+    setError(null)
+    setLoading(true)
 
-  const recentActivities = [
-    { title: 'Completed Level 1', date: '2 hours ago' },
-    { title: 'Scored 90% on Quiz', date: 'Yesterday' },
-    { title: 'Started Level 2', date: '3 days ago' },
-  ]
+    try {
+      const token = localStorage.getItem('access_token')
+      
+      if (!token) {
+        setError('No authentication token found. Please login again.')
+        setLoading(false)
+        return
+      }
+
+      // Create FormData for avatar upload
+      const formData = new FormData()
+      
+      // Split full_name into first_name and last_name for your backend
+      const nameParts = form.full_name.trim().split(' ')
+      const firstName = nameParts[0]
+      const lastName = nameParts.slice(1).join(' ') || ''
+      
+      formData.append('first_name', firstName)
+      formData.append('last_name', lastName)
+      formData.append('level', form.level)
+      
+      if (form.avatar) {
+        formData.append('avatar', form.avatar)
+      }
+
+      console.log('Sending to backend:', {
+        url: '/users/profile/',
+        first_name: firstName,
+        last_name: lastName,
+        level: form.level,
+        has_avatar: !!form.avatar
+      })
+
+      // CORRECT: Use '/users/profile/' not '/api/users/profile/'
+      // The baseURL already includes '/api'
+      const response = await api.patch('/users/profile/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      })
+
+      console.log('Profile update response:', response.data)
+
+      // Update user context with new data
+      if (login && response.data) {
+        login(response.data)
+      }
+
+      // Redirect based on level
+      if (form.level === 'beginner') {
+        navigate('/login', { replace: true })
+      } else {
+        navigate('/placement', { replace: true })
+      }
+    } catch (err) {
+      console.error('Error details:', err)
+      console.error('Response data:', err.response?.data)
+      console.error('Response status:', err.response?.status)
+      console.error('Request URL:', err.config?.url)
+      
+      if (err.response?.data) {
+        const errorData = err.response.data
+        if (typeof errorData === 'object') {
+          const messages = Object.values(errorData).flat().join(', ')
+          setError(messages || 'Failed to update profile. Please try again.')
+        } else {
+          setError(errorData.detail || errorData.message || 'Failed to update profile. Please try again.')
+        }
+      } else if (err.request) {
+        setError('Network error. Please check your connection.')
+      } else {
+        setError(`Error: ${err.message || 'An unexpected error occurred'}`)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="layout-container">
-      {/* Sidebar - Only show when logged in and NOT on auth or placement pages */}
-      {showSidebar && (
-        <aside className="sidebar">
-          <div className="sidebar-content">
-            {/* Logo */}
-            <Link to="/" className="logo">
-              <div className="logo-icon">
-                <span>E</span>
-              </div>
-              <span className="logo-text">ETHSL LMS</span>
-            </Link>
+    <div className="cp-stage">
+      <div className="cp-blob cp-blob--a"></div>
+      <div className="cp-blob cp-blob--b"></div>
+      <div className="cp-blob cp-blob--c"></div>
+      <div className="cp-grid"></div>
 
-            {/* Navigation */}
-            <nav className="nav-menu">
-              <NavLink to="/" className={navLinkClass}>
-                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                <span>Dashboard</span>
-              </NavLink>
-              
-              <NavLink to="/placement" className={navLinkClass}>
-                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-                <span>Placement</span>
-              </NavLink>
+      <div className="cp-card">
+        <div className="cp-tag">
+          <span className="cp-dot"></span>
+          <span>Complete Profile</span>
+        </div>
 
-              <NavLink to="/levels" className={navLinkClass}>
-                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>Levels</span>
-              </NavLink>
+        <h1 className="cp-title">
+          Tell us<br />
+          <span className="cp-period">about yourself</span>
+        </h1>
+        <p className="cp-sub">Help us personalize your learning experience</p>
 
-              <NavLink to="/progress" className={navLinkClass}>
-                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-                <span>Progress</span>
-              </NavLink>
+        {error && <div className="cp-error">{error}</div>}
 
-              <NavLink to="/community" className={navLinkClass}>
-                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <span>Community</span>
-              </NavLink>
-
-              <NavLink to="/notifications" className={navLinkClass}>
-                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span>Notifications</span>
-                <span className="notification-badge">3</span>
-              </NavLink>
-
-              <NavLink to="/profile" className={navLinkClass}>
-                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <span>Profile</span>
-              </NavLink>
-            </nav>
-
-            {/* User Section - Only logout button now */}
-            <div className="user-section">
-              <button onClick={logout} className="logout-btn">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                <span>Logout</span>
-              </button>
+        <form onSubmit={onSubmit} className="cp-form">
+          {/* Avatar Upload */}
+          <div className="cp-avatar-section">
+            <div className="cp-avatar-preview">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Avatar preview" />
+              ) : (
+                <div className="cp-avatar-placeholder">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+              )}
             </div>
+            <label className="cp-avatar-btn">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                style={{ display: 'none' }}
+              />
+              Choose Avatar
+            </label>
           </div>
-        </aside>
-      )}
 
-      {/* Main Content */}
-      <div className={`main-wrapper ${!showSidebar ? 'full-width' : ''}`}>
-        <main className="main-content">
-          {/* Dashboard Content - Shown at Home page when user is logged in */}
-          {location.pathname === '/' && user && !showSidebar ? (
-            <div className="dashboard-container">
-              {/* Welcome Section */}
-              <div className="welcome-section">
-                <div className="welcome-text">
-                  <h1 className="welcome-title">
-                    Welcome back, <span className="gradient-name">{user?.username || 'Learner'}! 👋</span>
-                  </h1>
-                  <p className="welcome-subtitle">Continue your learning journey. You're making great progress!</p>
-                </div>
-                <div className="welcome-emoji">🌟</div>
-              </div>
+          {/* Full Name */}
+          <div className="cp-field">
+            <input
+              type="text"
+              id="full_name"
+              name="full_name"
+              className="cp-input"
+              value={form.full_name}
+              onChange={handleChange}
+              placeholder=" "
+              required
+            />
+            <label htmlFor="full_name">Full Name</label>
+          </div>
 
-              {/* Stats Grid */}
-              <div className="stats-grid">
-                {stats.map((stat, index) => (
-                  <div key={index} className="stat-card">
-                    <div className="stat-icon" style={{ background: `${stat.color}15` }}>
-                      <span>{stat.icon}</span>
-                    </div>
-                    <div className="stat-info">
-                      <p className="stat-value">{stat.value}</p>
-                      <p className="stat-label">{stat.label}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* Level */}
+          <div className="cp-field">
+            <select
+              id="level"
+              name="level"
+              className="cp-select"
+              value={form.level}
+              onChange={handleChange}
+              required
+            >
+              <option value="beginner">Beginner (ጀማሪ)</option>
+              <option value="intermediate">Intermediate (መካከለኛ)</option>
+              <option value="advanced">Advanced (ከፍተኛ)</option>
+            </select>
+            <label htmlFor="level">Your Level</label>
+          </div>
 
-              {/* Recent Activity */}
-              <div className="dashboard-card">
-                <div className="card-header">
-                  <h3>Recent Activity</h3>
-                  <Link to="/progress" className="view-all">View All →</Link>
-                </div>
-                <div className="activity-list">
-                  {recentActivities.map((activity, index) => (
-                    <div key={index} className="activity-item">
-                      <div className="activity-dot"></div>
-                      <div className="activity-content">
-                        <p className="activity-title">{activity.title}</p>
-                        <p className="activity-date">{activity.date}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          <button type="submit" disabled={loading} className="cp-btn">
+            {loading ? 'Saving...' : 'Continue'}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </form>
 
-              {/* Quick Actions */}
-              <div className="quick-actions">
-                <h3 className="quick-title">Quick Actions</h3>
-                <div className="actions-grid">
-                  <Link to="/levels" className="action-btn">
-                    <span>📖</span>
-                    <span>Continue Learning</span>
-                  </Link>
-                  <Link to="/progress" className="action-btn">
-                    <span>📈</span>
-                    <span>View Progress</span>
-                  </Link>
-                  <Link to="/community" className="action-btn">
-                    <span>💬</span>
-                    <span>Join Discussion</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <Outlet />
-          )}
-        </main>
-        
-        {/* Footer - Hide on auth pages */}
-        {!isAuthPage && !isPlacementPage && (
-          <footer className="footer">
-            <p>© {new Date().getFullYear()} ETHSL Learner LMS. All rights reserved.</p>
-          </footer>
-        )}
+        <p className="cp-foot">
+          You can update this later in your <span className="cp-highlight">profile settings</span>
+        </p>
       </div>
     </div>
   )
