@@ -1,400 +1,330 @@
-/* ========================================
-   MANAGE QUIZZES - COMPACT BOXED LAYOUT
-   ======================================== */
+/* managequiz.css */
 
-/* Main Container - Centers everything */
-.manage-quizzes-container {
-  max-width: 650px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-/* Page Header */
+/* ============ PAGE HEADER ============ */
 .page-header {
-  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .page-header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
 }
 
-/* ========================================
-   LIST VIEW
-   ======================================== */
-
+/* ============ ADD BUTTON ============ */
 .btn-add {
-  background: #4f46e5;
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: var(--white);
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.75rem;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius);
   cursor: pointer;
-  width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 20px;
+  transition: background 0.2s ease, transform 0.1s ease;
+  box-shadow: var(--shadow);
 }
 
 .btn-add:hover {
-  background: #4338ca;
+  background: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
+/* ============ DATA TABLE ============ */
 .data-table {
   width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 12px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--white);
+  border-radius: var(--radius);
   overflow: hidden;
-  border: 1px solid #e2e8f0;
-  font-size: 0.75rem;
+  box-shadow: var(--shadow);
+  font-size: 14px;
+}
+
+.data-table thead {
+  background: var(--primary-light);
 }
 
 .data-table th {
   text-align: left;
-  padding: 0.625rem 0.75rem;
-  background: #f8fafc;
+  padding: 14px 16px;
   font-weight: 600;
-  color: #475569;
-  border-bottom: 1px solid #e2e8f0;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .data-table td {
-  padding: 0.625rem 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
-  color: #1e293b;
+  padding: 14px 16px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
 }
 
-.data-table tr:last-child td {
+.data-table tbody tr:hover {
+  background: var(--bg);
+}
+
+.data-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.data-table button {
-  background: #eef2ff;
+/* Action buttons in table */
+.data-table td button {
+  background: var(--primary-light);
+  color: var(--primary);
   border: none;
-  padding: 0.25rem 0.5rem;
+  padding: 6px 12px;
+  margin-right: 6px;
   border-radius: 6px;
-  font-size: 0.688rem;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  margin-right: 0.25rem;
+  transition: all 0.2s ease;
 }
 
-.data-table button:first-child {
-  color: #4f46e5;
+.data-table td button:hover {
+  background: var(--primary);
+  color: var(--white);
 }
 
-.data-table button:last-child {
-  color: #ef4444;
-  background: #fef2f2;
+.data-table td button:last-child {
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
-.data-table button:hover {
-  opacity: 0.8;
+.data-table td button:last-child:hover {
+  background: var(--danger);
+  color: var(--white);
 }
 
-/* ========================================
-   FORM VIEW - THE BOX
-   ======================================== */
-
+/* ============ FORM ============ */
 .form-column {
-  background: white;
-  border-radius: 16px;
-  padding: 1.25rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-/* Form Elements */
-.form-column select,
-.form-column input,
-.form-column textarea {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  margin-bottom: 1rem;
-  box-sizing: border-box;
-  font-family: inherit;
-}
-
-.form-column select:focus,
-.form-column input:focus,
-.form-column textarea:focus {
-  outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
-}
-
-.form-column textarea {
-  min-height: 60px;
-  resize: vertical;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--white);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 800px;
 }
 
 .form-column h3 {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 1rem 0 0.75rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin: 12px 0 4px;
+  font-size: 16px;
+  color: var(--text);
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 6px;
 }
 
-/* ========================================
-   QUESTION CARD
-   ======================================== */
-
-.form-column > div[style*="border: 1px solid #ccc"] {
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  padding: 0.875rem !important;
-  margin-bottom: 1rem !important;
-  background: #fafbfc;
-}
-
-/* Question Type Select */
-.form-column > div[style*="border"] select:first-of-type {
-  width: auto;
-  min-width: 120px;
-  margin-bottom: 0.75rem;
-}
-
-/* Question Text Input */
-.form-column > div[style*="border"] input[type="text"] {
+/* Inputs, textareas, selects */
+.form-column input[type="text"],
+.form-column input[type="number"],
+.form-column input[type="file"],
+.form-column textarea,
+.form-column select {
   width: 100%;
-  margin-bottom: 0.75rem;
-}
-
-/* Points Input */
-.form-column > div[style*="border"] input[type="number"] {
-  width: 80px;
-  margin-bottom: 0.75rem;
-}
-
-/* Add Option Button */
-.form-column > div[style*="border"] > button:first-of-type {
-  background: white;
-  border: 1px dashed #4f46e5;
-  color: #4f46e5;
-  padding: 0.25rem 0.75rem;
-  border-radius: 16px;
-  font-size: 0.688rem;
-  cursor: pointer;
-  margin-bottom: 0.75rem;
-}
-
-.form-column > div[style*="border"] > button:first-of-type:hover {
-  background: #eef2ff;
-}
-
-/* Option Rows */
-.form-column > div[style*="border"] > div[style*="display: flex"] {
-  background: white;
-  border: 1px solid #e2e8f0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--white);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
 }
 
-.form-column > div[style*="border"] > div[style*="display: flex"] select {
-  width: 70px;
-  margin-bottom: 0;
-  font-size: 0.688rem;
-  padding: 0.375rem;
+.form-column input:focus,
+.form-column textarea:focus,
+.form-column select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-.form-column > div[style*="border"] > div[style*="display: flex"] input[type="text"] {
-  flex: 1;
-  margin-bottom: 0;
-  font-size: 0.7rem;
-  padding: 0.375rem 0.5rem;
+.form-column textarea {
+  min-height: 90px;
+  resize: vertical;
 }
 
-.form-column > div[style*="border"] > div[style*="display: flex"] label {
-  display: flex;
+/* Question card (the inline-styled div) */
+.form-column > div {
+  background: var(--bg);
+  border-radius: var(--radius) !important;
+  border: 1px solid var(--border) !important;
+  padding: 16px !important;
+}
+
+/* Option rows */
+.form-column > div > div {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+}
+
+/* Checkbox label */
+.form-column label {
+  display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.688rem;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
   white-space: nowrap;
 }
 
-.form-column > div[style*="border"] > div[style*="display: flex"] input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
-  margin: 0;
-}
-
-/* Delete Question Button */
-.form-column > div[style*="border"] > button:last-of-type {
-  background: none;
-  border: none;
-  color: #ef4444;
-  font-size: 0.688rem;
+.form-column input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
   cursor: pointer;
-  margin-top: 0.5rem;
-  padding: 0;
 }
 
-.form-column > div[style*="border"] > button:last-of-type:hover {
-  text-decoration: underline;
-}
-
-/* ========================================
-   ADD QUESTION BUTTON
-   ======================================== */
-
-.form-column > button[type="button"]:first-of-type {
-  width: 100%;
-  background: white;
-  border: 1px dashed #cbd5e1;
-  padding: 0.5rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
+/* Form buttons */
+.form-column button {
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 500;
-  color: #4f46e5;
   cursor: pointer;
-  margin: 0.5rem 0;
+  transition: background 0.2s ease;
+  align-self: flex-start;
 }
 
-.form-column > button[type="button"]:first-of-type:hover {
-  background: #eef2ff;
-  border-color: #4f46e5;
+.form-column button:hover {
+  background: var(--primary-hover);
 }
 
-/* ========================================
-   FORM ACTION BUTTONS
-   ======================================== */
-
-/* Save Button */
-.form-column > button[type="submit"] {
-  background: #4f46e5;
-  color: white;
-  border: none;
-  padding: 0.625rem;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.813rem;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  width: 100%;
+/* "+ Add Option" smaller secondary look */
+.form-column > div button[type="button"]:first-of-type {
+  background: var(--info-bg);
+  color: var(--info);
+  padding: 6px 12px;
+  font-size: 13px;
+  margin-top: 10px;
 }
 
-.form-column > button[type="submit"]:hover {
-  background: #4338ca;
+.form-column > div button[type="button"]:first-of-type:hover {
+  background: var(--info);
+  color: var(--white);
 }
 
-/* Cancel Button */
-.form-column > button[type="button"]:last-of-type {
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  padding: 0.625rem;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.813rem;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  width: 100%;
+/* Delete question button (inline red text) */
+.form-column > div button[type="button"]:last-of-type {
+  background: var(--danger-bg);
+  color: var(--danger) !important;
+  font-size: 13px;
+  padding: 6px 12px;
 }
 
-.form-column > button[type="button"]:last-of-type:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+.form-column > div button[type="button"]:last-of-type:hover {
+  background: var(--danger);
+  color: var(--white) !important;
 }
 
-/* ========================================
-   MODAL STYLES
-   ======================================== */
+/* Cancel button (last button in form) */
+.form-column > button[type="button"] {
+  background: var(--white);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+}
 
+.form-column > button[type="button"]:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ============ DELETE MODAL ============ */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.2s ease;
 }
 
 .delete-modal {
-  background: white;
-  border-radius: 16px;
-  padding: 1.25rem;
-  width: 320px;
-  max-width: 90%;
-  text-align: center;
+  animation: popIn 0.25s ease;
 }
 
 .delete-modal h3 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: #1e293b;
+  color: var(--danger);
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .delete-modal p {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-bottom: 1.25rem;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.modal-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.modal-actions button {
-  padding: 0.375rem 1rem;
+.btn-action {
+  padding: 9px 18px;
   border-radius: 8px;
-  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--text);
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  border: none;
+  transition: all 0.2s ease;
 }
 
-.modal-actions button:first-child {
-  background: #f1f5f9;
-  color: #64748b;
+.btn-action:hover {
+  background: var(--bg);
 }
 
-.modal-actions button:first-child:hover {
-  background: #e2e8f0;
+.btn-action.danger {
+  background: var(--danger);
+  color: var(--white);
+  border-color: var(--danger);
 }
 
-.modal-actions button:last-child {
-  background: #ef4444;
-  color: white;
-}
-
-.modal-actions button:last-child:hover {
+.btn-action.danger:hover {
   background: #dc2626;
+  border-color: #dc2626;
 }
 
-/* ========================================
-   RESPONSIVE
-   ======================================== */
+/* ============ ANIMATIONS ============ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
-@media (max-width: 640px) {
-  .manage-quizzes-container {
-    padding: 0.75rem;
-  }
-  
-  .form-column {
-    padding: 1rem;
-  }
-  
-  .form-column > div[style*="border"] > div[style*="display: flex"] {
-    flex-wrap: wrap;
-  }
-  
-  .form-column > div[style*="border"] > div[style*="display: flex"] select {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .page-header { padding: 16px; }
+  .form-column { padding: 16px; }
+  .data-table { font-size: 13px; }
+  .data-table th,
+  .data-table td { padding: 10px; }
+  .data-table td button { display: block; margin: 4px 0; width: 100%; }
+}
+@media (max-width: 480px) {
+  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .btn-add { width: 100%; justify-content: center; }
 }

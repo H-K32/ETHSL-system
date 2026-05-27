@@ -1,272 +1,295 @@
-/* ========================================
-   MANAGE LESSONS - PROFESSIONAL STYLES
-   ======================================== */
+/* managelesson.css */
 
-/* Page Header */
-.lessons-header {
-  margin-bottom: 2rem;
-  padding: 0 0.5rem;
+/* ============ PAGE HEADER ============ */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 28px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
-.lessons-header h1 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 0.5rem;
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
 }
 
-.lessons-header p {
-  color: #64748b;
-  font-size: 0.875rem;
+.page-header p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-light);
 }
 
-/* Toolbar */
-.lessons-toolbar {
+/* ============ TOOLBAR ============ */
+.table-toolbar {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 1.5rem;
+  margin-bottom: 16px;
 }
 
-/* Buttons */
-.btn-add-lesson {
-  background: #4f46e5;
-  color: white;
+/* ============ ADD BUTTON ============ */
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: var(--white);
   border: none;
-  padding: 0.625rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.875rem;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
+  box-shadow: var(--shadow);
 }
 
-.btn-add-lesson:hover {
-  background: #4338ca;
+.btn-add:hover {
+  background: var(--primary-hover);
   transform: translateY(-1px);
 }
 
-/* Table */
-.lessons-table-wrapper {
-  background: white;
-  border-radius: 12px;
+/* ============ DATA TABLE ============ */
+.data-table-wrapper {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   overflow-x: auto;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
 }
 
-.lessons-table {
+.data-table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
 }
 
-.lessons-table thead {
-  background: #f8fafc;
+.data-table thead {
+  background: var(--primary-light);
 }
 
-.lessons-table th {
+.data-table th {
   text-align: left;
-  padding: 1rem 1.25rem;
+  padding: 14px 16px;
   font-weight: 600;
-  color: #1e293b;
-  border-bottom: 1px solid #e2e8f0;
-  font-size: 0.75rem;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
   text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.lessons-table td {
-  padding: 1rem 1.25rem;
-  color: #1e293b;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.lessons-table tbody tr:hover {
-  background-color: #f8fafc;
-}
-
-/* Action Buttons */
-.btn-edit-lesson {
-  background: #eff6ff;
-  color: #3b82f6;
-  padding: 0.375rem 1rem;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  margin-right: 0.5rem;
-}
-
-.btn-edit-lesson:hover {
-  background: #3b82f6;
-  color: white;
-}
-
-.btn-delete-lesson {
-  background: #fef2f2;
-  color: #ef4444;
-  padding: 0.375rem 1rem;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-delete-lesson:hover {
-  background: #ef4444;
-  color: white;
-}
-
-/* Form Container */
-.lessons-form-container {
-  max-width: 700px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-}
-
-.lessons-form-container h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.lessons-form-container h2::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 24px;
-  background: #4f46e5;
-  border-radius: 2px;
-  margin-right: 0.75rem;
+.data-table td {
+  padding: 14px 16px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
 
-.lessons-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  margin-top: 1.5rem;
+.data-table tbody tr:hover {
+  background: var(--bg);
 }
 
-.lessons-form input,
-.lessons-form textarea,
-.lessons-form select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid #e2e8f0;
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============ ACTION BUTTONS ============ */
+.btn-action {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid transparent;
+  padding: 6px 14px;
+  margin-right: 6px;
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.lessons-form input:focus,
-.lessons-form textarea:focus,
-.lessons-form select:focus {
-  outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px #eef2ff;
+.btn-action:hover {
+  background: var(--primary);
+  color: var(--white);
 }
 
-.lessons-form textarea {
+.btn-action.edit {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.btn-action.edit:hover {
+  background: var(--info);
+  color: var(--white);
+}
+
+.btn-action.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.btn-action.danger:hover {
+  background: var(--danger);
+  color: var(--white);
+}
+
+/* ============ ALERT MESSAGES ============ */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.alert-success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+
+/* ============ FORM ============ */
+.form-container {
+  background: var(--white);
+  padding: 28px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 640px;
+}
+
+.form-container h2 {
+  margin: 0 0 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 10px;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-column label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-light);
+  margin-bottom: -8px;
+  margin-top: 4px;
+}
+
+.form-column input[type="text"],
+.form-column input[type="number"],
+.form-column input[type="file"],
+.form-column textarea,
+.form-column select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--white);
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-column input[type="file"] {
+  padding: 8px;
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.form-column input[type="file"]::file-selector-button {
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background 0.2s ease;
+}
+
+.form-column input[type="file"]::file-selector-button:hover {
+  background: var(--primary-hover);
+}
+
+.form-column input:focus,
+.form-column textarea:focus,
+.form-column select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.form-column textarea {
   min-height: 100px;
   resize: vertical;
 }
 
-/* File Uploads */
-.lessons-form label {
-  font-size: 0.813rem;
+.form-column .btn-add,
+.form-column .btn-action {
+  align-self: flex-start;
+  margin-right: 0;
+}
+
+/* ============ DELETE MODAL ============ */
+.modal-overlay {
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.2s ease;
+}
+
+.delete-modal {
+  animation: popIn 0.25s ease;
+}
+
+.delete-modal h3 {
+  color: var(--danger);
+  font-size: 18px;
   font-weight: 600;
-  color: #1e293b;
-  margin-bottom: -0.5rem;
 }
 
-.lessons-form input[type="file"] {
-  padding: 0.5rem;
-  border: 1.5px dashed #e2e8f0;
-  background: #f8fafc;
-  cursor: pointer;
+.delete-modal p {
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.lessons-form input[type="file"]:hover {
-  border-color: #4f46e5;
-  background: #eef2ff;
+/* ============ ANIMATIONS ============ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.lessons-form input[type="file"]::-webkit-file-upload-button {
-  background: #4f46e5;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-right: 1rem;
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.lessons-form input[type="file"]::-webkit-file-upload-button:hover {
-  background: #4338ca;
-}
-
-/* Select Dropdown */
-.lessons-form select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1.25rem;
-}
-
-/* Form Buttons */
-.lessons-form button[type="submit"] {
-  background: #4f46e5;
-  color: white;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 0.5rem;
-}
-
-.lessons-form button[type="submit"]:hover {
-  background: #4338ca;
-}
-
-.lessons-form button[type="button"] {
-  background: #f1f5f9;
-  color: #64748b;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.lessons-form button[type="button"]:hover {
-  background: #e2e8f0;
-  color: #1e293b;
-}
-
-/* Alert Messages */
-.lessons-success {
-  background: #ecfdf5;
-  color: #10b981;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  border-left: 3px solid #10b981;
-}
-
-.lessons-error {
-  background: #fef2f2;
-  color: #ef4444;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  border-left: 3px solid #ef4444;
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .page-header { padding: 16px; }
+  .form-container { padding: 18px; }
+  .data-table { font-size: 13px; }
+  .data-table th,
+  .data-table td { padding: 10px; }
+  .btn-action { display: block; width: 100%; margin: 4px 0; }
 }
