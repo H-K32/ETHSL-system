@@ -1,5 +1,6 @@
 import { useState } from "react"
 import axios from "axios"
+import "../styles/forgotpassword.css"
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("")
@@ -26,25 +27,42 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "80px auto" }}>
-      <h2>Forgot Password</h2>
+    
+    <div className="forgot-password-container">
+      <div className="forgot-password-card">
+        <div className="forgot-password-header">
+          <h2>Forgot Password?</h2>
+          <p>Enter your email address and we'll send you a link to reset your password</p>
+        </div>
 
-      <form onSubmit={submit}>
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ width: "100%", padding: 10, marginBottom: 10 }}
-        />
+        {msg && (
+          <div className={`forgot-message ${msg.includes("sent") ? "success" : "error"}`}>
+            {msg}
+          </div>
+        )}
 
-        <button disabled={loading}>
-          {loading ? "Sending..." : "Send Reset Link"}
-        </button>
-      </form>
+        <form onSubmit={submit}>
+          <div className="form-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
 
-      {msg && <p style={{ marginTop: 10 }}>{msg}</p>}
+          <button type="submit" className={`reset-button ${loading ? "loading" : ""}`} disabled={loading}>
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+        </form>
+
+        <div className="forgot-footer">
+          <a href="/login">Back to Login</a>
+        </div>
+      </div>
     </div>
   )
 }
