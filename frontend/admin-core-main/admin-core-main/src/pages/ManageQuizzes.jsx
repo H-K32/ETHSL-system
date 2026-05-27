@@ -288,9 +288,12 @@ const updateOption = (qIndex, oIndex, field, value) => {
       {/* ================= LIST ================= */}
       {mode === "list" && (
         <>
-          <button className="btn-add" onClick={handleAdd}>
-            + Add Quiz
-          </button>
+          {/* ONLY CHANGE IS HERE - Added the toolbar div */}
+          <div className="table-toolbar">
+            <button className="btn-add" onClick={handleAdd}>
+              + Add Quiz
+            </button>
+          </div>
 
           <table className="data-table">
             <thead>

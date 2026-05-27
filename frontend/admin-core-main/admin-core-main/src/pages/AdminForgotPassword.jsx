@@ -1,5 +1,6 @@
 import { useState } from "react";
 import API from "../api/axiosConfig";
+import "../styles/adminforgotpassword.css";
 
 function AdminForgotPassword() {
 
