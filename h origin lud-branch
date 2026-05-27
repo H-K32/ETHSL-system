@@ -1,0 +1,95 @@
+[33mae68f49[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mlud-branch[m[33m)[m Resolve App.jsx merge conflict
+[33m39f633a[m Resolve stash conflict in App.jsx
+[33mdcc2b19[m[33m ([m[1;31morigin/lud-branch[m[33m)[m updated ui
+[33m25e278c[m fix merge conflicts and restore build
+[33md6eba4b[m fix merge conflicts and update frontend
+[33m20b4100[m resolve merge conflicts between main and lud-branch
+[33m1012b61[m admin verification
+[33m10b8a60[m UI update
+[33m7eb5c61[m add1
+[33m828cdd1[m add
+[33m596b6fd[m add
+[33ma2e2cc9[m Exclude password reset endpoints from auth header
+[33m98c7e19[m Allow anonymous admin password reset access
+[33me60aada[m update activate/deactivate users, password reset , delete frontend
+[33maf8857a[m frontend fixes
+[33m9cd5a3e[m frontend certificate dasbord fix
+[33m81f521c[m certeficat card fixed size
+[33m2628cd1[m Certificate frontend and layout fix
+[33m94fd231[m Merge branch 'main' of https://github.com/H-K32/ETHSL-system
+[33mf4dcb7c[m Certificate logic change
+[33m739e902[m Resolve merge conflicts
+[33m4629642[m Merge branch 'main' of https://github.com/H-K32/ETHSL-system
+[33m85fba3e[m Fix lesson routing, video playback, and completion logic
+[33mcfecd6b[m certificate pdf final fix
+[33m28cb389[m certificate pdf final fix
+[33mdde6760[m fixes on certifcate pdf
+[33mbdf31b7[m requirements updated
+[33mc3a4a96[m certificate layout fix
+[33mf1820e7[m Merge branch 'main' of https://github.com/H-K32/ETHSL-system
+[33mf1edfd4[m Certificate moved to sidebar
+[33mf01d65b[m Fix lesson form state and debugging UI
+[33m7d49441[m Fix lesson form state and debugging UI
+[33mc86837f[m Fix lesson serializer and improve quiz media support
+[33m97b8b2e[m Merge branch 'main' of https://github.com/H-K32/ETHSL-system
+[33m8c6dbd6[m certificate frontend fixes
+[33m2fea465[m lesson
+[33mc9a8b9d[m lll
+[33mea6b5ae[m lll
+[33mcc438e9[m lll
+[33m588872d[m lll
+[33mbdcc952[m lll
+[33m17d6352[m lll
+[33m4530a1a[m Merge remote-tracking branch 'origin/lud-branch'
+[33m1f2f2b9[m Merge branch 'main' of https://github.com/H-K32/ETHSL-system
+[33mecf1701[m quiz manage
+[33m3adb634[m Merge branch 'main' of https://github.com/H-K32/ETHSL-system
+[33m54ec78b[m requriements edit
+[33m4856e62[m resolve merge conflicts
+[33m5d9975f[m Merge branch 'main' of https://github.com/H-K32/ETHSL-system
+[33m75b6208[m add media support to quiz questions and options
+[33m38649b8[m Add certificates app, PDF download support, and requirements update
+[33m57c454d[m frontend and backend(index)
+[33m514ab20[m add media support to quiz questions and options
+[33m70aefca[m add media support to quiz questions and options
+[33m9a50978[m fix CORS and login deployment
+[33m939ef81[m fix CORS and login deployment
+[33m7e131a4[m fix CORS and login deployment
+[33m8d1848a[m Merge branch 'backend-fix' :wq
+[33ma0925e3[m Merge branch 'main' of https://github.com/H-K32/ETHSL-system
+[33m5494459[m[33m ([m[1;31morigin/backend-fix[m[33m)[m fix: admin profile API alignment
+[33m59da182[m fix: lesson upload system and API alignment
+[33m5c81a32[m fix: lesson upload system and API alignment
+[33m4fafbaf[m upgraded front-end
+[33me0ec934[m cleanup frontend files
+[33mbc87fcb[m lesson add fix
+[33m22970c4[m lesson add fix
+[33m5bdfa79[m lms.js edited
+[33m38b4f54[m edited home.css
+[33m36dec66[m styles folder, home.css
+[33m04b2fc0[m delete learner dashboard learner path
+[33m406e0d7[m Add lesson add..
+[33ma100f16[m Add learner level display names
+[33mf72d5c5[m Add level display names for admin courses
+[33m7f4435d[m Fix learner levels API integration
+[33mfc12790[m level fetching missmatch correction
+[33me5836ce[m login mismatch correction
+[33m9a39b69[m Initial LMS frontend
+[33m21f9b65[m delete
+[33m2eccd2b[m delete
+[33ma46bcd2[m Add environment-based API config
+[33m3fcfdcd[m Initial frontend setup
+[33m776f38a[m Fix Vite entry point
+[33m6d159b6[m Fix Vercel deployment build
+[33mf283a2c[m fix: convert to SPA deployment setup
+[33mc170338[m fix: convert to SPA deployment setup
+[33m9a7ffe0[m vercel in learner
+[33me9b1a85[m Add Cloudinary media storage for production
+[33m3157097[m fix vercel routing for learner dashboard
+[33mb8b8472[m fix vercel routing for learner dashboard
+[33mb64f448[m Add Cloudinary media storage for production
+[33mfb5750c[m Fix admin + level dropdown + deployment config
+[33md5aa33e[m ready for production migrations
+[33mc2dc962[m prepare backend for render deployment
+[33mf9f7578[m Fix migration files and stabilize project
+[33mfcbc1fc[m Initial ETHSL system structure
