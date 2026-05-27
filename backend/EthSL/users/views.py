@@ -23,23 +23,24 @@ from .admin_password_serializer import (
     AdminPasswordResetConfirmSerializer
 )
 
-
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
+
         user = User.objects.get(email=request.data["email"])
 
         refresh = RefreshToken.for_user(user)
+
+        print("REGISTER VIEW OVERRIDDEN - JWT VERSION ACTIVE")
 
         return Response({
             "user": RegisterSerializer(user).data,
             "access": str(refresh.access_token),
             "refresh": str(refresh),
         })
-        
 class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
