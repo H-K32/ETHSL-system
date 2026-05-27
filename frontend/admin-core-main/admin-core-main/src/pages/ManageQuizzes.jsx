@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../api/axiosConfig";
-import "../styles/table.css";
+import "../styles/managequiz.css";
 
 // ---------------- EMPTY QUESTION ----------------
 const createEmptyQuestion = () => ({
