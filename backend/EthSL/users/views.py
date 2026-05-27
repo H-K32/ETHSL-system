@@ -72,10 +72,31 @@ class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(email=email)
+
+            uid = urlsafe_base64_encode(smart_bytes(user.id))
+            token = PasswordResetTokenGenerator().make_token(user)
+
+            reset_link = f"https://ethsl-system-jl5a.vercel.app/reset-password/{uid}/{token}/"
+
+            send_mail(
+                subject="Password Reset Request",
+                message=f"Use this link to reset your password:\n{reset_link}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=True,  # IMPORTANT for production
+            )
+
+        except User.DoesNotExist:
+            pass
+
         return Response(
-            {"message": "Password reset link sent if email exists."},
-            status=status.HTTP_200_OK
-            
+            {"message": "If email exists, reset link sent."},
+            status=200
         )
         
 class PasswordResetConfirmView(APIView):

@@ -8,33 +8,8 @@ from django.conf import settings
 
 
 User = get_user_model()
-
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
-
-    def validate(self, attrs):
-        email = attrs.get('email')
-
-        try:
-            user = User.objects.get(email=email)
-
-            uid = urlsafe_base64_encode(smart_bytes(user.id))
-            token = PasswordResetTokenGenerator().make_token(user)
-
-            reset_link = f"https://ethsl-system-jl5a.vercel.app/api/users/password-reset-confirm/{uid}/{token}/"
-
-            send_mail(
-                subject="Password Reset Request",
-                message=f"Use this link to reset your password: {reset_link}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-            )
-
-        except User.DoesNotExist:
-             
-            pass
-
-        return attrs 
         
 class PasswordResetConfirmSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
