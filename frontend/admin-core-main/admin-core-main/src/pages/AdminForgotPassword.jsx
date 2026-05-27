@@ -33,33 +33,28 @@ function AdminForgotPassword() {
   };
 
   return (
+  <div className="forgot-password-container">
+  <div className="forgot-password-card">
+    <h2>Admin Password Reset</h2>
 
-    <div>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        placeholder="Admin email"
+        value={email}
+        onChange={(e)=>
+          setEmail(e.target.value)
+        }
+      />
 
-      <h2>Admin Password Reset</h2>
+      <button>
+        Send Reset Link
+      </button>
+    </form>
 
-      <form onSubmit={handleSubmit}>
-
-        <input
-          type="email"
-          placeholder="Admin email"
-          value={email}
-          onChange={(e)=>
-            setEmail(e.target.value)
-          }
-        />
-
-        <button>
-          Send Reset Link
-        </button>
-
-      </form>
-
-      {message}
-
-    </div>
-
-  );
+    {message && <div className="forgot-message">{message}</div>}
+  </div>
+</div>);
 
 }
 
