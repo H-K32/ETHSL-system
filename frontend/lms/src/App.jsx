@@ -16,12 +16,9 @@ import NotFound from './pages/NotFound.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Layout from './components/Layout.jsx'
 import Certificates from './pages/learner/Certificates.jsx'
-<<<<<<< Updated upstream
-=======
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import CompleteProfile from './pages/CompleteProfile.jsx'
->>>>>>> Stashed changes
 
 export default function App() {
   return (
@@ -29,20 +26,14 @@ export default function App() {
       {/* Public Routes (no layout/navigation) */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/complete-profile" element={<CompleteProfile />} />  {/* Moved outside Layout */}
+      <Route path="/complete-profile" element={<CompleteProfile />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
-      
+
       {/* Routes with Layout (has navigation bar) */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
-<<<<<<< Updated upstream
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
 
-=======
-        
->>>>>>> Stashed changes
         {/* Protected Routes (require authentication) */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<div />} />
