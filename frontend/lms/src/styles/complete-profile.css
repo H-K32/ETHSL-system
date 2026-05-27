@@ -8,10 +8,7 @@
   --aqua-bright: #1e6cb5;
   --aqua-soft: #3a85c9;
   --accent-glow: #2a7bc2;
-<<<<<<< HEAD
   --success-green: #10b981;
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 }
 
 * {
@@ -30,11 +27,7 @@
   color: var(--ink);
 }
 
-<<<<<<< HEAD
 /* —— floating organic shapes —— */
-=======
-/* floating organic shapes */
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 .cp-blob {
   position: absolute;
   border-radius: 50%;
@@ -82,10 +75,7 @@
   }
 }
 
-<<<<<<< HEAD
 /* subtle dotted texture */
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 .cp-grid {
   position: absolute;
   inset: 0;
@@ -95,10 +85,7 @@
   pointer-events: none;
 }
 
-<<<<<<< HEAD
 /* —— card —— */
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 .cp-card {
   position: relative;
   width: 100%;
@@ -120,10 +107,7 @@
   pointer-events: none;
 }
 
-<<<<<<< HEAD
 /* —— tag —— */
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 .cp-tag {
   display: inline-flex;
   align-items: center;
@@ -153,10 +137,7 @@
   }
 }
 
-<<<<<<< HEAD
 /* —— title —— */
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 .cp-title {
   font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
   font-weight: 600;
@@ -177,7 +158,6 @@
   margin: 0 0 1.75rem;
 }
 
-<<<<<<< HEAD
 /* —— form —— */
 .cp-form {
   display: flex;
@@ -194,82 +174,6 @@
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(10, 74, 138, 0.15);
-=======
-.cp-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
-
-.cp-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.cp-field {
-  position: relative;
-}
-
-.cp-input,
-.cp-select {
-  width: 100%;
-  padding: 1.15rem 1rem 0.6rem;
-  font-size: 1rem;
-  font-family: inherit;
-  color: var(--ink);
-  background: rgba(255, 255, 255, 0.7);
-  border: 1.5px solid rgba(10, 74, 138, 0.25);
-  border-radius: 14px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-}
-
-.cp-select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230a4a8a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-}
-
-.cp-input:focus,
-.cp-select:focus {
-  border-color: var(--deep-blue);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(10, 74, 138, 0.15);
-}
-
-.cp-field label {
-  position: absolute;
-  left: 1rem;
-  top: 0.95rem;
-  font-size: 0.95rem;
-  color: rgba(10, 28, 47, 0.55);
-  pointer-events: none;
-  transition: all 0.18s ease;
-}
-
-.cp-input:focus + label,
-.cp-input:not(:placeholder-shown) + label,
-.cp-select:focus + label,
-.cp-select:not([value=""]) + label {
-  top: 0.3rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--deep-blue);
-  font-weight: 700;
-}
-
-/* Avatar Section */
-.cp-avatar-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 }
 
 .cp-avatar-preview {
@@ -282,10 +186,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-<<<<<<< HEAD
   box-shadow: 0 4px 12px rgba(10, 74, 138, 0.15);
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 }
 
 .cp-avatar-preview img {
@@ -301,10 +202,7 @@
   align-items: center;
   justify-content: center;
   color: var(--aqua-bright);
-<<<<<<< HEAD
   background: rgba(30, 108, 181, 0.1);
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 }
 
 .cp-avatar-btn {
@@ -315,17 +213,12 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-<<<<<<< HEAD
   transition: all 0.2s ease;
-=======
-  transition: background 0.2s;
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
   border: 1px solid rgba(10, 74, 138, 0.2);
 }
 
 .cp-avatar-btn:hover {
   background: rgba(10, 74, 138, 0.2);
-<<<<<<< HEAD
   transform: translateY(-1px);
 }
 
@@ -426,48 +319,6 @@
   transition: transform 0.25s ease;
 }
 
-=======
-}
-
-.cp-error {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #c7254e;
-  background: rgba(199, 37, 78, 0.08);
-  padding: 0.6rem 0.8rem;
-  border-radius: 10px;
-  border-left: 3px solid #c7254e;
-}
-
-.cp-btn {
-  position: relative;
-  margin-top: 0.4rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  padding: 1rem 1.25rem;
-  background: var(--deep-blue);
-  color: white;
-  border: none;
-  border-radius: 14px;
-  font-family: inherit;
-  font-size: 0.98rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  overflow: hidden;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 10px 24px -10px rgba(6, 32, 65, 0.7);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
-}
-
-.cp-btn svg {
-  width: 18px;
-  height: 18px;
-  transition: transform 0.25s ease;
-}
-
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 .cp-btn::before {
   content: '';
   position: absolute;
@@ -500,7 +351,6 @@
   cursor: not-allowed;
 }
 
-<<<<<<< HEAD
 .cp-btn > span,
 .cp-btn > svg {
   position: relative;
@@ -508,23 +358,17 @@
 }
 
 /* —— footer —— */
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 .cp-foot {
   text-align: center;
   font-size: 0.82rem;
   color: rgba(10, 28, 47, 0.6);
   margin: 1.5rem 0 0;
-<<<<<<< HEAD
   padding-top: 0.5rem;
   border-top: 1px solid rgba(10, 74, 138, 0.1);
-=======
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 }
 
 .cp-highlight {
   color: var(--aqua-bright);
-<<<<<<< HEAD
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s;
@@ -581,23 +425,4 @@
   .cp-tag {
     font-size: 0.65rem;
   }
-=======
-  font-weight: 500;
-}
-
-@media (max-width: 480px) {
-  .cp-card {
-    padding: 2rem 1.5rem 1.5rem;
-    border-radius: 22px;
-  }
-
-  .cp-title {
-    font-size: 2.1rem;
-  }
-
-  .cp-row {
-    grid-template-columns: 1fr;
-    gap: 1.1rem;
-  }
->>>>>>> 4273d9a605186de70c8d4c22ab30d27b333ce0e3
 }
