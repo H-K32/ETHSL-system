@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../api/axiosConfig"; // ✅ use your axios instance
+import API from "../api/axiosConfig";
 import "../styles/login.css";
 
 const Login = () => {
@@ -19,26 +19,19 @@ const Login = () => {
         password,
       });
 
-      // ✅ store token
       localStorage.setItem("access", res.data.access);
-
       console.log("Login success:", res.data);
-
-      // ✅ redirect
       navigate("/dashboard");
 
     } catch (err) {
       console.error("Login failed:", err);
-
       if (err.response) {
-        // backend responded (like 401)
         if (err.response.status === 401) {
           setError("Invalid username or password");
         } else {
           setError("Something went wrong. Try again.");
         }
       } else {
-        // network error
         setError("Server not reachable");
       }
     }
@@ -74,17 +67,17 @@ const Login = () => {
           />
         </div>
 
+        <p 
+          className="forgot-password-link"
+          onClick={() => navigate("/admin-forgot-password")}
+        >
+          Forgot Password?
+        </p>
+
         <button type="submit" className="btn-login">
           Sign In
         </button>
       </form>
-      <p
-  onClick={() =>
-    navigate("/admin-forgot-password")
-  }
->
-  Forgot Password?
-</p>
     </div>
   );
 };
