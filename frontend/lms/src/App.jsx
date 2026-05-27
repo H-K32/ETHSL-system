@@ -19,6 +19,7 @@ import Certificates from './pages/learner/Certificates.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import CompleteProfile from './pages/CompleteProfile.jsx'
+import AuthLayout from './components/AuthLayout.jsx'
 
 export default function App() {
   return (
