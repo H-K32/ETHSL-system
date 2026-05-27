@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import api from '../services/api/client.js'  // Make sure this path is correct
+import api from '../api/client.js'  // Make sure this path is correct
 import '../styles/complete-profile.css'
 
 export default function CompleteProfile() {
