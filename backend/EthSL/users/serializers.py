@@ -7,12 +7,15 @@ from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from django.contrib.auth import get_user_model
+ 
+
+User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    password2 = serializers.CharField(write_only=True)  # NEW
-
+    password2 = serializers.CharField(write_only=True)
     full_name = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
@@ -24,15 +27,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             "password2",
             "full_name",
             "level",
-            "gender",   # NEW (make sure your User model has this)
+            "gender",
         ]
 
     def validate_password(self, value):
-        # Django built-in password rules (recommended)
-        try:
-            validate_password(value)
-        except ValidationError as e:
-            raise serializers.ValidationError(list(e.messages))
+        validate_password(value)
         return value
 
     def validate(self, data):
@@ -47,20 +46,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         full_name = validated_data.pop("full_name", "")
 
         email = validated_data["email"]
-        level = validated_data.get("level", "beginner")
-        gender = validated_data.get("gender", None)
-        
-        if not user.email_verified:
-            return Response(
-                {"detail": "Email not verified"},
-                status=403
-            )
 
         user = User(
             username=email,
             email=email,
-            level=level,
-            gender=gender
+            level=validated_data.get("level", "beginner"),
+            gender=validated_data.get("gender"),
+            email_verified=False
         )
 
         user.set_password(password)
@@ -70,24 +62,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.first_name = parts[0]
             user.last_name = parts[1] if len(parts) > 1 else ""
 
-        user.placement_required = level in ["intermediate", "advanced"]
-        user.placement_passed = level == "beginner"
-
         user.save()
-                
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
 
-        verify_link = f"https://ethsl-system-jl5a.vercel.app/verify-email/{uidb64}/{token}"
-
-        send_mail(
-            subject="Verify your email",
-            message=f"Click to verify your email: {verify_link}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-        )
         return user
-    
     
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(required=False)

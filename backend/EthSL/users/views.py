@@ -20,12 +20,16 @@ from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import smart_bytes
+from django.utils.encoding import force_bytes
+ 
 
 import resend
 from django.conf import settings
 
-resend.api_key = settings.RESEND_API_KEY
 
+
+from .serializers import RegisterSerializer
+from .models import User
  
 from .password_serializers import (
     PasswordResetRequestSerializer,
@@ -36,26 +40,41 @@ from .admin_password_serializer import (
     AdminPasswordResetRequestSerializer,
     AdminPasswordResetConfirmSerializer
 )
+resend.api_key = settings.RESEND_API_KEY
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
 
-        user = serializer.instance
-
+        # JWT
         refresh = RefreshToken.for_user(user)
 
-        print("REGISTER VIEW OVERRIDDEN - JWT VERSION ACTIVE")
+        # EMAIL VERIFICATION
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        verify_link = f"https://ethsl-system-jl5a.vercel.app/verify-email/{uid}/{token}/"
+
+        try:
+            resend.Emails.send({
+                "from": "ETHSL <onboarding@resend.dev>",
+                "to": [user.email],
+                "subject": "Verify your email",
+                "text": f"Click to verify your email:\n{verify_link}",
+            })
+        except Exception as e:
+            print("EMAIL ERROR:", e)
 
         return Response({
-            "user": RegisterSerializer(user).data,
+            "user": serializer.data,
             "access": str(refresh.access_token),
             "refresh": str(refresh),
         })
-        
         
 class VerifyEmailView(APIView):
     def get(self, request, uidb64, token):
@@ -404,6 +423,8 @@ class AdminPasswordResetRequestView(APIView):
         return Response({
             "message": "If admin account exists, reset email sent."
         })
+        
+        
 class AdminPasswordResetConfirmView(APIView):
 
     permission_classes = [AllowAny]
