@@ -13,7 +13,8 @@ export default function VerifyEmail() {
     const verifyEmail = async () => {
       try {
         await axios.get(
-          `https://ethsl-system.onrender.com/api/users/verify-email/${uid}/${token}/`
+          //`https://ethsl-system.onrender.com/api/users/verify-email/${uid}/${token}/`
+          "https://ethsl-system-production.up.railway.app/api" + `/users/verify-email/${uid}/${token}/`
         )
 
         setStatus('success')
