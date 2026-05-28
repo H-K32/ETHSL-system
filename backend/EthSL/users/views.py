@@ -89,20 +89,14 @@ class PasswordResetRequestView(APIView):
 
             reset_link = f"https://ethsl-system-jl5a.vercel.app/reset-password/{uid}/{token}/"
 
-            # send_mail(
-            #     subject="Password Reset Request",
-            #     message=f"Use this link to reset your password:\n{reset_link}",
-            #     from_email=settings.DEFAULT_FROM_EMAIL,
-            #     recipient_list=[email],
-            #     fail_silently=False,  # IMPORTANT for production
-            # )
+            send_mail(
+                subject="Password Reset Request",
+                message=f"Use this link to reset your password:\n{reset_link}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,  # IMPORTANT for production
+            )
             
-            resend.Emails.send({
-                "from": "ETHSL <onboarding@resend.dev>",
-                "to": [email],
-                "subject": "Admin Password Reset",
-                "text": f"Click below:\n\n{reset_link}",
-            })
 
         except User.DoesNotExist:
             pass
@@ -364,14 +358,22 @@ class AdminPasswordResetRequestView(APIView):
                 f"https://ethsl-system.vercel.app/"
                 f"admin-reset-password/{uid}/{token}/"
             )
+            
+            resend.Emails.send({
+                "from": "ETHSL <onboarding@resend.dev>",
+                "to": [email],
+                "subject": "Admin Password Reset",
+                "text": f"Click below:\n\n{reset_link}",
+            })
 
-            send_mail(
-                subject="Admin Password Reset",
-                message=f"Click below:\n\n{reset_link}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
+
+            # send_mail(
+            #     subject="Admin Password Reset",
+            #     message=f"Click below:\n\n{reset_link}",
+            #     from_email=settings.DEFAULT_FROM_EMAIL,
+            #     recipient_list=[email],
+            #     fail_silently=False,
+            # )
 
         except User.DoesNotExist:
             pass
