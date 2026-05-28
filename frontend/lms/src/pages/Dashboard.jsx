@@ -132,17 +132,17 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* Elegant Welcome Hero Section */}
-        <div className="welcome-section mb-10 text-center md:text-left">
+        {/* Elegant Welcome Hero Section - FIXED WITH INLINE STYLES FOR VISIBILITY */}
+        <div className="welcome-section mb-10 text-center md:text-left" style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #d4e2f7 100%)' }}>
           <div className="welcome-text">
-            <div className="inline-flex items-center gap-1.5 bg-sienna-150 text-sienna-900 rounded-full font-mono text-[9px] tracking-widest uppercase font-black px-3.5 py-1 mb-3.5 border border-sienna-300/50 shadow-xs">
-              <SparklesIcon className="w-3 h-3 text-sienna-600 animate-pulse" />
-              <span>የእድገት መከታተያ</span>
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 mb-3.5" style={{ background: 'rgba(10, 74, 138, 0.1)', color: '#0a4a8a', border: '1px solid rgba(10, 74, 138, 0.2)' }}>
+              <SparklesIcon className="w-3 h-3" style={{ color: '#0a4a8a' }} />
+              <span style={{ color: '#0a4a8a' }}>የእድገት መከታተያ</span>
             </div>
-            <h1 className="welcome-title text-4xl md:text-5xl font-serif font-black text-forest-900 tracking-tight leading-none mb-3">
-              እንኳን በደህና ተመለሱ፣ <span className="gradient-name text-sienna-600">{user.username || 'ተማሪ'}!</span>
+            <h1 className="welcome-title text-4xl md:text-5xl font-serif font-black tracking-tight leading-none mb-3" style={{ color: '#062041' }}>
+              እንኳን በደህና ተመለሱ፣ <span className="gradient-name" style={{ color: '#0a4a8a' }}>{user.username || 'ተማሪ'}!</span>
             </h1>
-            <p className="welcome-subtitle text-sm sm:text-base font-sans text-forest-750 max-w-2xl leading-relaxed">
+            <p className="welcome-subtitle text-sm sm:text-base max-w-2xl leading-relaxed" style={{ color: '#0a1c2f', opacity: '0.85' }}>
               የመማር ጉዞዎን ይቀጥሉ። በጥሩ ሁኔታ እያደጉ እና እጅግ ጠቃሚ የሆኑ ስኬቶችን እያስመዘገቡ ነው!
             </p>
           </div>
