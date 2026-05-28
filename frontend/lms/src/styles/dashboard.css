@@ -84,12 +84,6 @@
   color:#9bbfee;
 }
 
-/* Username Highlight */
-.gradient-name {
-  color: #b2d0ef !important;
-  font-weight: 800;
-  display: inline-block;
-}
 
 /* Welcome Subtitle */
 .welcome-subtitle {
