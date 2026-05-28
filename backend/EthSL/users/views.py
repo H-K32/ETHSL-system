@@ -326,6 +326,17 @@ class ActivateUserView(APIView):
 
 class AdminPasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
+    
+    
+    def post(self, request):
+        print("Request data:", request.data)  # Debug print
+        print("Request headers:", request.headers)  # Debug print
+        
+        serializer = AdminPasswordResetRequestSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)  # Debug print
+            return Response(serializer.errors, status=400)
 
     def post(self, request):
 
