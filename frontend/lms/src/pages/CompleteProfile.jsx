@@ -2,19 +2,27 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import api from '../api/client.js'  // Make sure this path is correct
+import api from '../api/client.js'
 import '../styles/complete-profile.css'
 
 export default function CompleteProfile() {
-  const { user, login } = useAuth()
+  const { login } = useAuth()
   const navigate = useNavigate()
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
   const [form, setForm] = useState({
-    full_name: '',
     level: 'beginner',
+    country: '',
+    timezone: '',
+    bio: '',
+    learning_goal: '',
+    learning_style: '',
+    daily_study_time: '',
     avatar: null
   })
+
   const [avatarPreview, setAvatarPreview] = useState(null)
 
   const handleChange = (e) => {
@@ -25,105 +33,63 @@ export default function CompleteProfile() {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Avatar image must be less than 5MB')
-        return
-      }
-      if (!file.type.startsWith('image/')) {
-        setError('Please upload an image file')
-        return
-      }
-      setForm(prev => ({ ...prev, avatar: file }))
-      const previewUrl = URL.createObjectURL(file)
-      setAvatarPreview(previewUrl)
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Avatar must be under 5MB')
+      return
     }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Only image files allowed')
+      return
+    }
+
+    setForm(prev => ({ ...prev, avatar: file }))
+    setAvatarPreview(URL.createObjectURL(file))
   }
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    
-    if (!form.full_name) {
-      setError('Please enter your full name')
-      return
-    }
-
-    setError(null)
     setLoading(true)
+    setError(null)
 
     try {
-      const token = localStorage.getItem('access_token')
-      
-      if (!token) {
-        setError('No authentication token found. Please login again.')
-        setLoading(false)
-        return
-      }
-
-      // Create FormData for avatar upload
       const formData = new FormData()
-      
-      // Split full_name into first_name and last_name for your backend
-      const nameParts = form.full_name.trim().split(' ')
-      const firstName = nameParts[0]
-      const lastName = nameParts.slice(1).join(' ') || ''
-      
-      formData.append('first_name', firstName)
-      formData.append('last_name', lastName)
+
       formData.append('level', form.level)
-      
+      formData.append('country', form.country)
+      formData.append('timezone', form.timezone)
+      formData.append('bio', form.bio)
+      formData.append('learning_goal', form.learning_goal)
+      formData.append('learning_style', form.learning_style)
+      formData.append('daily_study_time', form.daily_study_time)
+
       if (form.avatar) {
         formData.append('avatar', form.avatar)
       }
 
-      console.log('Sending to backend:', {
-        url: '/users/profile/',
-        first_name: firstName,
-        last_name: lastName,
-        level: form.level,
-        has_avatar: !!form.avatar
-      })
-
-      // CORRECT: Use '/users/profile/' not '/api/users/profile/'
-      // The baseURL already includes '/api'
       const response = await api.patch('/users/profile/', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'multipart/form-data'
         }
       })
 
-      console.log('Profile update response:', response.data)
-
-      // Update user context with new data
-      if (login && response.data) {
+      if (response.data) {
         login(response.data)
       }
 
-      // Redirect based on level
-      if (form.level === 'beginner') {
-        navigate('/login', { replace: true })
-      } else {
-        navigate('/placement', { replace: true })
-      }
+      // KEEP YOUR FLOW
+      navigate('/placement', { replace: true })
+
     } catch (err) {
-      console.error('Error details:', err)
-      console.error('Response data:', err.response?.data)
-      console.error('Response status:', err.response?.status)
-      console.error('Request URL:', err.config?.url)
-      
-      if (err.response?.data) {
-        const errorData = err.response.data
-        if (typeof errorData === 'object') {
-          const messages = Object.values(errorData).flat().join(', ')
-          setError(messages || 'Failed to update profile. Please try again.')
-        } else {
-          setError(errorData.detail || errorData.message || 'Failed to update profile. Please try again.')
-        }
-      } else if (err.request) {
-        setError('Network error. Please check your connection.')
-      } else {
-        setError(`Error: ${err.message || 'An unexpected error occurred'}`)
-      }
+      const data = err?.response?.data
+
+      setError(
+        typeof data === 'object'
+          ? Object.values(data).flat().join(', ')
+          : data?.detail || 'Failed to update profile'
+      )
     } finally {
       setLoading(false)
     }
@@ -131,94 +97,118 @@ export default function CompleteProfile() {
 
   return (
     <div className="cp-stage">
-      <div className="cp-blob cp-blob--a"></div>
-      <div className="cp-blob cp-blob--b"></div>
-      <div className="cp-blob cp-blob--c"></div>
-      <div className="cp-grid"></div>
-
       <div className="cp-card">
-        <div className="cp-tag">
-          <span className="cp-dot"></span>
-          <span>Complete Profile</span>
-        </div>
 
-        <h1 className="cp-title">
-          Tell us<br />
-          <span className="cp-period">about yourself</span>
-        </h1>
-        <p className="cp-sub">Help us personalize your learning experience</p>
+        <h1 className="cp-title">Complete Your Profile</h1>
+        <p className="cp-sub">
+          Help us personalize your learning experience
+        </p>
 
         {error && <div className="cp-error">{error}</div>}
 
         <form onSubmit={onSubmit} className="cp-form">
-          {/* Avatar Upload */}
+
+          {/* AVATAR */}
           <div className="cp-avatar-section">
             <div className="cp-avatar-preview">
               {avatarPreview ? (
-                <img src={avatarPreview} alt="Avatar preview" />
+                <img src={avatarPreview} alt="avatar" />
               ) : (
-                <div className="cp-avatar-placeholder">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                </div>
+                <div className="cp-avatar-placeholder">Upload</div>
               )}
             </div>
+
             <label className="cp-avatar-btn">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                style={{ display: 'none' }}
-              />
+              <input type="file" accept="image/*" onChange={handleAvatarChange} hidden />
               Choose Avatar
             </label>
           </div>
 
-          {/* Full Name */}
+          {/* LEVEL */}
+          <div className="cp-field">
+            <select name="level" value={form.level} onChange={handleChange}>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+
+          {/* COUNTRY */}
           <div className="cp-field">
             <input
-              type="text"
-              id="full_name"
-              name="full_name"
-              className="cp-input"
-              value={form.full_name}
+              name="country"
+              placeholder="Country (e.g. Ethiopia)"
+              value={form.country}
               onChange={handleChange}
-              placeholder=" "
-              required
             />
-            <label htmlFor="full_name">Full Name</label>
           </div>
 
-          {/* Level */}
+          {/* TIMEZONE */}
+          <div className="cp-field">
+            <input
+              name="timezone"
+              placeholder="Timezone (e.g. GMT+3)"
+              value={form.timezone}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* BIO */}
+          <div className="cp-field">
+            <textarea
+              name="bio"
+              placeholder="Tell us about yourself"
+              value={form.bio}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* LEARNING GOAL */}
+          <div className="cp-field">
+            <input
+              name="learning_goal"
+              placeholder="Your goal (e.g. speak fluently)"
+              value={form.learning_goal}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* LEARNING STYLE */}
           <div className="cp-field">
             <select
-              id="level"
-              name="level"
-              className="cp-select"
-              value={form.level}
+              name="learning_style"
+              value={form.learning_style}
               onChange={handleChange}
-              required
             >
-              <option value="beginner">Beginner (ጀማሪ)</option>
-              <option value="intermediate">Intermediate (መካከለኛ)</option>
-              <option value="advanced">Advanced (ከፍተኛ)</option>
+              <option value="">Learning style</option>
+              <option value="visual">Visual</option>
+              <option value="audio">Audio</option>
+              <option value="reading">Reading</option>
+              <option value="practice">Practice-based</option>
             </select>
-            <label htmlFor="level">Your Level</label>
           </div>
 
+          {/* DAILY TIME */}
+          <div className="cp-field">
+            <select
+              name="daily_study_time"
+              value={form.daily_study_time}
+              onChange={handleChange}
+            >
+              <option value="">Daily study time</option>
+              <option value="15min">15 min</option>
+              <option value="30min">30 min</option>
+              <option value="1hr">1 hour</option>
+              <option value="2hr+">2+ hours</option>
+            </select>
+          </div>
+
+          {/* SUBMIT */}
           <button type="submit" disabled={loading} className="cp-btn">
             {loading ? 'Saving...' : 'Continue'}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
           </button>
-        </form>
 
-        <p className="cp-foot">
-          You can update this later in your <span className="cp-highlight">profile settings</span>
-        </p>
+        </form>
       </div>
     </div>
   )

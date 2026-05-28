@@ -180,11 +180,11 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'ROTATE_REFRESH_TOKENS': True,
 }
-
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 import os
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
  
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
