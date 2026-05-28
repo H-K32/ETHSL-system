@@ -36,10 +36,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        if data["password"] != data["password2"]:
-            raise serializers.ValidationError({"password": "Passwords do not match"})
-        return data
+        password = data.get("password")
+        password2 = data.get("password2")
 
+        if password and password2 and password != password2:
+            raise serializers.ValidationError({"password": "Passwords do not match"})
+
+        return data
     def create(self, validated_data):
         validated_data.pop("password2")
 
@@ -47,7 +50,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         full_name = validated_data.pop("full_name", "")
 
         email = validated_data["email"]
-        level = validated_data.get("level", "beginner")
+        level = validated_data.get("level") or "beginner"
         gender = validated_data.get("gender", None)
 
         # ✅ prevent duplicate crash cleanly
