@@ -80,6 +80,10 @@
   letter-spacing: -0.01em;
 }
 
+.welcome-title h1{
+  color:#9bbfee;
+}
+
 /* Username Highlight */
 .gradient-name {
   color: #b2d0ef !important;
