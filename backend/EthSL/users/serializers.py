@@ -8,6 +8,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
  
 
 User = get_user_model()
@@ -46,23 +47,52 @@ class RegisterSerializer(serializers.ModelSerializer):
         full_name = validated_data.pop("full_name", "")
 
         email = validated_data["email"]
+        level = validated_data.get("level", "beginner")
+        gender = validated_data.get("gender", None)
 
-        user = User(
-            username=email,
-            email=email,
-            level=validated_data.get("level", "beginner"),
-            gender=validated_data.get("gender"),
-            email_verified=False
+        # ✅ prevent duplicate crash cleanly
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                {"email": "User with this email already exists"}
+            )
+
+        try:
+            user = User(
+                username=email,
+                email=email,
+                level=level,
+                gender=gender
+            )
+
+            user.set_password(password)
+
+            if full_name:
+                parts = full_name.split(" ", 1)
+                user.first_name = parts[0]
+                user.last_name = parts[1] if len(parts) > 1 else ""
+
+            user.placement_required = level in ["intermediate", "advanced"]
+            user.placement_passed = level == "beginner"
+
+            user.save()
+
+        except IntegrityError:
+            raise serializers.ValidationError(
+                {"email": "User already exists (database constraint)"}
+            )
+
+        # email verification
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        verify_link = "https://ethsl-system-jl5a.vercel.app/verify-email/{}/{}/".format(uid, token)
+
+        send_mail(
+            subject="Verify your email",
+            message=f"Click to verify: {verify_link}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
         )
-
-        user.set_password(password)
-
-        if full_name:
-            parts = full_name.split(" ", 1)
-            user.first_name = parts[0]
-            user.last_name = parts[1] if len(parts) > 1 else ""
-
-        user.save()
 
         return user
     
