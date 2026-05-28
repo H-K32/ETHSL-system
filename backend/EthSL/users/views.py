@@ -73,7 +73,8 @@ class VerifyEmailView(APIView):
         except Exception:
             return Response({"error": "Invalid link"}, status=400)
         
-        
+ 
+# ---------------- REQUEST PASSWORD RESET ----------------
 class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
@@ -87,34 +88,52 @@ class PasswordResetRequestView(APIView):
             uid = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
 
-            reset_link = f"https://ethsl-system-jl5a.vercel.app/reset-password/{uid}/{token}/"
-
-            send_mail(
-                subject="Password Reset Request",
-                message=f"Use this link to reset your password:\n{reset_link}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,  # IMPORTANT for production
+            reset_link = (
+                f"https://ethsl-system-jl5a.vercel.app/reset-password/{uid}/{token}/"
             )
+
+            # ---------------- RESEND EMAIL ----------------
+            # send_mail(
+            #     subject="Password Reset Request",
+            #     message=f"Use this link to reset your password:\n{reset_link}",
+            #     from_email=settings.DEFAULT_FROM_EMAIL,
+            #     recipient_list=[email],
+            #     fail_silently=False,  # IMPORTANT for production
+            # )
             
+            resend.Emails.send({
+                "from": "ETHSL <onboarding@resend.dev>",
+                "to": [email],
+                "subject": "Password Reset Request",
+                "text": f"Click the link below to reset your password:\n\n{reset_link}",
+            })
 
         except User.DoesNotExist:
+            # security: don't reveal user existence
             pass
+
+        except Exception as e:
+            print("EMAIL ERROR:", e)
 
         return Response(
             {"message": "If email exists, reset link sent."},
-            status=200
+            status=status.HTTP_200_OK
         )
-        
+
+
+# ---------------- CONFIRM PASSWORD RESET ----------------
 class PasswordResetConfirmView(APIView):
     def post(self, request, uidb64, token):
         data = request.data.copy()
-        data['uidb64'] = uidb64
-        data['token'] = token
-        
+        data["uidb64"] = uidb64
+        data["token"] = token
+
         serializer = PasswordResetConfirmSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        
+
+        # 🔥 IMPORTANT: actually update password
+        serializer.save()
+
         return Response(
             {"message": "Password reset successful."},
             status=status.HTTP_200_OK

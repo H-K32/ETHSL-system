@@ -8,13 +8,27 @@ export default function ResetPassword() {
   const nav = useNavigate()
 
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [msg, setMsg] = useState("")
   const [loading, setLoading] = useState(false)
 
   const submit = async (e) => {
     e.preventDefault()
-    setLoading(true)
+
     setMsg("")
+
+    // ✅ VALIDATE FIRST (IMPORTANT)
+    if (password !== confirmPassword) {
+      setMsg("Passwords do not match")
+      return
+    }
+
+    if (password.length < 8) {
+      setMsg("Password must be at least 8 characters")
+      return
+    }
+
+    setLoading(true)
 
     try {
       await axios.post(
@@ -23,8 +37,8 @@ export default function ResetPassword() {
       )
 
       setMsg("Password reset successful. Redirecting...")
-      setTimeout(() => nav("/login"), 1500)
 
+      setTimeout(() => nav("/login"), 1500)
     } catch (err) {
       setMsg("Invalid or expired link.")
     } finally {
@@ -32,8 +46,10 @@ export default function ResetPassword() {
     }
   }
 
+  const isDisabled = loading || !password || !confirmPassword
+
   return (
-     <div className="reset-password-container">
+    <div className="reset-password-container">
       <div className="reset-password-card">
         <h2>Reset Password</h2>
         <p>Enter your new password below</p>
@@ -45,8 +61,8 @@ export default function ResetPassword() {
               placeholder="New password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
               disabled={loading}
+              required
             />
           </div>
 
@@ -56,12 +72,16 @@ export default function ResetPassword() {
               placeholder="Confirm new password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              required
               disabled={loading}
+              required
             />
           </div>
 
-          <button type="submit" className={`reset-button ${loading ? "loading" : ""}`} disabled={loading}>
+          <button
+            type="submit"
+            className={`reset-button ${loading ? "loading" : ""}`}
+            disabled={isDisabled}
+          >
             {loading ? "Resetting..." : "Reset Password"}
           </button>
         </form>
