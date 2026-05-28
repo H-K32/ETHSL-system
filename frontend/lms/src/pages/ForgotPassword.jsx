@@ -30,10 +30,8 @@ export default function ForgotPassword() {
     
     <div className="forgot-password-container">
       <div className="forgot-password-card">
-        <div className="forgot-password-header">
-          <h2>Forgot Password?</h2>
-          <p>Enter your email address and we'll send you a link to reset your password</p>
-        </div>
+        <h2>Forgot Password</h2>
+        <p>Enter your email to reset your password</p>
 
         {msg && (
           <div className={`forgot-message ${msg.includes("sent") ? "success" : "error"}`}>
@@ -43,7 +41,6 @@ export default function ForgotPassword() {
 
         <form onSubmit={submit}>
           <div className="form-group">
-            <label>Email Address</label>
             <input
               type="email"
               placeholder="Enter your email"
@@ -54,7 +51,7 @@ export default function ForgotPassword() {
             />
           </div>
 
-          <button type="submit" className={`reset-button ${loading ? "loading" : ""}`} disabled={loading}>
+          <button type="submit" className="reset-button" disabled={loading}>
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
         </form>
