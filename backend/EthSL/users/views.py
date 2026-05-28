@@ -378,21 +378,21 @@ class AdminPasswordResetRequestView(APIView):
                 f"admin-reset-password/{uid}/{token}/"
             )
             
-            # resend.Emails.send({
-            #     "from": "ETHSL <onboarding@resend.dev>",
-            #     "to": [email],
-            #     "subject": "Admin Password Reset",
-            #     "text": f"Click below:\n\n{reset_link}",
-            # })
+            resend.Emails.send({
+                "from": "ETHSL <onboarding@resend.dev>",
+                "to": [email],
+                "subject": "Admin Password Reset",
+                "text": f"Click below:\n\n{reset_link}",
+            })
 
 
-            send_mail(
-                subject="Admin Password Reset",
-                message=f"Click below:\n\n{reset_link}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
+            # send_mail(
+            #     subject="Admin Password Reset",
+            #     message=f"Click below:\n\n{reset_link}",
+            #     from_email=settings.DEFAULT_FROM_EMAIL,
+            #     recipient_list=[email],
+            #     fail_silently=False,
+            # )
 
         except User.DoesNotExist:
             pass
