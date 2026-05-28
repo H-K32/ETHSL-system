@@ -15,11 +15,17 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
-from django.core.mail import send_mail
+#from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import smart_bytes
+
+import resend
+from django.conf import settings
+
+resend.api_key = settings.RESEND_API_KEY
+
  
 from .password_serializers import (
     PasswordResetRequestSerializer,
@@ -83,13 +89,20 @@ class PasswordResetRequestView(APIView):
 
             reset_link = f"https://ethsl-system-jl5a.vercel.app/reset-password/{uid}/{token}/"
 
-            send_mail(
-                subject="Password Reset Request",
-                message=f"Use this link to reset your password:\n{reset_link}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,  # IMPORTANT for production
-            )
+            # send_mail(
+            #     subject="Password Reset Request",
+            #     message=f"Use this link to reset your password:\n{reset_link}",
+            #     from_email=settings.DEFAULT_FROM_EMAIL,
+            #     recipient_list=[email],
+            #     fail_silently=False,  # IMPORTANT for production
+            # )
+            
+            resend.Emails.send({
+                "from": "ETHSL <onboarding@resend.dev>",
+                "to": [email],
+                "subject": "Admin Password Reset",
+                "text": f"Click below:\n\n{reset_link}",
+            })
 
         except User.DoesNotExist:
             pass
