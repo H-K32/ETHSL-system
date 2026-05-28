@@ -323,28 +323,17 @@ class ActivateUserView(APIView):
 
 
 # ---------------- ADMIN PASSWORD RESET ----------------
-
 class AdminPasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
-    
-    
+
     def post(self, request):
-        print("Request data:", request.data)  # Debug print
-        print("Request headers:", request.headers)  # Debug print
-        
+        print("Request data:", request.data)
+
         serializer = AdminPasswordResetRequestSerializer(data=request.data)
-        
+
         if not serializer.is_valid():
-            print("Serializer errors:", serializer.errors)  # Debug print
+            print("Serializer errors:", serializer.errors)
             return Response(serializer.errors, status=400)
-
-    def post(self, request):
-
-        serializer = AdminPasswordResetRequestSerializer(
-            data=request.data
-        )
-
-        serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data["email"]
 
@@ -355,15 +344,12 @@ class AdminPasswordResetRequestView(APIView):
                 is_active=True
             )
 
-            uid = urlsafe_base64_encode(
-                smart_bytes(user.id)
-            )
-
+            uid = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
 
             reset_link = (
                 f"https://ethsl-system.vercel.app/"
-                f"admin-reset-password/{uid}/{token}"
+                f"admin-reset-password/{uid}/{token}/"
             )
 
             send_mail(
@@ -378,17 +364,12 @@ class AdminPasswordResetRequestView(APIView):
             pass
 
         except Exception as e:
-            return Response(
-                {"error": str(e)},
-                status=500
-            )
+            print("EMAIL ERROR:", e)
+            return Response({"error": str(e)}, status=500)
 
         return Response({
-            "message":
-            "If admin account exists, reset email sent."
+            "message": "If admin account exists, reset email sent."
         })
-
-
 class AdminPasswordResetConfirmView(APIView):
 
     permission_classes = [AllowAny]
