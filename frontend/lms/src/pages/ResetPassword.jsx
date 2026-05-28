@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
+import "../styles/resetpassword.css"
 
 export default function ResetPassword() {
   const { uidb64, token } = useParams()
@@ -32,25 +33,45 @@ export default function ResetPassword() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "80px auto" }}>
-      <h2>Reset Password</h2>
+     <div className="reset-password-container">
+      <div className="reset-password-card">
+        <h2>Reset Password</h2>
+        <p>Enter your new password below</p>
 
-      <form onSubmit={submit}>
-        <input
-          type="password"
-          placeholder="New password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ width: "100%", padding: 10, marginBottom: 10 }}
-        />
+        <form onSubmit={submit}>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="New password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
 
-        <button disabled={loading}>
-          {loading ? "Resetting..." : "Reset Password"}
-        </button>
-      </form>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
 
-      {msg && <p style={{ marginTop: 10 }}>{msg}</p>}
+          <button type="submit" className={`reset-button ${loading ? "loading" : ""}`} disabled={loading}>
+            {loading ? "Resetting..." : "Reset Password"}
+          </button>
+        </form>
+
+        {msg && (
+          <div className={`reset-message ${msg.includes("successful") ? "success" : "error"}`}>
+            {msg}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
