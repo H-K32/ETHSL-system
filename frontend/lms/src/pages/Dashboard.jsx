@@ -133,16 +133,16 @@ export default function Dashboard() {
         </header>
 
         {/* Elegant Welcome Hero Section - FIXED WITH INLINE STYLES FOR VISIBILITY */}
-        <div className="welcome-section mb-10 text-center md:text-left" style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #d4e2f7 100%)' }}>
+        <div className="welcome-section mb-10 text-center md:text-left" style={{ background: '#faf8f4', border: '1px solid #d4cbb8', borderRadius: '24px', padding: '2rem 2.5rem' }}>
           <div className="welcome-text">
-            <div className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 mb-3.5" style={{ background: 'rgba(10, 74, 138, 0.1)', color: '#0a4a8a', border: '1px solid rgba(10, 74, 138, 0.2)' }}>
-              <SparklesIcon className="w-3 h-3" style={{ color: '#0a4a8a' }} />
-              <span style={{ color: '#0a4a8a' }}>የእድገት መከታተያ</span>
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 mb-3.5" style={{ background: 'rgba(203, 83, 51, 0.1)', color: '#b54323', border: '1px solid rgba(203, 83, 51, 0.2)' }}>
+              <SparklesIcon className="w-3 h-3" style={{ color: '#b54323' }} />
+              <span style={{ color: '#b54323' }}>የእድገት መከታተያ</span>
             </div>
-            <h1 className="welcome-title text-4xl md:text-5xl font-serif font-black tracking-tight leading-none mb-3" style={{ color: '#062041' }}>
-              እንኳን በደህና ተመለሱ፣ <span className="gradient-name" style={{ color: '#0a4a8a' }}>{user.username || 'ተማሪ'}!</span>
+            <h1 className="welcome-title text-4xl md:text-5xl font-serif font-black tracking-tight leading-none mb-3" style={{ color: '#0f2a16' }}>
+              እንኳን በደህና ተመለሱ፣ <span className="gradient-name" style={{ color: '#b54323' }}>{user.username || 'ተማሪ'}!</span>
             </h1>
-            <p className="welcome-subtitle text-sm sm:text-base max-w-2xl leading-relaxed" style={{ color: '#0a1c2f', opacity: '0.85' }}>
+            <p className="welcome-subtitle text-sm sm:text-base max-w-2xl leading-relaxed" style={{ color: '#3a5a3e' }}>
               የመማር ጉዞዎን ይቀጥሉ። በጥሩ ሁኔታ እያደጉ እና እጅግ ጠቃሚ የሆኑ ስኬቶችን እያስመዘገቡ ነው!
             </p>
           </div>
