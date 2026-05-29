@@ -21,6 +21,8 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
+from cloudinary_storage.storage import MediaCloudinaryStorage
+
 load_dotenv()
 
 CLOUDINARY_STORAGE = {
@@ -28,6 +30,13 @@ CLOUDINARY_STORAGE = {
     "API_KEY": os.getenv("API_KEY"),
     "API_SECRET": os.getenv("API_SECRET"),
 }
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUD_NAME"),
+    api_key=os.getenv("API_KEY"),
+    api_secret=os.getenv("API_SECRET"),
+    secure=True
+)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,12 +49,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+ 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG") == "True"
+DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ 
 
-
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".vercel.app",
+    ".onrender.com"
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -180,7 +195,7 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'ROTATE_REFRESH_TOKENS': True,
 }
-import os
+
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
  
@@ -197,9 +212,19 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_TIMEOUT = 10
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  
 FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
@@ -215,6 +240,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://10.4.118.252:8080",
     "http://localhost:8080",
 ]
+
+ 
+
+ 
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
@@ -248,5 +277,5 @@ AUTH_PASSWORD_VALIDATORS = [
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL")
-
  
+
