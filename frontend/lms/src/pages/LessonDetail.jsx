@@ -6,33 +6,37 @@
  import ErrorState from '../components/ErrorState.jsx'
  import '../styles/LessonDetail.css'
  
- function VideoPlayer({ url }) {
-   if (!url) return null
- 
-   const yt = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([\w-]+)/)
- 
-   if (yt) {
-     return (
-       <div className="lesson-media lesson-media-aspect">
-         <iframe
-           className="lesson-iframe"
-           src={`https://www.youtube.com/embed/${yt[1]}`}
-           allowFullScreen
-           title="lesson"
-         />
-       </div>
-     )
-   }
- 
-   return (
-     <div className="lesson-media">
-       <video controls className="lesson-video">
-         <source src={url} />
-       </video>
-     </div>
-   )
- }
- 
+function VideoPlayer({ url }) {
+  if (!url) return null
+
+  // 1. Detect YouTube first
+  const ytMatch = url.match(
+    /(?:youtube\.com\/.*[?&]v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/
+  )
+
+  if (ytMatch?.[1]) {
+    return (
+      <div className="lesson-media lesson-media-aspect">
+        <iframe
+          className="lesson-iframe"
+          src={`https://www.youtube.com/embed/${ytMatch[1]}`}
+          allowFullScreen
+          title="lesson video"
+        />
+      </div>
+    )
+  }
+
+  // 2. Fallback: treat as media file (Neon/Postgres stored path)
+  return (
+    <div className="lesson-media">
+      <video controls className="lesson-video" preload="metadata">
+        <source src={url} type="video/mp4" />
+        Your browser does not support this video.
+      </video>
+    </div>
+  )
+}
  export default function LessonDetail() {
    const { id } = useParams()
    const nav = useNavigate()

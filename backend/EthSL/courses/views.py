@@ -383,6 +383,7 @@ class LearnerLessonListView(APIView):
             data.append({
                 "id": lesson.id,
                 "title": lesson.title,
+                "video": request.build_absolute_uri(lesson.video.url) if lesson.video else None,
                 "unlocked": unlocked,
                 "completed": LessonProgress.objects.filter(
                     user=request.user,
@@ -406,6 +407,14 @@ class LearnerLessonDetailView(APIView):
 
         if not can_access_lesson(request.user, lesson):
             return Response({"detail": "This lesson is locked"}, status=403)
+
+        # 🔥 SAFE VIDEO HANDLING
+        video_url = None
+        if lesson.video:
+            try:
+                video_url = request.build_absolute_uri(lesson.video.url)
+            except Exception:
+                video_url = None
 
         quiz_data = None
 
@@ -435,7 +444,7 @@ class LearnerLessonDetailView(APIView):
             "id": lesson.id,
             "title": lesson.title,
             "description": lesson.description,
-            "video": lesson.video.url if lesson.video else None,
+            "video": video_url,
             "quiz": quiz_data
         })
                
