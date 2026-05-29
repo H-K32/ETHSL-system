@@ -24,6 +24,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "email",
+            "username",   
             "password",
             "password2",
             "full_name",
@@ -58,10 +59,16 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"email": "User with this email already exists"}
             )
+            
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError({
+                "username": "Username already exists"
+            })
 
         try:
+            username = validated_data["username"]
             user = User(
-                username=email,
+                username=username,
                 email=email,
                 level=level,
                 gender=gender
