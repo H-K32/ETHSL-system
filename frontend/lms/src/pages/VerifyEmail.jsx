@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 export default function VerifyEmail() {
-  const { uid, token } = useParams()
+  const { uidb64, token } = useParams()
   const nav = useNavigate()
 
   const [status, setStatus] = useState('loading') 
@@ -13,8 +13,8 @@ export default function VerifyEmail() {
     const verifyEmail = async () => {
       try {
         await axios.get(
-          //`https://ethsl-system.onrender.com/api/users/verify-email/${uid}/${token}/`
-          "https://ethsl-system-production.up.railway.app/api" + `/users/verify-email/${uid}/${token}/`
+          `https://ethsl-system.onrender.com/api/users/verify-email/${uidb64}/${token}/`
+          //"https://ethsl-system-production.up.railway.app/api" + `/users/verify-email/${uidb64}/${token}/`
         )
 
         setStatus('success')

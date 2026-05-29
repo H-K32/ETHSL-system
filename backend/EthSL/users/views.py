@@ -47,14 +47,16 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
     def create(self, request, *args, **kwargs):
-        print("REGISTER PAYLOAD:", request.data)  # 👈 ADD IT HERE
-        
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        print("REGISTER PAYLOAD:", request.data)
 
-        # JWT
-        refresh = RefreshToken.for_user(user)
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            print(serializer.errors)
+            return Response(serializer.errors, status=400)
+
+        user = serializer.save()
+            
 
         # EMAIL VERIFICATION
         uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -73,10 +75,8 @@ class RegisterView(generics.CreateAPIView):
             print("EMAIL ERROR:", e)
 
         return Response({
-            "user": serializer.data,
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        })
+            "message": "Verification email sent, Verify and you will be redirected to login."
+        }, status=201)
         
 class VerifyEmailView(APIView):
     def get(self, request, uidb64, token):

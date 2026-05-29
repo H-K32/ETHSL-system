@@ -13,6 +13,7 @@ class User(AbstractUser):
         ('advanced', 'ከፍተኛ'),
     )
     email_verified = models.BooleanField(default=False)
+    profile_completed = models.BooleanField(default=False)
     
     gender = models.CharField(
     max_length=10,

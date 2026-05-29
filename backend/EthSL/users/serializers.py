@@ -50,7 +50,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         full_name = validated_data.pop("full_name", "")
 
         email = validated_data["email"]
-        level = validated_data.get("level") or "beginner"
+        level = serializers.CharField(required=False)
         gender = validated_data.get("gender", None)
 
         # ✅ prevent duplicate crash cleanly
@@ -84,19 +84,7 @@ class RegisterSerializer(serializers.ModelSerializer):
                 {"email": "User already exists (database constraint)"}
             )
 
-        # email verification
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-
-        verify_link = "https://ethsl-system-jl5a.vercel.app/verify-email/{}/{}/".format(uid, token)
-
-        send_mail(
-            subject="Verify your email",
-            message=f"Click to verify: {verify_link}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-        )
-
+       
         return user
     
 class UserSerializer(serializers.ModelSerializer):
