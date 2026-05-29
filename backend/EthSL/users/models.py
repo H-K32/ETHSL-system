@@ -2,6 +2,13 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
+
+    # ✅ ADD THIS
+    username = models.CharField(
+        max_length=255,
+        unique=True
+    )
+
     ROLE_CHOICE = (
         ('learner', 'Learner'),
         ('admin', 'Admin'),
@@ -12,24 +19,34 @@ class User(AbstractUser):
         ('intermediate', 'መካከለኛ'),
         ('advanced', 'ከፍተኛ'),
     )
+
     email_verified = models.BooleanField(default=False)
     profile_completed = models.BooleanField(default=False)
-    
+
     gender = models.CharField(
-    max_length=10,
-    choices=[
-        ("male", "Male"),
-        ("female", "Female")
-    ],
-    null=True,
-    blank=True
+        max_length=10,
+        choices=[
+            ("male", "Male"),
+            ("female", "Female")
+        ],
+        null=True,
+        blank=True
     )
 
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICE, default='learner')
+
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICE,
+        default='learner'
+    )
 
     streak_count = models.IntegerField(default=0)
-    warning_message = models.TextField(null=True, blank=True)
+
+    warning_message = models.TextField(
+        null=True,
+        blank=True
+    )
 
     level = models.CharField(
         max_length=20,
@@ -59,7 +76,7 @@ class User(AbstractUser):
         return (
             self.level in ["intermediate", "advanced"]
             and not self.placement_passed
-        ) 
+        )
         
         
 class UserReport(models.Model):
