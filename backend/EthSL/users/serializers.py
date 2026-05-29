@@ -17,14 +17,22 @@ User = get_user_model()
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-    full_name = serializers.CharField(required=False, allow_blank=True)
+
+    full_name = serializers.CharField(
+        required=False,
+        allow_blank=True
+    )
+
+    level = serializers.CharField(
+        required=False
+    )
 
     class Meta:
         model = User
         fields = [
             "id",
+            "username",
             "email",
-            "username",   
             "password",
             "password2",
             "full_name",
@@ -32,66 +40,93 @@ class RegisterSerializer(serializers.ModelSerializer):
             "gender",
         ]
 
+    # ---------------- PASSWORD VALIDATION ----------------
     def validate_password(self, value):
         validate_password(value)
         return value
 
+    # ---------------- GLOBAL VALIDATION ----------------
     def validate(self, data):
+
         password = data.get("password")
         password2 = data.get("password2")
 
-        if password and password2 and password != password2:
-            raise serializers.ValidationError({"password": "Passwords do not match"})
+        if password != password2:
+            raise serializers.ValidationError({
+                "password": "Passwords do not match"
+            })
 
         return data
+
+    # ---------------- CREATE USER ----------------
     def create(self, validated_data):
+
+        # remove unused field
         validated_data.pop("password2")
 
         password = validated_data.pop("password")
+
         full_name = validated_data.pop("full_name", "")
 
-        email = validated_data["email"]
-        level = serializers.CharField(required=False)
+        username = validated_data.get("username")
+
+        email = validated_data.get("email")
+
+        level = validated_data.get("level") or "beginner"
+
         gender = validated_data.get("gender", None)
 
-        # ✅ prevent duplicate crash cleanly
+        # ---------------- DUPLICATE EMAIL ----------------
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                {"email": "User with this email already exists"}
-            )
-            
+            raise serializers.ValidationError({
+                "email": "User with this email already exists"
+            })
+
+        # ---------------- DUPLICATE USERNAME ----------------
         if User.objects.filter(username=username).exists():
             raise serializers.ValidationError({
                 "username": "Username already exists"
             })
 
         try:
-            username = validated_data["username"]
+
             user = User(
                 username=username,
                 email=email,
                 level=level,
-                gender=gender
+                gender=gender,
+                is_active=False
             )
 
+            # hash password
             user.set_password(password)
 
+            # split full name
             if full_name:
                 parts = full_name.split(" ", 1)
-                user.first_name = parts[0]
-                user.last_name = parts[1] if len(parts) > 1 else ""
 
-            user.placement_required = level in ["intermediate", "advanced"]
-            user.placement_passed = level == "beginner"
+                user.first_name = parts[0]
+
+                user.last_name = (
+                    parts[1] if len(parts) > 1 else ""
+                )
+
+            # placement logic
+            user.placement_required = (
+                level in ["intermediate", "advanced"]
+            )
+
+            user.placement_passed = (
+                level == "beginner"
+            )
 
             user.save()
 
         except IntegrityError:
-            raise serializers.ValidationError(
-                {"email": "User already exists (database constraint)"}
-            )
+            raise serializers.ValidationError({
+                "detail": "Database integrity error"
+            })
 
-       
         return user
     
 class UserSerializer(serializers.ModelSerializer):

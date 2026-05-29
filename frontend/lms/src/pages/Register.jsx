@@ -8,6 +8,7 @@ export default function Register() {
   const nav = useNavigate()
 
   const [form, setForm] = useState({
+    username: '',
     email: '',
     password: '',
     password2: '',
@@ -112,6 +113,17 @@ export default function Register() {
             className="input"
             value={form.full_name}
             onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            required
+          />
+        </Field>
+
+        <Field label="Username">
+          <input
+            className="input"
+            value={form.username}
+            onChange={(e) =>
+              setForm({ ...form, username: e.target.value })
+            }
             required
           />
         </Field>
