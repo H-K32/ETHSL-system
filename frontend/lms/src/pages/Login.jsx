@@ -17,7 +17,7 @@ export default function Login() {
     setErr(null); setLoading(true)
     try {
       await login(form)
-      const dest = loc.state?.from?.pathname || '/levels'
+      const dest = loc.state?.from?.pathname || '/dashboard'
       nav(dest, { replace: true })
     } catch (e) {
       setErr(e?.response?.data?.detail || 'Invalid credentials')
