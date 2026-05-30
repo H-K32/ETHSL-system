@@ -25,9 +25,9 @@ import VerifyEmail from './pages/VerifyEmail.jsx'
 
 export default function App() {
   return (
- <Routes>
+    <Routes>
 
-      {/* ================= PUBLIC AUTH PAGES ================= */}
+      {/* ================= PUBLIC AUTH PAGES (NO NAVBAR) ================= */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -37,19 +37,16 @@ export default function App() {
         <Route path="/placement" element={<Placement />} />
         <Route path="/check-email" element={<CheckEmail />} />
         <Route path="/verify-email/:uid/:token" element={<VerifyEmail />} />
-        
-        
       </Route>
+
+      {/* ================= PUBLIC HOME PAGE (NO NAVBAR) ================= */}
+      <Route path="/" element={<Home />} />
 
       {/* ================= MAIN APP (WITH NAVBAR/LAYOUT) ================= */}
       <Route element={<Layout />}>
-
-        <Route path="/" element={<Home />} />
-
         {/* ================= PROTECTED ROUTES ================= */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<div />} />
-          
           <Route path="/levels" element={<Levels />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/community" element={<Community />} />
@@ -61,7 +58,6 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/certificates" element={<Certificates />} />
         </Route>
-
       </Route>
 
       {/* ================= 404 ================= */}
