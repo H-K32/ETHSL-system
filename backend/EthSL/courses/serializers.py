@@ -78,6 +78,8 @@ class LessonReadSerializer(serializers.ModelSerializer):
                 return False
 
         return True
+    
+    
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option

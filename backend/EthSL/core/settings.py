@@ -11,20 +11,44 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
 import os
-import dj_database_url
 from dotenv import load_dotenv
-from pathlib import Path
 
+import dj_database_url
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-from cloudinary_storage.storage import MediaCloudinaryStorage
+# -------------------------
+# BASE DIR + ENV LOADING
+# -------------------------
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv()
+env_path = BASE_DIR / ".env"
+load_dotenv(env_path)
 
+# print("ENV LOADED:", env_path)
+# print("DEBUG ENV =", os.getenv("DEBUG"))
+# print("SECRET KEY LOADED =", bool(os.getenv("SECRET_KEY")))
+# print("CLOUD NAME LOADED =", bool(os.getenv("CLOUD_NAME")))
+
+# -------------------------
+# SECURITY SETTINGS
+# -------------------------
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".vercel.app",
+    ".onrender.com"
+]
+
+# -------------------------
+# CLOUDINARY CONFIG
+# -------------------------
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUD_NAME"),
     "API_KEY": os.getenv("API_KEY"),
@@ -37,28 +61,6 @@ cloudinary.config(
     api_secret=os.getenv("API_SECRET"),
     secure=True
 )
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
-
- 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    ".vercel.app",
-    ".onrender.com"
-]
 # Application definition
 
 INSTALLED_APPS = [
@@ -212,17 +214,16 @@ EMAIL_TIMEOUT = 10
 
 #MEDIA_URL = '/media/'
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        "BACKEND": "core.storage.CustomMediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  
 FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
