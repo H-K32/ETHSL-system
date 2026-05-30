@@ -63,6 +63,7 @@ class RegisterView(generics.CreateAPIView):
         token = default_token_generator.make_token(user)
 
         verify_link = f"https://ethsl-system-jl5a.vercel.app/verify-email/{uid}/{token}/"
+        #verify_link = f"http://localhost:5173/verify-email/{uid}/{token}/"
 
         try:
             resend.Emails.send({
