@@ -96,6 +96,7 @@ class RegisterSerializer(serializers.ModelSerializer):
                 level=level,
                 gender=gender,
                 is_active=False
+                
             )
 
             # hash password

@@ -20,8 +20,19 @@ class LessonAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "course", "order")
     ordering = ("course", "order")
 
+class OptionInline(admin.TabularInline):
+    model = Option
+    extra = 1
+
+
+class QuestionInline(admin.TabularInline):
+    model = Question
+    extra = 1
+    show_change_link = True
+    inlines = [OptionInline]
 
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):
     list_display = ("id", "quiz_type", "level", "course", "lesson")
     list_filter = ("quiz_type",)
+    inlines = [QuestionInline]

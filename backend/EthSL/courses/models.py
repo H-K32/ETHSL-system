@@ -38,10 +38,10 @@ class Lesson(models.Model):
     )
     title = models.CharField(max_length=200)
     description = models.TextField()
-    video = models.FileField(upload_to='lesson_videos/')
+    video = models.FileField(upload_to='videos/lesson/')
     order = models.PositiveIntegerField()
     duration = models.CharField(max_length=50, null=True, blank=True)
-    thumbnail = models.ImageField(upload_to="lesson_thumbnails/", null=True, blank=True)
+    thumbnail = models.ImageField(upload_to="images/lesson_thumbnails/", null=True, blank=True)
 
     class Meta:
         ordering = ['order']
@@ -106,8 +106,8 @@ class Question(models.Model):
         related_name="questions"
     )
     question_text = models.TextField(blank=True, null=True)
-    question_image = models.ImageField(upload_to="quiz/questions/images/", blank=True, null=True)
-    question_video = models.FileField(upload_to="quiz/questions/videos/", blank=True, null=True)
+    question_image = models.ImageField(upload_to="images/question/", blank=True, null=True)
+    question_video = models.FileField(upload_to="videos/question/", blank=True, null=True)
     points = models.IntegerField(default=1)
 
 class Option(models.Model):
@@ -117,6 +117,6 @@ class Option(models.Model):
         related_name="options"
     )
     option_text = models.TextField(blank=True, null=True)
-    option_image = models.ImageField(upload_to="quiz/options/images/", blank=True, null=True)
-    option_video = models.FileField(upload_to="quiz/options/videos/", blank=True, null=True)
+    option_image = models.ImageField(upload_to="images/option/", blank=True, null=True)
+    option_video = models.FileField(upload_to="videos/option/", blank=True, null=True)
     is_correct = models.BooleanField(default=False)

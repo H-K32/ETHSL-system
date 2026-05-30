@@ -36,7 +36,7 @@ export default function App() {
         <Route path="/complete-profile" element={<CompleteProfile />} />
         <Route path="/placement" element={<Placement />} />
         <Route path="/check-email" element={<CheckEmail />} />
-        <Route path="/verify-email/:uid/:token" element={<VerifyEmail />} />
+        <Route path="/verify-email/:uidb64/:token" element={<VerifyEmail />} />
         
         
       </Route>

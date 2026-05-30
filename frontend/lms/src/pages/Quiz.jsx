@@ -22,11 +22,17 @@ export default function Quiz() {
     e.preventDefault()
     setSubmitting(true)
     try {
-      const payload = Object.entries(answers).map(([question, option]) => ({ question: Number(question), option: Number(option) }))
+      const payload = Object.entries(answers).map(([question, option]) => ({
+        question: Number(question),
+        option: Number(option)
+      }))
       const r = await submitQuiz(id, payload)
       setResult(r)
-    } catch (e) { alert(e?.response?.data?.detail || 'Submission failed') }
-    finally { setSubmitting(false) }
+    } catch (e) {
+      alert(e?.response?.data?.detail || 'Submission failed')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (result) {
@@ -52,27 +58,78 @@ export default function Quiz() {
     <div className="max-w-3xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold text-slate-900">{quiz?.title || 'Quiz'}</h1>
       {quiz?.description && <p className="text-sm text-slate-500 mt-1">{quiz.description}</p>}
+
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         {questions.map((q, idx) => (
           <div key={q.id} className="bg-white border border-slate-200 rounded-xl p-5">
-            <div className="font-medium text-slate-900">{idx + 1}. {q.question_text || q.text}</div>
+
+            {/* ================= QUESTION ================= */}
+            <div className="font-medium text-slate-900">
+              {idx + 1}. {q.question_text}
+            </div>
+
+            {/* QUESTION IMAGE */}
+            {q.question_image && (
+              <img
+                src={q.question_image}
+                alt="question"
+                className="mt-3 rounded max-h-60"
+              />
+            )}
+
+            {/* QUESTION VIDEO */}
+            {q.question_video && (
+              <video controls className="mt-3 rounded max-h-60">
+                <source src={q.question_video} />
+              </video>
+            )}
+
+            {/* ================= OPTIONS ================= */}
             <div className="mt-3 space-y-2">
               {(q.options || []).map((o) => (
-                <label key={o.id} className="flex items-center gap-3 p-2 rounded hover:bg-slate-50 cursor-pointer">
-                  <input
-                    type="radio"
-                    name={`q-${q.id}`}
-                    value={o.id}
-                    checked={answers[q.id] === o.id}
-                    onChange={() => setAnswers({ ...answers, [q.id]: o.id })}
-                  />
-                  <span>{o.option_text || o.text}</span>
+                <label key={o.id} className="flex flex-col gap-2 p-2 rounded hover:bg-slate-50 cursor-pointer">
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name={`q-${q.id}`}
+                      value={o.id}
+                      checked={answers[q.id] === o.id}
+                      onChange={() =>
+                        setAnswers({ ...answers, [q.id]: o.id })
+                      }
+                    />
+
+                    <span>{o.option_text}</span>
+                  </div>
+
+                  {/* OPTION IMAGE */}
+                  {o.option_image && (
+                    <img
+                      src={o.option_image}
+                      alt="option"
+                      className="max-h-32 rounded"
+                    />
+                  )}
+
+                  {/* OPTION VIDEO */}
+                  {o.option_video && (
+                    <video controls className="max-h-40 rounded">
+                      <source src={o.option_video} />
+                    </video>
+                  )}
+
                 </label>
               ))}
             </div>
+
           </div>
         ))}
-        <button disabled={submitting} className="px-5 py-3 rounded-lg bg-brand-600 text-white disabled:opacity-60">
+
+        <button
+          disabled={submitting}
+          className="px-5 py-3 rounded-lg bg-brand-600 text-white disabled:opacity-60"
+        >
           {submitting ? 'Submitting…' : 'Submit quiz'}
         </button>
       </form>

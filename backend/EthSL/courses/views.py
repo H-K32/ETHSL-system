@@ -447,7 +447,7 @@ class LearnerLessonDetailView(APIView):
             "video": video_url,
             "quiz": quiz_data
         })
-               
+                              
 class LearnerCourseDetailView(APIView):
     permission_classes = [IsAuthenticated]
 

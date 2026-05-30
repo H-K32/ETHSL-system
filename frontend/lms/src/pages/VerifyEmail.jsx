@@ -30,7 +30,7 @@ export default function VerifyEmail() {
     }
 
     verifyEmail()
-  }, [uid, token, nav])
+  }, [uidb64, token, nav])
 
   return (
     <div className="max-w-md mx-auto text-center mt-20">
