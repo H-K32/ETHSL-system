@@ -43,7 +43,11 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     ".vercel.app",
-    ".onrender.com"
+    ".onrender.com",
+    "ethsl-system-production.up.railway.app",
+    "render-production-1b7e.up.railway.app",
+    "railway.app",
+    "railway.coom",
 ]
 
 # -------------------------
