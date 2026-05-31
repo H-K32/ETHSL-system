@@ -29,7 +29,13 @@ class QuestionInline(admin.TabularInline):
     model = Question
     extra = 1
     show_change_link = True
+
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ("id", "quiz", "question_text")
     inlines = [OptionInline]
+
 
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):

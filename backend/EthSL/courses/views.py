@@ -2,16 +2,16 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from users.permissions import IsAdminUserRole
 from rest_framework.parsers import MultiPartParser, FormParser
-from .models import Level, Course, Lesson, Quiz
+from .models import Level, Course, Lesson, Quiz, Question, Option
 from users.models import User
 from rest_framework.response import Response
 from django.db.models import Count, Avg
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-
 from rest_framework.exceptions import ValidationError
 import cloudinary
 import traceback
+import json
 import re
 
  
@@ -256,13 +256,13 @@ class AdminQuizListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
+        raw = request.data.get("data")
+        if not raw:
+            return Response({"error": "'data' field is missing"}, status=400)
         try:
-            data = json.loads(request.data.get("data"))
-        except Exception:
-            return Response(
-                {"error": "Invalid JSON in 'data' field"},
-                status=400
-            )
+            data = json.loads(raw)
+        except (json.JSONDecodeError, TypeError):
+            return Response({"error": "Invalid JSON in 'data' field"}, status=400)
 
         request_files = request.FILES
 
@@ -275,10 +275,9 @@ class AdminQuizListCreateView(APIView):
         )
 
         for q_index, q_data in enumerate(data.get("questions", [])):
-
             question = Question.objects.create(
                 quiz=quiz,
-                question_text=q_data["question_text"],
+                question_text=q_data.get("question_text", ""),
                 points=q_data.get("points", 1),
             )
 
@@ -287,18 +286,16 @@ class AdminQuizListCreateView(APIView):
 
             if img_key in request_files:
                 question.question_image = request_files[img_key]
-
             if vid_key in request_files:
                 question.question_video = request_files[vid_key]
 
             question.save()
 
             for o_index, o_data in enumerate(q_data.get("options", [])):
-
                 option = Option.objects.create(
                     question=question,
-                    option_text=o_data["option_text"],
-                    is_correct=o_data["is_correct"],
+                    option_text=o_data.get("option_text", ""),
+                    is_correct=o_data.get("is_correct", False),
                 )
 
                 o_img = f"option_image_{q_index}_{o_index}"
@@ -306,16 +303,14 @@ class AdminQuizListCreateView(APIView):
 
                 if o_img in request_files:
                     option.option_image = request_files[o_img]
-
                 if o_vid in request_files:
                     option.option_video = request_files[o_vid]
 
                 option.save()
 
-        return Response(
-            QuizSerializer(quiz).data,
-            status=status.HTTP_201_CREATED
-        )
+        return Response({"message": "Quiz created"}, status=201)
+
+
 class AdminQuizDetailView(APIView):
     permission_classes = [IsAdminUserRole]
     parser_classes = (MultiPartParser, FormParser)
@@ -338,14 +333,16 @@ class AdminQuizDetailView(APIView):
         if not quiz:
             return Response({"detail": "Not found"}, status=404)
 
+        raw = request.data.get("data")
+        if not raw:
+            return Response({"error": "'data' field is missing"}, status=400)
         try:
-            data = json.loads(request.data.get("data"))
-        except Exception:
-            return Response({"error": "Invalid JSON"}, status=400)
+            data = json.loads(raw)
+        except (json.JSONDecodeError, TypeError):
+            return Response({"error": "Invalid JSON in 'data' field"}, status=400)
 
         request_files = request.FILES
 
-        # update quiz
         quiz.lesson_id = data.get("lesson")
         quiz.course_id = data.get("course")
         quiz.level_id = data.get("level")
@@ -353,14 +350,12 @@ class AdminQuizDetailView(APIView):
         quiz.passing_score = data.get("passing_score")
         quiz.save()
 
-        # rebuild
         quiz.questions.all().delete()
 
         for q_index, q_data in enumerate(data.get("questions", [])):
-
             question = Question.objects.create(
                 quiz=quiz,
-                question_text=q_data["question_text"],
+                question_text=q_data.get("question_text", ""),
                 points=q_data.get("points", 1),
             )
 
@@ -369,18 +364,16 @@ class AdminQuizDetailView(APIView):
 
             if img_key in request_files:
                 question.question_image = request_files[img_key]
-
             if vid_key in request_files:
                 question.question_video = request_files[vid_key]
 
             question.save()
 
             for o_index, o_data in enumerate(q_data.get("options", [])):
-
                 option = Option.objects.create(
                     question=question,
-                    option_text=o_data["option_text"],
-                    is_correct=o_data["is_correct"],
+                    option_text=o_data.get("option_text", ""),
+                    is_correct=o_data.get("is_correct", False),
                 )
 
                 o_img = f"option_image_{q_index}_{o_index}"
@@ -388,7 +381,6 @@ class AdminQuizDetailView(APIView):
 
                 if o_img in request_files:
                     option.option_image = request_files[o_img]
-
                 if o_vid in request_files:
                     option.option_video = request_files[o_vid]
 
