@@ -174,7 +174,7 @@ export default function Levels() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 levels-grid">
             {levels.map((l, index) => {
-              const locked = !l.unlocked
+              const locked = !Boolean(l.unlocked)
               const customMeta = premiumMetaMap[l.id] || {
                 roman: String(index + 1),
                 difficulty: "ጥንታዊ ተማሪ",

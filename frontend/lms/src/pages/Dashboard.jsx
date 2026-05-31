@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import '../styles/dashboard.css'
+import useAsync from '../utils/useAsync'
+import { getUserDashboard } from '../api/lms'
 
-// Custom pure SVG icon components (Replacing all lucide-react icons)
+// Icons (unchanged)
 const FeatherIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-1.5-1.5M12 21h-3M18 10.5a6 6 0 00-12 0v3.31a6 6 0 00.354 2.028L8.25 21l3.5-.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -34,22 +36,33 @@ const RefreshIcon = ({ className }) => (
   </svg>
 )
 
-export default function Dashboard() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+// Optional UI placeholders (so it doesn't crash)
+const Spinner = () => <div className="p-4">Loading...</div>
+const ErrorState = ({ error, onRetry }) => (
+  <div className="p-4 text-red-500">
+    <p>Error: {error?.message || 'Something went wrong'}</p>
+    <button onClick={onRetry}>Retry</button>
+  </div>
+)
 
+export default function Dashboard() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const { data, loading, error, reload } = useAsync(getUserDashboard, [])
+
+  // ✅ FIXED: use backend fields, NOT placementScore
   useEffect(() => {
     if (!user) {
       navigate('/register', { replace: true })
-    } else if (user.placementScore === undefined) {
+    } else if (user.placement_required) {
       navigate('/placement', { replace: true })
     }
   }, [user, navigate])
 
-  if (!user || user.placementScore === undefined) return null
+  if (loading) return <Spinner />
+  if (error) return <ErrorState error={error} onRetry={reload} />
 
   const handleRetake = () => {
-    // Clear placement info
     const saved = localStorage.getItem('sienna_placement_user')
     if (saved) {
       const parsed = JSON.parse(saved)
@@ -61,210 +74,224 @@ export default function Dashboard() {
     window.location.href = '#/placement'
   }
 
-  // Purely translated Amharic Stats matching user structure
-  const stats = [
-    { label: 'የተመዘገቡት ኮርሶች', value: '3', icon: '📚', color: '#8c52ff' },
-    { label: 'ያለቁ ትምህርቶች', value: '12', icon: '✅', color: '#10b981' },
-    { label: 'የፈተና ውጤት', value: `${user.placementScore}%`, icon: '📊', color: '#f59e0b' },
-    { label: 'ተከታታይ ቀናት (ስትሪክ)', value: '7', icon: '🔥', color: '#ef4444' },
-  ]
+  // ✅ FIXED: safe fallback values
+  const stats = data
+    ? [
+        {
+          label: 'Completed Lessons',
+          value: data.completed_lessons ?? 0,
+          icon: '📚',
+          color: '#8c52ff'
+        },
+        {
+          label: 'Successful Quizzes',
+          value: data.quizzes_passed ?? 0,
+          icon: '✅',
+          color: '#10b981'
+        },
+        {
+          label: 'Total Quizzes',
+          value: data.total_quiz_attempts ?? 0,
+          icon: '📊',
+          color: '#f59e0b'
+        },
+        {
+          label: 'Streak',
+          value: data.streak_count ?? user?.streak_count ?? 0,
+          icon: '🔥',
+          color: '#ef4444'
+        }
+      ]
+    : []
 
-  // Purely translated Recent Activities
   const recentActivities = [
-    { title: 'ምዕራፍ 1 ተጠናቋል', date: 'ከ2 ሰዓት በፊት', type: 'lesson' },
-    { title: 'በፈተናው 90% ተመዝግቧል', date: 'ትናንት', type: 'quiz' },
-    { title: 'ምዕራፍ 2 ተጀምሯል', date: 'ከ3 ቀን በፊት', type: 'course' },
+    { title: 'Level 1 completed', date: '2 hours ago', type: 'lesson' },
+    { title: 'Scored 90% on quiz', date: 'Yesterday', type: 'quiz' },
+    { title: 'Level 2 started', date: '3 days ago', type: 'course' },
   ]
 
-  // Purely translated Recommended Levels
   const recommendedLevels = [
-    { name: 'ምዕራፍ 2: መካከለኛ', progress: 60, description: 'ይቀጥሉ! በጥሩ ሁኔታ እያከናወኑ ነው።' },
-    { name: 'ምዕራፍ 3: የላቀ', progress: 20, description: 'ለመክፈት ቀጣዩ ዋና ምዕራፍ።' },
+    { name: 'Level 2: Intermediate', progress: 60, description: 'Keep going! You are performing well.' },
+    { name: 'Level 3: Advanced', progress: 20, description: 'Next major level to unlock.' },
   ]
 
-  return (
-    <div className="min-h-screen bg-bone-100 p-4 sm:p-6 md:p-12 relative overflow-hidden parchment-grid">
-      {/* Radiant atmospheric background glow to match application guidelines */}
-      <div className="absolute top-[-5%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-forest-100/40 pointer-events-none filter blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[45vw] h-[45vw] rounded-full bg-sienna-100/30 pointer-events-none filter blur-[100px]" />
+ 
+return (
+  <div className="min-h-screen bg-bone-100 p-4 sm:p-6 md:p-12 relative overflow-hidden parchment-grid">
 
-      <div className="max-w-5xl mx-auto z-10 relative dashboard-container">
-        
-        {/* Vintage Top Navigation Header with pure SVGs */}
-        <header className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-bone-300 pb-5 mb-8 gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-sienna-50 text-sienna-600 rounded-xl flex items-center justify-center border border-sienna-200">
-              <FeatherIcon className="w-5 h-5 text-sienna-500 transform -rotate-12" />
-            </div>
-            <div>
-              <span className="font-serif font-black tracking-tight text-2xl text-forest-900 block leading-none">
-                የሴና እና የስፕሩስ
-              </span>
-              <span className="font-mono text-[9px] tracking-widest uppercase text-forest-600 font-extrabold block mt-0.5">
-                የጸሐፍት ማደሪያ (Scribe Scriptorium)
-              </span>
-            </div>
+    {/* Background glow */}
+    <div className="absolute top-[-5%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-forest-100/40 pointer-events-none blur-[120px]" />
+    <div className="absolute bottom-[-10%] right-[-5%] w-[45vw] h-[45vw] rounded-full bg-sienna-100/30 pointer-events-none blur-[100px]" />
+
+    <div className="max-w-5xl mx-auto z-10 relative dashboard-container">
+
+      {/* HEADER */}
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-bone-300 pb-5 mb-8 gap-4">
+
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-sienna-50 text-sienna-600 rounded-xl flex items-center justify-center border border-sienna-200">
+            <FeatherIcon className="w-5 h-5 text-sienna-500 transform -rotate-12" />
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
-            <Link
-              to="/levels"
-              className="group flex items-center space-x-2 font-black uppercase text-sienna-600 hover:text-sienna-700 transition"
-            >
-              <SyllabusIcon className="w-4 h-4 text-sienna-500 transition-transform group-hover:scale-110" />
-              <span>የስርዓተ-ትምህርት ፍሰት</span>
-            </Link>
-            
-            <span className="font-sans text-xs font-bold text-forest-900 bg-white/80 backdrop-blur-sm py-1.5 px-3 rounded-lg border border-bone-300">
-              ጸሐፊ: <strong className="font-black text-sienna-600">{user.username}</strong>
+          <div>
+            <span className="font-serif font-black text-2xl text-forest-900 block">
+              Sienna & Spruce
             </span>
-
-            <button
-              onClick={() => {
-                logout()
-                navigate('/register')
-              }}
-              className="group flex items-center space-x-2 font-black uppercase text-rose-700 hover:text-rose-800 transition"
-            >
-              <LogoutIcon className="w-4 h-4 text-rose-600 transition-transform group-hover:translate-x-0.5" />
-              <span>ውጣ</span>
-            </button>
-          </div>
-        </header>
-
-        {/* Elegant Welcome Hero Section - FIXED WITH INLINE STYLES FOR VISIBILITY */}
-        <div className="welcome-section mb-10 text-center md:text-left" style={{ background: '#faf8f4', border: '1px solid #d4cbb8', borderRadius: '24px', padding: '2rem 2.5rem' }}>
-          <div className="welcome-text">
-            <div className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 mb-3.5" style={{ background: 'rgba(203, 83, 51, 0.1)', color: '#b54323', border: '1px solid rgba(203, 83, 51, 0.2)' }}>
-              <SparklesIcon className="w-3 h-3" style={{ color: '#b54323' }} />
-              <span style={{ color: '#b54323' }}>የእድገት መከታተያ</span>
-            </div>
-            <h1 className="welcome-title text-4xl md:text-5xl font-serif font-black tracking-tight leading-none mb-3" style={{ color: '#0f2a16' }}>
-              እንኳን በደህና ተመለሱ፣ <span className="gradient-name" style={{ color: '#b54323' }}>{user.username || 'ተማሪ'}!</span>
-            </h1>
-            <p className="welcome-subtitle text-sm sm:text-base max-w-2xl leading-relaxed" style={{ color: '#3a5a3e' }}>
-              የመማር ጉዞዎን ይቀጥሉ። በጥሩ ሁኔታ እያደጉ እና እጅግ ጠቃሚ የሆኑ ስኬቶችን እያስመዘገቡ ነው!
-            </p>
+            <span className="font-mono text-[9px] uppercase text-forest-600 font-extrabold">
+              Scribe Scriptorium
+            </span>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="stats-grid grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="stat-card bg-white rounded-2xl border border-bone-300 p-5 shadow-sm transition-all hover:scale-[1.01]">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-2xl">{stat.icon}</span>
-                <span 
-                  className="w-2.5 h-2.5 rounded-full" 
-                  style={{ backgroundColor: stat.color }}
-                />
-              </div>
-              <div className="stat-info">
-                <p className="stat-value text-2xl font-serif font-black text-forest-950 mb-0.5">{stat.value}</p>
-                <p className="stat-label text-xs font-mono font-bold text-forest-650 tracking-wide uppercase leading-tight">{stat.label}</p>
+        <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+
+          <Link to="/levels" className="flex items-center gap-2 font-black uppercase text-sienna-600">
+            <SyllabusIcon className="w-4 h-4" />
+            Curriculum Flow
+          </Link>
+
+          <span className="text-xs font-bold text-forest-900 bg-white/80 py-1.5 px-3 rounded-lg border">
+            Writer: <strong className="text-sienna-600">{user?.username || 'Guest'}</strong>
+          </span>
+
+          <button
+            onClick={() => {
+              logout()
+              navigate('/register', { replace: true })
+            }}
+            className="flex items-center gap-2 font-black uppercase text-rose-700"
+          >
+            <LogoutIcon className="w-4 h-4" />
+            Logout
+          </button>
+
+        </div>
+      </header>
+
+      {/* WELCOME */}
+      <div className="mb-10 text-center md:text-left bg-[#faf8f4] border rounded-2xl p-8">
+
+        <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-[#cb53331a] text-[#b54323] border">
+          <SparklesIcon className="w-3 h-3" />
+          Progress Tracker
+        </div>
+
+        <h1 className="text-4xl font-serif font-black mb-3 text-[#0f2a16]">
+          Welcome back, <span style={{ color: '#b54323' }}>
+            {user?.username || 'Student'}
+          </span>!
+        </h1>
+
+        <p className="text-sm text-[#3a5a3e] max-w-2xl">
+          Continue your learning journey. Keep improving step by step.
+        </p>
+
+      </div>
+
+      {/* STATS */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+        {(stats || []).map((stat, i) => (
+          <div key={i} className="bg-white border rounded-2xl p-5">
+            <div className="flex justify-between mb-3">
+              <span className="text-2xl">{stat.icon}</span>
+              <span className="w-2.5 h-2.5 rounded-full" style={{ background: stat.color }} />
+            </div>
+
+            <p className="text-2xl font-bold">{stat.value ?? 0}</p>
+            <p className="text-xs uppercase font-bold text-gray-600">
+              {stat.label}
+            </p>
+          </div>
+        ))}
+
+      </div>
+
+      {/* MAIN GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+
+        {/* Recent Activity */}
+        <div className="bg-white border rounded-2xl p-6">
+
+          <div className="flex justify-between border-b pb-4 mb-5">
+            <h3 className="font-serif font-bold">Recent Activities</h3>
+            <Link to="/levels" className="text-xs font-bold text-sienna-600">
+              View All →
+            </Link>
+          </div>
+
+          {(recentActivities || []).map((a, i) => (
+            <div key={i} className="flex gap-3 p-3 bg-gray-50 rounded-xl mb-3">
+              <div className="w-2 h-2 bg-sienna-500 rounded-full mt-2" />
+              <div>
+                <p className="text-xs font-bold">{a.title}</p>
+                <p className="text-[10px] text-gray-500">{a.date}</p>
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="dashboard-grid grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-          
-          {/* Recent Activity Card */}
-          <div className="dashboard-card bg-white rounded-2xl border border-bone-300 p-6 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="card-header flex items-center justify-between border-b border-bone-200 pb-4 mb-5">
-                <h3 className="font-serif text-lg font-black text-forest-900">የቅርብ ጊዜ እንቅስቃሴዎች</h3>
-                <Link to="/levels" className="view-all font-mono text-xs font-bold text-sienna-600 hover:text-sienna-700 transition">
-                  ሁሉንም እይ →
-                </Link>
-              </div>
-              <div className="activity-list space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="activity-item flex items-start gap-3 p-3 bg-bone-100 rounded-xl border border-bone-200">
-                    <div className="activity-dot w-2 h-2 rounded-full bg-sienna-500 mt-1.5 flex-shrink-0" />
-                    <div className="activity-content">
-                      <p className="activity-title text-xs font-bold font-sans text-forest-900">{activity.title}</p>
-                      <p className="activity-date text-[10px] font-mono text-forest-600 mt-0.5">{activity.date}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="mt-6 pt-4 border-t border-dashed border-bone-200">
-              <div className="flex items-center gap-1.5 text-xs text-forest-600 font-semibold font-sans">
-                <span className="w-1.5 h-1.5 bg-forest-600 rounded-full animate-pulse" />
-                <span>እንቅስቃሴዎች በቅጽበት ይዘመናሉ</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Recommended Levels Card */}
-          <div className="dashboard-card bg-white rounded-2xl border border-bone-300 p-6 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="card-header flex items-center justify-between border-b border-bone-200 pb-4 mb-5">
-                <h3 className="font-serif text-lg font-black text-forest-900">ለእርስዎ የሚመከር</h3>
-                <Link to="/levels" className="view-all font-mono text-xs font-bold text-sienna-600 hover:text-sienna-700 transition">
-                  ሁሉንም እይ →
-                </Link>
-              </div>
-              <div className="recommended-list space-y-4">
-                {recommendedLevels.map((level, index) => (
-                  <div key={index} className="recommended-item p-4 bg-bone-50 rounded-xl border border-bone-200">
-                    <div className="recommended-info">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <p className="recommended-title text-sm font-serif font-bold text-forest-900">{level.name}</p>
-                        <span className="progress-text font-mono text-xs font-bold text-sienna-600">{level.progress}% አልቋል</span>
-                      </div>
-                      <p className="recommended-desc text-xs font-sans text-forest-700 mb-3">{level.description}</p>
-                      <div className="progress-bar w-full h-2 bg-bone-200 rounded-full overflow-hidden border border-bone-300">
-                        <div 
-                          className="progress-fill h-full bg-forest-800 rounded-full transition-all duration-500" 
-                          style={{ width: `${level.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-dashed border-bone-200 font-mono text-[10px] text-forest-600">
-              ስርዓቱ ከፍተኛ እድገት ሊያስመዘግቡባቸው የሚችሉባቸውን ክፍሎች በየቀኑ ይመርጣል።
-            </div>
-          </div>
 
         </div>
 
-        {/* Quick Actions Panel */}
-        <div className="quick-actions p-6 bg-bone-50 rounded-2xl border border-bone-300 shadow-sm mb-8">
-          <h3 className="quick-title font-serif text-lg font-black text-forest-900 mb-4 flex items-center gap-2">
-            <span>⚙️</span>
-            <span>ፈጣን ተግባራት</span>
-          </h3>
-          <div className="actions-grid grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Link to="/levels" className="action-btn flex items-center justify-center gap-2.5 p-4 bg-white hover:bg-bone-100 border border-bone-300 rounded-xl font-mono text-xs font-black uppercase text-forest-900 shadow-xs transition-all active:scale-95">
-              <span className="text-base text-sienna-500">📖</span>
-              <span>ትምህርቱን ቀጥል</span>
+        {/* Recommended */}
+        <div className="bg-white border rounded-2xl p-6">
+
+          <div className="flex justify-between border-b pb-4 mb-5">
+            <h3 className="font-serif font-bold">Recommended</h3>
+            <Link to="/levels" className="text-xs font-bold text-sienna-600">
+              View All →
             </Link>
-            
-            <Link to="/levels" className="action-btn flex items-center justify-center gap-2.5 p-4 bg-white hover:bg-bone-100 border border-bone-300 rounded-xl font-mono text-xs font-black uppercase text-forest-900 shadow-xs transition-all active:scale-95">
-              <span className="text-base text-sienna-500">📈</span>
-              <span>እድገትን ተመልከት</span>
-            </Link>
-            
-            <button 
-              onClick={handleRetake}
-              className="action-btn flex items-center justify-center gap-2.5 p-4 bg-sienna-50 hover:bg-sienna-100 border border-sienna-200 rounded-xl font-mono text-xs font-black uppercase text-sienna-800 shadow-xs transition-all active:scale-95"
-            >
-              <RefreshIcon className="w-4 h-4 text-sienna-500" />
-              <span>ደረጃን እንደገና መዝን</span>
-            </button>
           </div>
+
+          {(recommendedLevels || []).map((l, i) => (
+            <div key={i} className="p-4 bg-gray-50 rounded-xl mb-4">
+
+              <div className="flex justify-between mb-1">
+                <p className="font-bold text-sm">{l.name}</p>
+                <span className="text-xs text-sienna-600">{l.progress}%</span>
+              </div>
+
+              <p className="text-xs mb-3">{l.description}</p>
+
+              <div className="h-2 bg-gray-200 rounded-full">
+                <div
+                  className="h-2 bg-black rounded-full"
+                  style={{ width: `${l.progress}%` }}
+                />
+              </div>
+
+            </div>
+          ))}
+
         </div>
 
       </div>
+
+      {/* QUICK ACTIONS */}
+      <div className="bg-gray-50 border rounded-2xl p-6">
+
+        <h3 className="font-serif font-bold mb-4">Quick Actions</h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+          <Link to="/levels" className="bg-white border rounded-xl p-4 text-center font-bold">
+            📖 Continue Learning
+          </Link>
+
+          <Link to="/levels" className="bg-white border rounded-xl p-4 text-center font-bold">
+            📊 View Progress
+          </Link>
+
+          <button
+            onClick={handleRetake}
+            className="bg-sienna-100 border border-sienna-200 rounded-xl p-4 font-bold"
+          >
+            🔄 Retake Level
+          </button>
+
+        </div>
+
+      </div>
+
     </div>
-  )
-}
+  </div>
+)}

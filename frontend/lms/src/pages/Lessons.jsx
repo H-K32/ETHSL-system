@@ -25,6 +25,7 @@ export default function Lessons() {
       </div>
     )
 
+  // normalize response
   const lessons = (data?.results || data || [])
     .slice()
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -45,8 +46,10 @@ export default function Lessons() {
         ) : (
           <ul className="lessons-list">
             {lessons.map((l, i) => {
-              const locked = l.locked === true || l.is_locked === true
-              const completed = l.completed === true || l.is_completed === true
+              // ✅ BACKEND SOURCE OF TRUTH
+              const locked = l.is_locked === true
+              const completed = l.is_completed === true
+
               const stateClass = locked
                 ? 'is-locked'
                 : completed
@@ -78,6 +81,7 @@ export default function Lessons() {
               return (
                 <li key={l.id}>
                   {locked ? (
+                    // locked = not clickable
                     Row
                   ) : (
                     <Link

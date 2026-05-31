@@ -17,6 +17,7 @@ export default function Quiz() {
   if (error) return <div className="max-w-3xl mx-auto px-4 py-10"><ErrorState error={error} onRetry={reload} /></div>
 
   const questions = quiz?.questions || []
+  console.log("QUIZ DATA:", quiz)
 
   const onSubmit = async (e) => {
     e.preventDefault()
@@ -24,7 +25,7 @@ export default function Quiz() {
     try {
       const payload = Object.entries(answers).map(([question, option]) => ({
         question: Number(question),
-        option: Number(option)
+        selected_option: Number(option)
       }))
       const r = await submitQuiz(id, payload)
       setResult(r)

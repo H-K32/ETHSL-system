@@ -578,6 +578,41 @@ class LearnerCourseDetailView(APIView):
             "quiz_id": course_quiz.id if course_quiz else None,
         })
                
+
+
+class LearnerQuizDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, quiz_id):
+        quiz = (
+            Quiz.objects
+            .filter(id=quiz_id)
+            .prefetch_related("questions__options")
+            .first()
+        )
+
+        if not quiz:
+            return Response({"detail": "Not found"}, status=404)
+
+        serializer = QuizSerializer(quiz)
+
+        return Response(serializer.data)
+
+
+
+class PublicLevelListView(APIView):
+    permission_classes = []  # 🔥 public endpoint
+
+    def get(self, request):
+        levels = Level.objects.all().order_by("order")
+        serializer = LevelSerializer(levels, many=True)
+        return Response(serializer.data)
+    
+    
+    
+    
+    
+    
 # class LearnerQuizDetailView(APIView):
 #     permission_classes = [IsAuthenticated]
 
@@ -611,31 +646,3 @@ class LearnerCourseDetailView(APIView):
 #                 for q in quiz.questions.all()
 #             ]
 #         })
-
-class LearnerQuizDetailView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, quiz_id):
-        quiz = (
-            Quiz.objects
-            .filter(id=quiz_id)
-            .prefetch_related("questions__options")
-            .first()
-        )
-
-        if not quiz:
-            return Response({"detail": "Not found"}, status=404)
-
-        serializer = QuizSerializer(quiz)
-
-        return Response(serializer.data)
-
-
-
-class PublicLevelListView(APIView):
-    permission_classes = []  # 🔥 public endpoint
-
-    def get(self, request):
-        levels = Level.objects.all().order_by("order")
-        serializer = LevelSerializer(levels, many=True)
-        return Response(serializer.data)

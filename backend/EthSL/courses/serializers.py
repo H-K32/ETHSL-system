@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Course, Lesson, Quiz, Question, Option, Level
 from progress.models import LessonProgress
-
+import re
 import json
 
 class LevelSerializer(serializers.ModelSerializer):
@@ -81,6 +81,8 @@ class LessonReadSerializer(serializers.ModelSerializer):
         return True
     
 class OptionSerializer(serializers.ModelSerializer):
+    option_video = serializers.SerializerMethodField()
+
     class Meta:
         model = Option
         fields = [
@@ -91,9 +93,36 @@ class OptionSerializer(serializers.ModelSerializer):
             "is_correct",
         ]
 
+    def get_option_video(self, obj):
+        if not obj.option_video:
+            return None
+
+        try:
+            path = obj.option_video.name
+
+            match = re.search(
+                r"videos/option/(.*)$",
+                path
+            )
+
+            if match:
+                filename = match.group(1)
+
+                return (
+                    "https://res.cloudinary.com/"
+                    "dn5rumfy7/video/upload/"
+                    f"videos/option/{filename}"
+                )
+
+        except Exception as e:
+            print("OPTION VIDEO ERROR:", e)
+
+        return None
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True, required=False)
+    question_video = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -105,6 +134,32 @@ class QuestionSerializer(serializers.ModelSerializer):
             "points",
             "options",
         ]
+
+    def get_question_video(self, obj):
+        if not obj.question_video:
+            return None
+
+        try:
+            path = obj.question_video.name
+
+            match = re.search(
+                r"videos/question/(.*)$",
+                path
+            )
+
+            if match:
+                filename = match.group(1)
+
+                return (
+                    "https://res.cloudinary.com/"
+                    "dn5rumfy7/video/upload/"
+                    f"videos/question/{filename}"
+                )
+
+        except Exception as e:
+            print("QUESTION VIDEO ERROR:", e)
+
+        return None
 
 
 class QuizSerializer(serializers.ModelSerializer):

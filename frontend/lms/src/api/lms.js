@@ -33,4 +33,21 @@ export const getPlacementQuiz = async () => ([])
 
 export const submitPlacement = async () => ({ success: true })
 
-export const submitQuiz = async () => ({ success: true })
+export const submitQuiz = (quizId, answers) =>
+  api.post('/progress/submit-quiz/', {
+    quiz: quizId,
+    answers
+  }).then(r => r.data)
+
+
+export const getUserDashboard = async () => {
+  const res = await fetch(`${API_BASE}/progress/profile/dashboard/`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  })
+
+  if (!res.ok) throw new Error("Failed to load dashboard")
+
+  return res.json()
+}
