@@ -61,7 +61,7 @@ export default function Courses() {
           <div className="courses-grid">
             {courses.map((course) => {
               // ✅ BACKEND SOURCE OF TRUTH
-              const locked = course.is_locked === true
+              const locked = !course.unlocked
               const progress = course.progress ?? 0
 
               const hasQuiz = course.has_quiz === true

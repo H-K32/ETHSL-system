@@ -1,33 +1,51 @@
 import React, { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import api from '../api/client.js'
 import '../styles/layout.css'
 
 export default function Layout() {
   const { user, logout } = useAuth()
+  const [unreadCount, setUnreadCount] = useState(0)
   const navigate = useNavigate()
   const location = useLocation()
   
   const navLinkClass = ({ isActive }) =>
     `nav-link ${isActive ? 'nav-link-active' : 'nav-link-inactive'}`
 
-  // Check if current page is auth pages (no sidebar for login/register)
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register'
   const showSidebar = user && !isAuthPage
 
-  // Dashboard stats
-  const stats = [
-    { label: 'Courses Enrolled', value: '3', icon: '📚', color: '#4f46e5' },
-    { label: 'Lessons Completed', value: '12', icon: '✅', color: '#10b981' },
-    { label: 'Quiz Score', value: '85%', icon: '📊', color: '#f59e0b' },
-    { label: 'Current Streak', value: '7', icon: '🔥', color: '#ef4444' },
-  ]
+  useEffect(() => {
+    if (!user) {
+      setUnreadCount(0)
+      return
+    }
 
-  const recentActivities = [
-    { title: 'Completed Level 1', date: '2 hours ago' },
-    { title: 'Scored 90% on Quiz', date: 'Yesterday' },
-    { title: 'Started Level 2', date: '3 days ago' },
-  ]
+    const isWarningExpired = (dateString) => {
+      const warningDate = new Date(dateString)
+      const now = new Date()
+      const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
+      return now - warningDate > THIRTY_DAYS_MS
+    }
+
+    const fetchUnreadNotifications = async () => {
+      try {
+        const response = await api.get('/users/profile/')
+        const userData = response.data
+        if (userData.warning_message) {
+          const warningDate = userData.warning_date || new Date().toISOString()
+          setUnreadCount(isWarningExpired(warningDate) ? 0 : 1)
+        } else {
+          setUnreadCount(0)
+        }
+      } catch (err) {
+        setUnreadCount(0)
+      }
+    }
+
+    fetchUnreadNotifications()
+  }, [user])
   
   return (
     <div className="layout-container">
@@ -59,6 +77,13 @@ export default function Layout() {
                 <span>Levels</span>
               </NavLink>
 
+              <NavLink to="/curriculum" className={navLinkClass}>
+                <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>Curriculum</span>
+              </NavLink>
+
               <NavLink to="/progress" className={navLinkClass}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -85,7 +110,9 @@ export default function Layout() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 <span>Notifications</span>
-                <span className="notification-badge">3</span>
+                {unreadCount > 0 && (
+                  <span className="notification-badge">{unreadCount}</span>
+                )}
               </NavLink>
 
               <NavLink to="/profile" className={navLinkClass}>
@@ -112,81 +139,9 @@ export default function Layout() {
       {/* Main Content */}
       <div className={`main-wrapper ${!showSidebar ? 'full-width' : ''}`}>
         <main className="main-content">
-          {/* Dashboard Content - Main view when at /dashboard */}
-          {location.pathname === '/dashboard' && (
-            <div className="dashboard-container">
-              {/* Welcome Section */}
-              <div className="welcome-section">
-                <div className="welcome-text">
-                  <h1 className="welcome-title">
-                    Welcome back, <span className="gradient-name">{user?.username || 'Learner'}! 👋</span>
-                  </h1>
-                  <p className="welcome-subtitle">Continue your learning journey. You're making great progress!</p>
-                </div>
-                <div className="welcome-emoji">🌟</div>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="stats-grid">
-                {stats.map((stat, index) => (
-                  <div key={index} className="stat-card">
-                    <div className="stat-icon" style={{ background: `${stat.color}15` }}>
-                      <span>{stat.icon}</span>
-                    </div>
-                    <div className="stat-info">
-                      <p className="stat-value">{stat.value}</p>
-                      <p className="stat-label">{stat.label}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Recent Activity */}
-              <div className="dashboard-card">
-                <div className="card-header">
-                  <h3>Recent Activity</h3>
-                  <Link to="/progress" className="view-all">View All →</Link>
-                </div>
-                <div className="activity-list">
-                  {recentActivities.map((activity, index) => (
-                    <div key={index} className="activity-item">
-                      <div className="activity-dot"></div>
-                      <div className="activity-content">
-                        <p className="activity-title">{activity.title}</p>
-                        <p className="activity-date">{activity.date}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              
-              {/* Quick Actions */}
-              <div className="quick-actions">
-                <h3 className="quick-title">Quick Actions</h3>
-                <div className="actions-grid">
-                  <Link to="/levels" className="action-btn">
-                    <span>📖</span>
-                    <span>Continue Learning</span>
-                  </Link>
-                  <Link to="/progress" className="action-btn">
-                    <span>📈</span>
-                    <span>View Progress</span>
-                  </Link>
-                  <Link to="/community" className="action-btn">
-                    <span>💬</span>
-                    <span>Join Discussion</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Other routes will render here */}
-          {location.pathname !== '/dashboard' && <Outlet />}
+          <Outlet />
         </main>
         
-        {/* Footer - Hide on auth pages */}
         {!isAuthPage && (
           <footer className="footer">
             <p>© {new Date().getFullYear()} ETHSL Learner LMS. All rights reserved.</p>

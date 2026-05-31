@@ -17,6 +17,7 @@ from .views import (
     AdminQuizDetailView,
     
     LearnerLevelListView,
+    LearnerCurriculumView,
     LearnerCourseDetailView,
     LearnerCourseListView,
     LearnerLessonListView,
@@ -46,6 +47,7 @@ urlpatterns = [
     
     # ✅ LEARNER (NO ADMIN TOKEN NEEDED)
     path('learner/levels/', LearnerLevelListView.as_view()),
+    path('learner/curriculum/', LearnerCurriculumView.as_view()),
     path('learner/courses/<int:level_id>/', LearnerCourseListView.as_view()),
     path('learner/lessons/<int:course_id>/', LearnerLessonListView.as_view()),
     path('learner/lesson/<int:lesson_id>/', LearnerLessonDetailView.as_view()),

@@ -49,7 +49,7 @@ export default function Quiz() {
         )}
         <div className="mt-6 flex justify-center gap-3">
           <button onClick={() => { setResult(null); setAnswers({}) }} className="px-4 py-2 rounded-lg border border-slate-200">Retake</button>
-          <button onClick={() => nav('/levels')} className="px-4 py-2 rounded-lg bg-brand-600 text-white">Back to levels</button>
+          <button onClick={() => nav(-1)} className="px-4 py-2 rounded-lg bg-brand-600 text-white">Go Back</button>
         </div>
       </div>
     )

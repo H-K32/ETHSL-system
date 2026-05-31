@@ -13,8 +13,10 @@ import Progress from './pages/Progress.jsx'
 import Community from './pages/Community.jsx'
 import Notifications from './pages/Notifications.jsx'
 import NotFound from './pages/NotFound.jsx'
-import ProtectedRoute from './components/ProtectedRoute.jsx'
+import Dashboard from './pages/Dashboard.jsx'
+import Curriculum from './pages/Curriculum.jsx'
 import Layout from './components/Layout.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Certificates from './pages/learner/Certificates.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
@@ -48,7 +50,8 @@ export default function App() {
       <Route element={<Layout />}>
         {/* ================= PROTECTED ROUTES ================= */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<div />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/curriculum" element={<Curriculum />} />
           <Route path="/levels" element={<Levels />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/community" element={<Community />} />

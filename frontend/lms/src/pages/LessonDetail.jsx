@@ -1,4 +1,4 @@
- import { useParams, useNavigate, Link } from 'react-router-dom'
+ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom'
  import { useState } from 'react'
  import useAsync from '../utils/useAsync.js'
  import { getLesson, completeLesson } from '../api/lms.js'
@@ -42,6 +42,8 @@ function VideoPlayer({ url }) {
  export default function LessonDetail() {
    const { id } = useParams()
    const nav = useNavigate()
+   const location = useLocation()
+   const courseId = location.state?.courseId
  
    const { data: lesson, loading, error, reload } = useAsync(
      () => getLesson(id),
@@ -76,6 +78,7 @@ function VideoPlayer({ url }) {
      try {
        await completeLesson(id)
        setDone(true)
+       reload()
      } catch (e) {
        alert(e?.response?.data?.detail || 'Could not mark as complete')
      } finally {
@@ -86,9 +89,15 @@ function VideoPlayer({ url }) {
    return (
      <div className="lesson-detail-page">
        <div className="lesson-detail-shell">
-         <Link to={-1} className="lesson-back">
-           ← Back to lessons
-         </Link>
+         {courseId ? (
+           <Link to={`/lessons/${courseId}`} className="lesson-back">
+             ← Back to course
+           </Link>
+         ) : (
+           <button type="button" onClick={() => nav(-1)} className="lesson-back lesson-back-button">
+             ← Back to lessons
+           </button>
+         )}
  
          <span className="lesson-detail-eyebrow">Lesson</span>
  

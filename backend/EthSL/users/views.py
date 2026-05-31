@@ -1,3 +1,4 @@
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import render
 
 from rest_framework import generics
@@ -76,9 +77,22 @@ class RegisterView(generics.CreateAPIView):
             print("EMAIL ERROR:", e)
 
         return Response({
-            "message": "Verification email sent, Verify and you will be redirected to login."
+            "message": "Verification email sent, Verify and you will be redirected to login.",
+            "uidb64": uid,
         }, status=201)
         
+class EmailVerificationStatusView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, uidb64):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+            return Response({"verified": user.email_verified})
+        except Exception:
+            return Response({"verified": False})
+
+
 class VerifyEmailView(APIView):
     def get(self, request, uidb64, token):
         try:
@@ -223,10 +237,58 @@ class ChangePasswordView(APIView):
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        from progress.models import QuizAttempt
+        from courses.models import Course, Lesson
+        from django.db.models import Avg
+
+        user = request.user
+        serializer = UserSerializer(user)
+        data = serializer.data
+
+        completed_lessons = LessonProgress.objects.filter(
+            user=user, is_completed=True
+        ).count()
+
+        quizzes_passed = QuizAttempt.objects.filter(
+            user=user, passed=True
+        ).count()
+
+        quiz_avg = QuizAttempt.objects.filter(
+            user=user
+        ).aggregate(avg=Avg("score"))["avg"]
+
+        # Course progress
+        course_progress = []
+        for course in Course.objects.all():
+            total = Lesson.objects.filter(course=course).count()
+            if total == 0:
+                continue
+            completed = LessonProgress.objects.filter(
+                user=user,
+                lesson__course=course,
+                is_completed=True
+            ).count()
+            course_progress.append({
+                "id": course.id,
+                "title": course.title,
+                "completed_lessons": completed,
+                "total_lessons": total,
+                "progress": round((completed / total) * 100),
+            })
+
+        data["stats"] = {
+            "completed_lessons": completed_lessons,
+            "quizzes_passed": quizzes_passed,
+            "quiz_average": round(quiz_avg, 1) if quiz_avg else None,
+            "current_level": user.get_level_display(),
+            "streak_count": user.streak_count,
+        }
+        data["course_progress"] = course_progress
+
+        return Response(data)
 
     def put(self, request):
         serializer = UserSerializer(
@@ -234,10 +296,8 @@ class UserProfileView(APIView):
             data=request.data,
             partial=True
         )
-
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         return Response(serializer.data)
 
     def patch(self, request):

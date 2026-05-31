@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     RegisterView,
     VerifyEmailView,
+    EmailVerificationStatusView,
     
  
 
@@ -77,6 +78,7 @@ urlpatterns = [
     
  
     path('verify-email/<uidb64>/<token>/', VerifyEmailView.as_view()),
+    path('email-verification-status/<uidb64>/', EmailVerificationStatusView.as_view()),
     
         # Password Reset (USER)
     path(

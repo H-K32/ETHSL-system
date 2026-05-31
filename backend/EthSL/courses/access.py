@@ -66,12 +66,12 @@ def can_access_level(user, level):
             if not can_access_course(user, course):
                 return False
 
-        quiz = getattr(prev, "final_quiz", None)
+        level_quiz = Quiz.objects.filter(level=prev).first()
 
-        if quiz:
+        if level_quiz:
             if not QuizAttempt.objects.filter(
                 user=user,
-                quiz=quiz,
+                quiz=level_quiz,
                 passed=True
             ).exists():
                 return False

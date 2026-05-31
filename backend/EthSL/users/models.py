@@ -58,10 +58,10 @@ class User(AbstractUser):
     placement_passed = models.BooleanField(default=False)
 
     avatar = models.ImageField(
-        upload_to="avatars/",
+        upload_to="image/avatar/",
         null=True,
         blank=True,
-        default="avatars/default.png"
+        default=None
     )
 
     def __str__(self):

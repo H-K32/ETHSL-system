@@ -133,6 +133,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(required=False)
     warning_message = serializers.CharField(read_only=True)
+    avatar = serializers.SerializerMethodField()
+    avatar_upload = serializers.ImageField(write_only=True, required=False, allow_null=True, source='avatar')
 
     class Meta:
         model = User
@@ -145,22 +147,41 @@ class UserSerializer(serializers.ModelSerializer):
             "role",
             "streak_count",
             "avatar",
+            "avatar_upload",
             "full_name",
             "warning_message",
             "level",
             "placement_required",
+            "placement_passed",
             "is_active",
-            
         ]
         read_only_fields = ["username", "role", "streak_count"]
 
+    def get_avatar(self, obj):
+        if obj.avatar:
+            val = str(obj.avatar)
+            if val.startswith('http'):
+                return val
+            return None
+        return None
+
     def update(self, instance, validated_data):
         full_name = validated_data.pop("full_name", None)
-
         if full_name:
             parts = full_name.split(" ", 1)
             instance.first_name = parts[0]
             instance.last_name = parts[1] if len(parts) > 1 else ""
+
+        avatar = validated_data.pop("avatar", None)
+        if avatar:
+            import cloudinary.uploader
+            result = cloudinary.uploader.upload(
+                avatar,
+                folder="images/avatar",
+                resource_type="image"
+            )
+            instance.avatar = result["secure_url"]
+            instance.save()
 
         return super().update(instance, validated_data)
 # users/serializers.py

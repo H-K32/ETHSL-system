@@ -46,11 +46,22 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  const logout = () => {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
-    setUser(null)
-    navigate('/login')
+  const logout = async () => {
+    const refreshToken = localStorage.getItem('refresh_token')
+
+    try {
+      if (refreshToken) {
+        await authApi.logout(refreshToken)
+      }
+    } catch (error) {
+      // if backend logout fails, still clear client auth state
+      console.warn('Backend logout failed', error)
+    } finally {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      setUser(null)
+      navigate('/login')
+    }
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import '../styles/dashboard.css'
 import useAsync from '../utils/useAsync'
@@ -46,7 +46,7 @@ const ErrorState = ({ error, onRetry }) => (
 )
 
 export default function Dashboard() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { data, loading, error, reload } = useAsync(getUserDashboard, [])
 
@@ -90,8 +90,8 @@ export default function Dashboard() {
           color: '#10b981'
         },
         {
-          label: 'Total Quizzes',
-          value: data.total_quiz_attempts ?? 0,
+          label: 'Avg Quiz Score',
+          value: data.quiz_average != null ? `${Math.round(data.quiz_average)}%` : '—',
           icon: '📊',
           color: '#f59e0b'
         },
@@ -104,16 +104,8 @@ export default function Dashboard() {
       ]
     : []
 
-  const recentActivities = [
-    { title: 'Level 1 completed', date: '2 hours ago', type: 'lesson' },
-    { title: 'Scored 90% on quiz', date: 'Yesterday', type: 'quiz' },
-    { title: 'Level 2 started', date: '3 days ago', type: 'course' },
-  ]
-
-  const recommendedLevels = [
-    { name: 'Level 2: Intermediate', progress: 60, description: 'Keep going! You are performing well.' },
-    { name: 'Level 3: Advanced', progress: 20, description: 'Next major level to unlock.' },
-  ]
+  const recentActivities = data?.recent_activities || []
+  const recommendedLevels = data?.recommended_levels || []
 
  
 return (
@@ -145,7 +137,7 @@ return (
 
         <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
 
-          <Link to="/levels" className="flex items-center gap-2 font-black uppercase text-sienna-600">
+          <Link to="/curriculum" className="flex items-center gap-2 font-black uppercase text-sienna-600">
             <SyllabusIcon className="w-4 h-4" />
             Curriculum Flow
           </Link>
@@ -220,7 +212,9 @@ return (
             </Link>
           </div>
 
-          {(recentActivities || []).map((a, i) => (
+          {recentActivities.length === 0 ? (
+            <p className="text-xs text-gray-400 italic">No recent activity yet. Start learning!</p>
+          ) : recentActivities.map((a, i) => (
             <div key={i} className="flex gap-3 p-3 bg-gray-50 rounded-xl mb-3">
               <div className="w-2 h-2 bg-sienna-500 rounded-full mt-2" />
               <div>
@@ -242,23 +236,18 @@ return (
             </Link>
           </div>
 
-          {(recommendedLevels || []).map((l, i) => (
+          {recommendedLevels.length === 0 ? (
+            <p className="text-xs text-gray-400 italic">Complete lessons to get recommendations.</p>
+          ) : recommendedLevels.map((l, i) => (
             <div key={i} className="p-4 bg-gray-50 rounded-xl mb-4">
-
               <div className="flex justify-between mb-1">
                 <p className="font-bold text-sm">{l.name}</p>
                 <span className="text-xs text-sienna-600">{l.progress}%</span>
               </div>
-
               <p className="text-xs mb-3">{l.description}</p>
-
               <div className="h-2 bg-gray-200 rounded-full">
-                <div
-                  className="h-2 bg-black rounded-full"
-                  style={{ width: `${l.progress}%` }}
-                />
+                <div className="h-2 bg-black rounded-full" style={{ width: `${l.progress}%` }} />
               </div>
-
             </div>
           ))}
 

@@ -78,8 +78,8 @@ export default function Register() {
     setLoading(true)
 
     try {
-      await register(form)
-      nav('/check-email')
+      const data = await register(form)
+      nav('/check-email', { state: { uidb64: data?.uidb64 } })
     } catch (e) {
       const data = e?.response?.data
 

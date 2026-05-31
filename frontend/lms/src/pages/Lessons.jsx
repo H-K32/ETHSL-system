@@ -47,8 +47,8 @@ export default function Lessons() {
           <ul className="lessons-list">
             {lessons.map((l, i) => {
               // ✅ BACKEND SOURCE OF TRUTH
-              const locked = l.is_locked === true
-              const completed = l.is_completed === true
+              const locked = !l.unlocked
+              const completed = l.completed === true
 
               const stateClass = locked
                 ? 'is-locked'
@@ -86,6 +86,7 @@ export default function Lessons() {
                   ) : (
                     <Link
                       to={`/lesson/${l.id}`}
+                      state={{ courseId }}
                       style={{ textDecoration: 'none' }}
                     >
                       {Row}

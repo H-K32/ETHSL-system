@@ -480,6 +480,61 @@ class LearnerLessonListView(APIView):
             })
 
         return Response(data)
+
+class LearnerCurriculumView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        levels = Level.objects.prefetch_related('courses__lessons').order_by('order')
+        curriculum = []
+
+        for level in levels:
+            level_quiz = Quiz.objects.filter(level=level).first()
+            course_items = []
+
+            for course in level.courses.all():
+                course_quiz = Quiz.objects.filter(course=course).first()
+                lesson_items = []
+
+                for lesson in course.lessons.all().order_by('order'):
+                    lesson_items.append({
+                        "id": lesson.id,
+                        "title": lesson.title,
+                        "unlocked": can_access_lesson(user, lesson),
+                        "completed": LessonProgress.objects.filter(
+                            user=user,
+                            lesson=lesson,
+                            is_completed=True
+                        ).exists(),
+                        "has_quiz": hasattr(lesson, "quiz"),
+                        "quiz_id": getattr(getattr(lesson, "quiz", None), "id", None),
+                    })
+
+                course_items.append({
+                    "id": course.id,
+                    "title": course.title,
+                    "description": course.description,
+                    "unlocked": can_access_course(user, course),
+                    "has_quiz": course_quiz is not None,
+                    "quiz_id": course_quiz.id if course_quiz else None,
+                    "lessons": lesson_items,
+                })
+
+            curriculum.append({
+                "id": level.id,
+                "name": level.name,
+                "display_name": level.get_name_display(),
+                "order": level.order,
+                "unlocked": can_access_level(user, level),
+                "has_quiz": level_quiz is not None,
+                "quiz_id": level_quiz.id if level_quiz else None,
+                "can_take_quiz": can_take_level_quiz(user, level),
+                "courses": course_items,
+            })
+
+        return Response(curriculum)
+
 class LearnerLessonDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -553,9 +608,12 @@ class LearnerLessonDetailView(APIView):
             "title": lesson.title,
             "description": lesson.description,
             "video": video_url,
-            "quiz": quiz_data
-            
- 
+            "quiz": quiz_data,
+            "completed": LessonProgress.objects.filter(
+                user=request.user,
+                lesson=lesson,
+                is_completed=True
+            ).exists(),
         })
                               
 class LearnerCourseDetailView(APIView):
@@ -607,42 +665,3 @@ class PublicLevelListView(APIView):
         levels = Level.objects.all().order_by("order")
         serializer = LevelSerializer(levels, many=True)
         return Response(serializer.data)
-    
-    
-    
-    
-    
-    
-# class LearnerQuizDetailView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request, quiz_id):
-#         quiz = (
-#             Quiz.objects
-#             .filter(id=quiz_id)
-#             .prefetch_related("questions__options")
-#             .first()
-#         )
-
-#         if not quiz:
-#             return Response({"detail": "Not found"}, status=404)
-
-#         return Response({
-#             "id": quiz.id,
-#             "description": quiz.description,
-#             "passing_score": quiz.passing_score,
-#             "questions": [
-#                 {
-#                     "id": q.id,
-#                     "question_text": q.question_text,
-#                     "options": [
-#                         {
-#                             "id": o.id,
-#                             "option_text": o.option_text,
-#                         }
-#                         for o in q.options.all()
-#                     ]
-#                 }
-#                 for q in quiz.questions.all()
-#             ]
-#         })

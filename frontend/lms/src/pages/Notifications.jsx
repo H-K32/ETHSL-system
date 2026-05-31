@@ -16,6 +16,13 @@ export default function Notifications() {
     fetchReports()
   }, [])
 
+  const isWarningExpired = (dateString) => {
+    const warningDate = new Date(dateString)
+    const now = new Date()
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
+    return now - warningDate > THIRTY_DAYS_MS
+  }
+
   const fetchNotifications = async () => {
     try {
       setLoading(true)
@@ -36,7 +43,7 @@ export default function Notifications() {
         })
       }
       
-      setNotifications(warningNotifications)
+      setNotifications(warningNotifications.filter(n => !isWarningExpired(n.date)))
     } catch (err) {
       console.error('Error fetching notifications:', err)
       setError('Failed to load notifications')
@@ -55,10 +62,6 @@ export default function Notifications() {
       console.error('Error fetching reports:', err)
       setReports([])
     }
-  }
-
-  const dismissNotification = (id) => {
-    setNotifications(notifications.filter(n => n.id !== id))
   }
 
   const formatDate = (dateString) => {
@@ -152,14 +155,7 @@ export default function Notifications() {
                     <span className="notification-date">{formatDate(notification.date)}</span>
                   </div>
                   <p className="notification-message">{notification.message}</p>
-                  <div className="notification-actions">
-                    <button 
-                      className="dismiss-btn"
-                      onClick={() => dismissNotification(notification.id)}
-                    >
-                      Dismiss
-                    </button>
-                  </div>
+                  <p className="notification-note">This warning will disappear automatically after 30 days.</p>
                 </div>
               </div>
             ))

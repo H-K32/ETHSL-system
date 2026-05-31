@@ -163,7 +163,7 @@ export default function Profile() {
     setMessage({ type: '', text: '' })
     
     const formData = new FormData()
-    formData.append('avatar', file)
+    formData.append('avatar_upload', file)
     
     try {
       const response = await api.patch('/users/profile/', formData, {

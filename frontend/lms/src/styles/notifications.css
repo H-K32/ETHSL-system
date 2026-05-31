@@ -213,6 +213,13 @@
   margin: 0 0 0.9rem;
 }
 
+.notification-note {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--color-forest-500);
+  margin: 0.25rem 0 0;
+}
+
 .notification-warning {
   padding: 0.55rem 0.8rem;
   background: var(--color-bone-100);

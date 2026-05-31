@@ -18,6 +18,11 @@ export const getQuiz = (quizId) =>
 export const getProfile = () =>
   api.get('/users/profile/').then((r) => r.data)
 
+export const updateProfile = (formData) =>
+  api.patch('/users/profile/', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }).then((r) => r.data)
+
 //certificates
 export const getCertificates = () =>
   api.get('/certificates/my-certificates/').then((r) => r.data)
@@ -27,7 +32,8 @@ export const getCertificatePdf = (certificateId) =>
     .get(`/certificates/download/${certificateId}/`, { responseType: 'blob' })
     .then((r) => r.data)
 
-export const completeLesson = async () => ({ success: true })
+export const completeLesson = (lessonId) =>
+  api.post(`/progress/complete-lesson/${lessonId}/`).then(r => r.data)
 
 export const getPlacementQuiz = async () => ([])
 
@@ -39,15 +45,8 @@ export const submitQuiz = (quizId, answers) =>
     answers
   }).then(r => r.data)
 
+export const getUserDashboard = () =>
+  api.get('/progress/profile/dashboard/').then(r => r.data)
 
-export const getUserDashboard = async () => {
-  const res = await fetch(`${API_BASE}/progress/profile/dashboard/`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
-  })
-
-  if (!res.ok) throw new Error("Failed to load dashboard")
-
-  return res.json()
-}
+export const getCurriculum = () =>
+  api.get('/courses/learner/curriculum/').then((r) => r.data)
