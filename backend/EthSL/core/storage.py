@@ -10,7 +10,7 @@ class CustomMediaCloudinaryStorage(MediaCloudinaryStorage):
         ext = name.split(".")[-1].lower()
 
         # ---------------- FILE TYPE DETECTION ----------------
-        if ext in ["mp4", "mov", "avi", "mkv", "webm"]:
+        if ext in ["mp4", "mov", "avi", "mkv", "webm", "gif"]:
             folder = "videos"
         elif ext in ["jpg", "jpeg", "png", "webp"]:
             folder = "images"

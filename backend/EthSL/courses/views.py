@@ -578,6 +578,40 @@ class LearnerCourseDetailView(APIView):
             "quiz_id": course_quiz.id if course_quiz else None,
         })
                
+# class LearnerQuizDetailView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, quiz_id):
+#         quiz = (
+#             Quiz.objects
+#             .filter(id=quiz_id)
+#             .prefetch_related("questions__options")
+#             .first()
+#         )
+
+#         if not quiz:
+#             return Response({"detail": "Not found"}, status=404)
+
+#         return Response({
+#             "id": quiz.id,
+#             "description": quiz.description,
+#             "passing_score": quiz.passing_score,
+#             "questions": [
+#                 {
+#                     "id": q.id,
+#                     "question_text": q.question_text,
+#                     "options": [
+#                         {
+#                             "id": o.id,
+#                             "option_text": o.option_text,
+#                         }
+#                         for o in q.options.all()
+#                     ]
+#                 }
+#                 for q in quiz.questions.all()
+#             ]
+#         })
+
 class LearnerQuizDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -592,25 +626,10 @@ class LearnerQuizDetailView(APIView):
         if not quiz:
             return Response({"detail": "Not found"}, status=404)
 
-        return Response({
-            "id": quiz.id,
-            "description": quiz.description,
-            "passing_score": quiz.passing_score,
-            "questions": [
-                {
-                    "id": q.id,
-                    "question_text": q.question_text,
-                    "options": [
-                        {
-                            "id": o.id,
-                            "option_text": o.option_text,
-                        }
-                        for o in q.options.all()
-                    ]
-                }
-                for q in quiz.questions.all()
-            ]
-        })
+        serializer = QuizSerializer(quiz)
+
+        return Response(serializer.data)
+
 
 
 class PublicLevelListView(APIView):
