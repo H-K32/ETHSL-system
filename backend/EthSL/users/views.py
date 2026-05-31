@@ -87,6 +87,7 @@ class VerifyEmailView(APIView):
 
             if default_token_generator.check_token(user, token):
                 user.email_verified = True
+                user.is_active = True
                 user.save()
                 return Response({"message": "Email verified successfully"})
 

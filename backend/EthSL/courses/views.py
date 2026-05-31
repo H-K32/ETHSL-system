@@ -10,7 +10,10 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.exceptions import ValidationError
+import cloudinary
 import traceback
+import re
+
  
 from progress.models import LessonProgress, QuizAttempt
 
@@ -243,9 +246,9 @@ class AdminStatisticsView(APIView):
         }
         
         return Response(data)
-    
 class AdminQuizListCreateView(APIView):
     permission_classes = [IsAdminUserRole]
+    parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request):
         quizzes = Quiz.objects.all()
@@ -253,16 +256,69 @@ class AdminQuizListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = QuizSerializer(data=request.data)
+        try:
+            data = json.loads(request.data.get("data"))
+        except Exception:
+            return Response(
+                {"error": "Invalid JSON in 'data' field"},
+                status=400
+            )
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
+        request_files = request.FILES
 
-        return Response(serializer.errors, status=400)
+        quiz = Quiz.objects.create(
+            lesson_id=data.get("lesson"),
+            course_id=data.get("course"),
+            level_id=data.get("level"),
+            description=data.get("description"),
+            passing_score=data.get("passing_score"),
+        )
 
+        for q_index, q_data in enumerate(data.get("questions", [])):
+
+            question = Question.objects.create(
+                quiz=quiz,
+                question_text=q_data["question_text"],
+                points=q_data.get("points", 1),
+            )
+
+            img_key = f"question_image_{q_index}"
+            vid_key = f"question_video_{q_index}"
+
+            if img_key in request_files:
+                question.question_image = request_files[img_key]
+
+            if vid_key in request_files:
+                question.question_video = request_files[vid_key]
+
+            question.save()
+
+            for o_index, o_data in enumerate(q_data.get("options", [])):
+
+                option = Option.objects.create(
+                    question=question,
+                    option_text=o_data["option_text"],
+                    is_correct=o_data["is_correct"],
+                )
+
+                o_img = f"option_image_{q_index}_{o_index}"
+                o_vid = f"option_video_{q_index}_{o_index}"
+
+                if o_img in request_files:
+                    option.option_image = request_files[o_img]
+
+                if o_vid in request_files:
+                    option.option_video = request_files[o_vid]
+
+                option.save()
+
+        return Response(
+            QuizSerializer(quiz).data,
+            status=status.HTTP_201_CREATED
+        )
 class AdminQuizDetailView(APIView):
     permission_classes = [IsAdminUserRole]
+    parser_classes = (MultiPartParser, FormParser)
 
     def get_object(self, pk):
         try:
@@ -282,26 +338,63 @@ class AdminQuizDetailView(APIView):
         if not quiz:
             return Response({"detail": "Not found"}, status=404)
 
-        serializer = QuizSerializer(quiz, data=request.data)
+        try:
+            data = json.loads(request.data.get("data"))
+        except Exception:
+            return Response({"error": "Invalid JSON"}, status=400)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        request_files = request.FILES
 
-        return Response(serializer.errors, status=400)
-    
-    def patch(self, request, pk):
-        quiz = self.get_object(pk)
-        if not quiz:
-            return Response({"detail": "Not found"}, status=404)
+        # update quiz
+        quiz.lesson_id = data.get("lesson")
+        quiz.course_id = data.get("course")
+        quiz.level_id = data.get("level")
+        quiz.description = data.get("description")
+        quiz.passing_score = data.get("passing_score")
+        quiz.save()
 
-        serializer = QuizSerializer(quiz, data=request.data, partial=True)
+        # rebuild
+        quiz.questions.all().delete()
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        for q_index, q_data in enumerate(data.get("questions", [])):
 
-        return Response(serializer.errors, status=400)
+            question = Question.objects.create(
+                quiz=quiz,
+                question_text=q_data["question_text"],
+                points=q_data.get("points", 1),
+            )
+
+            img_key = f"question_image_{q_index}"
+            vid_key = f"question_video_{q_index}"
+
+            if img_key in request_files:
+                question.question_image = request_files[img_key]
+
+            if vid_key in request_files:
+                question.question_video = request_files[vid_key]
+
+            question.save()
+
+            for o_index, o_data in enumerate(q_data.get("options", [])):
+
+                option = Option.objects.create(
+                    question=question,
+                    option_text=o_data["option_text"],
+                    is_correct=o_data["is_correct"],
+                )
+
+                o_img = f"option_image_{q_index}_{o_index}"
+                o_vid = f"option_video_{q_index}_{o_index}"
+
+                if o_img in request_files:
+                    option.option_image = request_files[o_img]
+
+                if o_vid in request_files:
+                    option.option_video = request_files[o_vid]
+
+                option.save()
+
+        return Response(QuizSerializer(quiz).data)
 
     def delete(self, request, pk):
         quiz = self.get_object(pk)
@@ -310,7 +403,6 @@ class AdminQuizDetailView(APIView):
 
         quiz.delete()
         return Response({"detail": "Deleted"}, status=204)
-    
     
     
 class LearnerLevelListView(APIView):
@@ -404,16 +496,39 @@ class LearnerLessonDetailView(APIView):
             lesson = Lesson.objects.get(id=lesson_id)
         except Lesson.DoesNotExist:
             return Response({"detail": "Not found"}, status=404)
+        
+        print("VIDEO FIELD:", lesson.video)
 
         if not can_access_lesson(request.user, lesson):
             return Response({"detail": "This lesson is locked"}, status=403)
 
         # 🔥 SAFE VIDEO HANDLING
         video_url = None
+         
+
         if lesson.video:
             try:
-                video_url = request.build_absolute_uri(lesson.video.url)
-            except Exception:
+                path = lesson.video.name
+
+                match = re.search(
+                    r'v(\d+)/(.*)$',
+                    path
+                )
+
+                if match:
+                    version = match.group(1)
+                    filename = match.group(2)
+
+                    video_url = (
+                        f"https://res.cloudinary.com/"
+                        f"dn5rumfy7/video/upload/"
+                        f"v{version}/{filename}"
+                    )
+
+                print("FINAL VIDEO URL:", video_url)
+
+            except Exception as e:
+                print("VIDEO ERROR:", e)
                 video_url = None
 
         quiz_data = None
@@ -439,13 +554,16 @@ class LearnerLessonDetailView(APIView):
                     for q in quiz.questions.all()
                 ]
             }
-
+            print("VIDEO FIELD:", lesson.video)
+            print("VIDEO URL:", lesson.video.url)
         return Response({
             "id": lesson.id,
             "title": lesson.title,
             "description": lesson.description,
             "video": video_url,
             "quiz": quiz_data
+            
+ 
         })
                               
 class LearnerCourseDetailView(APIView):

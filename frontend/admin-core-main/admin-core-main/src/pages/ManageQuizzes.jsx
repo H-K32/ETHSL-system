@@ -5,11 +5,28 @@ import "../styles/managequiz.css";
 // ---------------- EMPTY QUESTION ----------------
 const createEmptyQuestion = () => ({
   question_type: "text",
+
   question_text: "",
+  question_image: null,
+  question_video: null,
+
   points: 1,
+
   options: [
-    { option_text: "", is_correct: false },
-    { option_text: "", is_correct: false },
+    {
+      option_type: "text",
+      option_text: "",
+      option_image: null,
+      option_video: null,
+      is_correct: false,
+    },
+    {
+      option_type: "text",
+      option_text: "",
+      option_image: null,
+      option_video: null,
+      is_correct: false,
+    },
   ],
 });
 // ---------------- EMPTY FORM ----------------
@@ -80,38 +97,57 @@ const ManageQuizzes = () => {
   };
 
   // ================= EDIT =================
-  const handleEdit = (quiz) => {
-    let quizType = "lesson";
+const handleEdit = (quiz) => {
+  let quizType = "lesson";
 
-    if (quiz.course) {
-      quizType = "course";
-    }
+  if (quiz.course) {
+    quizType = "course";
+  }
 
-    if (quiz.level) {
-      quizType = "level";
-    }
+  if (quiz.level) {
+    quizType = "level";
+  }
 
-    setForm({
-      quiz_type: quizType,
+  setForm({
+    quiz_type: quizType,
 
-      lesson: quiz.lesson || "",
-      course: quiz.course || "",
-      level: quiz.level || "",
+    lesson: quiz.lesson || "",
+    course: quiz.course || "",
+    level: quiz.level || "",
 
-      description: quiz.description,
-      passing_score: quiz.passing_score,
+    description: quiz.description,
+    passing_score: quiz.passing_score,
 
-      questions: quiz.questions
-        ? quiz.questions.map((q) => ({
-            ...q,
-            options: q.options.map((o) => ({ ...o })),
-          }))
-        : [],
-    });
+    questions: quiz.questions
+      ? quiz.questions.map((q) => ({
+          ...q,
 
-    setEditingId(quiz.id);
-    setMode("form");
-  };
+          question_type: q.question_image
+            ? "image"
+            : q.question_video
+            ? "video"
+            : "text",
+
+          options: q.options.map((o) => ({
+            ...o,
+
+            option_type: o.option_image
+              ? "image"
+              : o.option_video
+              ? "video"
+              : "text",
+
+            // 🔥 FIX ADDED HERE (IMPORTANT)
+            option_image: o.option_image || null,
+            option_video: o.option_video || null,
+          })),
+        }))
+      : [],
+  });
+
+  setEditingId(quiz.id);
+  setMode("form");
+};
 
   // ================= DELETE =================
 const handleDelete = (quiz) => {
@@ -223,60 +259,86 @@ const updateOption = (qIndex, oIndex, field, value) => {
 };
 
   // ================= SUBMIT =================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const payload = {
-      lesson:
-        form.quiz_type === "lesson"
-          ? Number(form.lesson)
-          : null,
+  const payload = {
+    lesson:
+      form.quiz_type === "lesson"
+        ? Number(form.lesson)
+        : null,
 
-      course:
-        form.quiz_type === "course"
-          ? Number(form.course)
-          : null,
+    course:
+      form.quiz_type === "course"
+        ? Number(form.course)
+        : null,
 
-      level:
-        form.quiz_type === "level"
-          ? Number(form.level)
-          : null,
+    level:
+      form.quiz_type === "level"
+        ? Number(form.level)
+        : null,
 
-      description: form.description,
+    description: form.description,
+    passing_score: Number(form.passing_score),
 
-      passing_score: Number(form.passing_score),
+    questions: form.questions.map((q) => ({
+      question_text: q.question_text,
+      points: q.points || 1,
 
-      questions: form.questions.map((q) => ({
-        question_text: q.question_text,
-
-        points: q.points || 1,
-
-        options: q.options.map((o) => ({
-          option_text: o.option_text,
-          is_correct: o.is_correct,
-        })),
+      options: q.options.map((o) => ({
+        option_text: o.option_text,
+        is_correct: o.is_correct,
       })),
-    };
+    })),
+  };
 
-    try {
-      if (editingId) {
-        await API.put(
-          `/courses/quiz/${editingId}/`,
-          payload
-        );
-      } else {
-        await API.post("/courses/quiz/", payload);
+  try {
+    const formData = new FormData();
+
+    // JSON blob (MAIN CHANGE)
+    formData.append("data", JSON.stringify(payload));
+
+    // ---------------- FILES (FLAT) ----------------
+    form.questions.forEach((q, qIndex) => {
+      if (q.question_image instanceof File) {
+        formData.append(`question_image_${qIndex}`, q.question_image);
       }
 
-      setMode("list");
+      if (q.question_video instanceof File) {
+        formData.append(`question_video_${qIndex}`, q.question_video);
+      }
 
-      fetchQuizzes();
-    } catch (err) {
-      console.error(err.response?.data);
+      q.options.forEach((o, oIndex) => {
+        if (o.option_image instanceof File) {
+          formData.append(
+            `option_image_${qIndex}_${oIndex}`,
+            o.option_image
+          );
+        }
 
-      alert("Error saving quiz. Check console.");
+        if (o.option_video instanceof File) {
+          formData.append(
+            `option_video_${qIndex}_${oIndex}`,
+            o.option_video
+          );
+        }
+      });
+    });
+
+    if (editingId) {
+      await API.put(`/courses/quiz/${editingId}/`, formData);
+    } else {
+      await API.post("/courses/quiz/", formData);
     }
-  };
+
+    setMode("list");
+    fetchQuizzes();
+
+  } catch (err) {
+    console.error(err.response?.data);
+    alert("Error saving quiz");
+  }
+};
 
   // ================= UI =================
   return (
@@ -517,18 +579,13 @@ const updateOption = (qIndex, oIndex, field, value) => {
     </select>
 
     {/* ================= QUESTION INPUT ================= */}
-
     {(!q.question_type || q.question_type === "text") && (
       <input
         type="text"
         placeholder="Question text"
         value={q.question_text}
         onChange={(e) =>
-          updateQuestion(
-            qIndex,
-            "question_text",
-            e.target.value
-          )
+          updateQuestion(qIndex, "question_text", e.target.value)
         }
       />
     )}
@@ -537,13 +594,10 @@ const updateOption = (qIndex, oIndex, field, value) => {
       <input
         type="file"
         accept="image/*"
-        onChange={(e) =>
-          updateQuestion(
-            qIndex,
-            "question_image",
-            e.target.files[0]
-          )
-        }
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (file) updateQuestion(qIndex, "question_image", file);
+        }}
       />
     )}
 
@@ -551,15 +605,19 @@ const updateOption = (qIndex, oIndex, field, value) => {
       <input
         type="file"
         accept="video/*"
-        onChange={(e) =>
-          updateQuestion(
-            qIndex,
-            "question_video",
-            e.target.files[0]
-          )
-        }
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (file) updateQuestion(qIndex, "question_video", file);
+        }}
       />
     )}
+
+    {/* ================= QUESTION VALIDATION ================= */}
+    {!q.question_text &&
+      q.question_type === "text" && (
+        <p style={{ color: "red" }}>Question cannot be empty</p>
+      )}
+
     {/* POINTS */}
     <input
       type="number"
@@ -571,10 +629,7 @@ const updateOption = (qIndex, oIndex, field, value) => {
     />
 
     {/* ================= ADD OPTION ================= */}
-    <button
-      type="button"
-      onClick={() => addOption(qIndex)}
-    >
+    <button type="button" onClick={() => addOption(qIndex)}>
       + Add Option
     </button>
 
@@ -597,7 +652,6 @@ const updateOption = (qIndex, oIndex, field, value) => {
 
             updateOption(qIndex, oIndex, "option_type", type);
 
-            // RESET OLD DATA
             if (type === "text") {
               updateOption(qIndex, oIndex, "option_image", null);
               updateOption(qIndex, oIndex, "option_video", null);
@@ -619,7 +673,7 @@ const updateOption = (qIndex, oIndex, field, value) => {
           <option value="video">Video</option>
         </select>
 
-        {/* ================= TEXT OPTION ================= */}
+        {/* TEXT OPTION */}
         {(!o.option_type || o.option_type === "text") && (
           <input
             type="text"
@@ -636,56 +690,69 @@ const updateOption = (qIndex, oIndex, field, value) => {
           />
         )}
 
-        {/* ================= IMAGE OPTION ================= */}
+        {/* IMAGE OPTION */}
         {o.option_type === "image" && (
           <input
             type="file"
             accept="image/*"
-            onChange={(e) =>
-              updateOption(
-                qIndex,
-                oIndex,
-                "option_image",
-                e.target.files[0]
-              )
-            }
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file)
+                updateOption(qIndex, oIndex, "option_image", file);
+            }}
           />
         )}
 
-        {/* ================= VIDEO OPTION ================= */}
+        {/* VIDEO OPTION */}
         {o.option_type === "video" && (
           <input
             type="file"
             accept="video/*"
-            onChange={(e) =>
-              updateOption(
-                qIndex,
-                oIndex,
-                "option_video",
-                e.target.files[0]
-              )
-            }
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file)
+                updateOption(qIndex, oIndex, "option_video", file);
+            }}
           />
         )}
 
-        {/* ================= CORRECT ================= */}
+        {/* ================= CORRECT (RADIO BEHAVIOR) ================= */}
         <label>
           <input
             type="checkbox"
-            checked={o.is_correct}
-            onChange={(e) =>
-              updateOption(
-                qIndex,
-                oIndex,
-                "is_correct",
-                e.target.checked
-              )
-            }
+            checked={!!o.is_correct}
+            onChange={() => {
+              // FORCE ONLY ONE CORRECT OPTION PER QUESTION
+              const updatedOptions = q.options.map((opt, i) => ({
+                ...opt,
+                is_correct: i === oIndex,
+              }));
+
+              setForm((prev) => {
+                const updatedQuestions = [...prev.questions];
+                updatedQuestions[qIndex].options = updatedOptions;
+                return { ...prev, questions: updatedQuestions };
+              });
+            }}
           />
           Correct
         </label>
       </div>
     ))}
+
+    {/* ================= OPTION VALIDATION ================= */}
+    {q.options.length < 2 && (
+      <p style={{ color: "red" }}>
+        At least 2 options required
+      </p>
+    )}
+
+    {!q.options.some((o) => o.is_correct) && (
+      <p style={{ color: "red" }}>
+        Select at least one correct answer
+      </p>
+    )}
+ 
 
     {/* ================= DELETE QUESTION ================= */}
     <button

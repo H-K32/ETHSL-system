@@ -27,6 +27,8 @@ function VideoPlayer({ url }) {
     )
   }
 
+ 
+
   // 2. Fallback: treat as media file (Neon/Postgres stored path)
   return (
     <div className="lesson-media">
@@ -63,6 +65,11 @@ function VideoPlayer({ url }) {
    const videoUrl = lesson?.video
    const completed = done || lesson?.completed === true
    const quizId = lesson?.quiz?.id || lesson?.quiz_id
+
+   console.log("LESSON DATA:", lesson)
+   console.log("VIDEO URL:", lesson?.video)
+ 
+
  
    const onComplete = async () => {
      setCompleting(true)

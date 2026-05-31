@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import Course, Lesson, Quiz, Question, Option, Level
 from progress.models import LessonProgress
- 
+
+import json
 
 class LevelSerializer(serializers.ModelSerializer):
     display_name = serializers.SerializerMethodField()
@@ -79,7 +80,11 @@ class LessonReadSerializer(serializers.ModelSerializer):
 
         return True
     
-    
+import json
+from rest_framework import serializers
+from .models import Quiz, Question, Option
+
+
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option
@@ -90,8 +95,10 @@ class OptionSerializer(serializers.ModelSerializer):
             "option_video",
             "is_correct",
         ]
+
+
 class QuestionSerializer(serializers.ModelSerializer):
-    options = OptionSerializer(many=True)
+    options = OptionSerializer(many=True, required=False)
 
     class Meta:
         model = Question
@@ -104,8 +111,9 @@ class QuestionSerializer(serializers.ModelSerializer):
             "options",
         ]
 
+
 class QuizSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True)
+    questions = QuestionSerializer(many=True, required=False)
 
     class Meta:
         model = Quiz
@@ -119,78 +127,120 @@ class QuizSerializer(serializers.ModelSerializer):
             "questions",
         ]
 
+        extra_kwargs = {
+            "lesson": {"required": False, "allow_null": True},
+            "course": {"required": False, "allow_null": True},
+            "level": {"required": False, "allow_null": True},
+        }
+
     # ---------------- CREATE ----------------
     def create(self, validated_data):
-        questions_data = validated_data.pop("questions", [])
+        request = self.context.get("request")
 
-        quiz = Quiz.objects.create(**validated_data)
+        data = json.loads(request.data.get("data"))
+        request_files = request.FILES
 
-        for q_data in questions_data:
-            options_data = q_data.pop("options", [])
+        quiz = Quiz.objects.create(
+            lesson_id=data.get("lesson"),
+            course_id=data.get("course"),
+            level_id=data.get("level"),
+            description=data.get("description"),
+            passing_score=data.get("passing_score"),
+        )
+
+        for q_index, q_data in enumerate(data.get("questions", [])):
 
             question = Question.objects.create(
                 quiz=quiz,
-                **q_data
+                question_text=q_data["question_text"],
+                points=q_data.get("points", 1),
             )
 
-            for o_data in options_data:
-                Option.objects.create(
+            # question files
+            img_key = f"question_image_{q_index}"
+            vid_key = f"question_video_{q_index}"
+
+            if img_key in request_files:
+                question.question_image = request_files[img_key]
+
+            if vid_key in request_files:
+                question.question_video = request_files[vid_key]
+
+            question.save()
+
+            for o_index, o_data in enumerate(q_data.get("options", [])):
+
+                option = Option.objects.create(
                     question=question,
-                    **o_data
+                    option_text=o_data["option_text"],
+                    is_correct=o_data["is_correct"],
                 )
+
+                o_img = f"option_image_{q_index}_{o_index}"
+                o_vid = f"option_video_{q_index}_{o_index}"
+
+                if o_img in request_files:
+                    option.option_image = request_files[o_img]
+
+                if o_vid in request_files:
+                    option.option_video = request_files[o_vid]
+
+                option.save()
 
         return quiz
 
     # ---------------- UPDATE ----------------
     def update(self, instance, validated_data):
-        questions_data = validated_data.pop("questions", [])
+        request = self.context.get("request")
 
-        instance.lesson = validated_data.get(
-            "lesson",
-            instance.lesson
-        )
+        data = json.loads(request.data.get("data"))
+        request_files = request.FILES
 
-        instance.course = validated_data.get(
-            "course",
-            instance.course
-        )
-
-        instance.level = validated_data.get(
-            "level",
-            instance.level
-        )
-
-        instance.description = validated_data.get(
-            "description",
-            instance.description
-        )
-
-        instance.passing_score = validated_data.get(
-            "passing_score",
-            instance.passing_score
-        )
-
+        instance.lesson_id = data.get("lesson")
+        instance.course_id = data.get("course")
+        instance.level_id = data.get("level")
+        instance.description = data.get("description")
+        instance.passing_score = data.get("passing_score")
         instance.save()
 
-        # delete old questions
         instance.questions.all().delete()
 
-        # recreate
-        for q_data in questions_data:
-            options_data = q_data.pop("options", [])
+        for q_index, q_data in enumerate(data.get("questions", [])):
 
             question = Question.objects.create(
                 quiz=instance,
-                **q_data
+                question_text=q_data["question_text"],
+                points=q_data.get("points", 1),
             )
 
-            for o_data in options_data:
-                Option.objects.create(
+            img_key = f"question_image_{q_index}"
+            vid_key = f"question_video_{q_index}"
+
+            if img_key in request_files:
+                question.question_image = request_files[img_key]
+
+            if vid_key in request_files:
+                question.question_video = request_files[vid_key]
+
+            question.save()
+
+            for o_index, o_data in enumerate(q_data.get("options", [])):
+
+                option = Option.objects.create(
                     question=question,
-                    **o_data
+                    option_text=o_data["option_text"],
+                    is_correct=o_data["is_correct"],
                 )
 
+                o_img = f"option_image_{q_index}_{o_index}"
+                o_vid = f"option_video_{q_index}_{o_index}"
+
+                if o_img in request_files:
+                    option.option_image = request_files[o_img]
+
+                if o_vid in request_files:
+                    option.option_video = request_files[o_vid]
+
+                option.save()
+
         return instance
-    
-    
- 
