@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getCertificates } from '../../api/lms.js'
 import { downloadCertificatePdf, openCertificatePdf } from '../../utils/certificates.js'
+import '../../styles/certificates.css'
 
 function formatIssuedAt(value) {
   if (!value) return 'Recent'
@@ -74,11 +75,12 @@ export default function Certificates() {
           <p className="certificates-kicker">Achievements</p>
           <h1>Certificates</h1>
           <p className="certificates-subtitle">
-            Tap a certificate card to open the PDF in the browser viewer. <div>You can also download it from the card!</div>
+            Open any certificate to view it in the browser, or download a PDF copy from the card.
           </p>
         </div>
         <div className="certificates-hero-badge">
-          {certificates.length} earned
+          <strong>{certificates.length}</strong>
+          <span>earned</span>
         </div>
       </section>
 
