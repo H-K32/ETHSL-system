@@ -14,6 +14,8 @@ import ManageQuizzes from "./pages/ManageQuizzes";
 import AdminProfile from "./pages/AdminProfile";
 import AdminForgotPassword from "./pages/AdminForgotPassword";
 import AdminResetPassword from "./pages/AdminResetPassword";
+import ReportedUsers from "./pages/ReportedUsers";
+import ReportDetails from "./pages/ReportDetails";
 
 // Shared layout for all protected admin pages
 function AdminLayout({ children }) {
@@ -46,7 +48,9 @@ const App = () => (
       <Route path="/courses"   element={<PrivateRoute><AdminLayout><ManageCourses /></AdminLayout></PrivateRoute>} />
       <Route path="/lessons"   element={<PrivateRoute><AdminLayout><ManageLessons /></AdminLayout></PrivateRoute>} />
       <Route path="/quizzes"   element={<PrivateRoute><AdminLayout><ManageQuizzes /></AdminLayout></PrivateRoute>} />
-      <Route path="/profile"   element={<PrivateRoute><AdminLayout><AdminProfile /></AdminLayout></PrivateRoute>} />
+      <Route path="/profile"         element={<PrivateRoute><AdminLayout><AdminProfile /></AdminLayout></PrivateRoute>} />
+      <Route path="/reported-users"   element={<PrivateRoute><AdminLayout><ReportedUsers /></AdminLayout></PrivateRoute>} />
+      <Route path="/reported-users/:userId" element={<PrivateRoute><AdminLayout><ReportDetails /></AdminLayout></PrivateRoute>} />
 
       <Route path="/"  element={<Navigate to="/login" replace />} />
       <Route path="*"  element={<Navigate to="/login" replace />} />

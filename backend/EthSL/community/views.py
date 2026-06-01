@@ -4,9 +4,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models import Count, Max
 
 from .models import Post, Comment, Report
 from users.models import User
+from users.permissions import IsAdminUserRole
 from .serializers import CommentSerializer, PostSerializer, UserReportSerializer
 from django.contrib.auth import get_user_model
 
@@ -113,3 +115,70 @@ class ReportsAgainstMeView(APIView):
     def get(self, request):
         reports = Report.objects.filter(reported_user=request.user).values('reason')
         return Response(list(reports))
+
+
+# ---------------- ADMIN: REPORTED USERS LIST ----------------
+class AdminReportedUsersView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUserRole]
+
+    def get(self, request):
+        reported = (
+            Report.objects
+            .values('reported_user')
+            .annotate(report_count=Count('id'), last_report=Max('created_at'))
+            .filter(report_count__gte=1)
+            .order_by('-report_count')
+        )
+
+        data = []
+        for entry in reported:
+            try:
+                user = User.objects.get(pk=entry['reported_user'])
+            except User.DoesNotExist:
+                continue
+            data.append({
+                'id': user.id,
+                'username': user.username,
+                'full_name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                'email': user.email,
+                'report_count': entry['report_count'],
+                'last_report': entry['last_report'].strftime('%b %d, %Y') if entry['last_report'] else '',
+                'is_active': user.is_active,
+            })
+        return Response(data)
+
+
+# ---------------- ADMIN: REPORT DETAILS FOR A USER ----------------
+class AdminUserReportDetailView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUserRole]
+
+    def get(self, request, user_id):
+        try:
+            reported_user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=404)
+
+        reports = Report.objects.filter(reported_user=reported_user).select_related('reporter').order_by('-created_at')
+
+        report_list = []
+        for r in reports:
+            report_list.append({
+                'id': r.id,
+                'reported_by': r.reporter.username,
+                'reporter_email': r.reporter.email,
+                'reason': r.reason,
+                'date': r.created_at.strftime('%b %d, %Y %H:%M') if r.created_at else '',
+            })
+
+        return Response({
+            'user': {
+                'id': reported_user.id,
+                'username': reported_user.username,
+                'full_name': f"{reported_user.first_name} {reported_user.last_name}".strip() or reported_user.username,
+                'email': reported_user.email,
+                'is_active': reported_user.is_active,
+                'date_joined': reported_user.date_joined.strftime('%b %d, %Y'),
+            },
+            'reports': report_list,
+            'total_reports': len(report_list),
+        })

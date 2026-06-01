@@ -1,13 +1,13 @@
 from django.urls import path
 
-from django.urls import path
-
 from .views import (
     PostListCreateView,
     PostDetailView,
     CommentListCreateView,
     ReportUserView,
     ReportsAgainstMeView,
+    AdminReportedUsersView,
+    AdminUserReportDetailView,
 )
 
 urlpatterns = [
@@ -16,4 +16,6 @@ urlpatterns = [
     path("comments/", CommentListCreateView.as_view()),
     path("report/", ReportUserView.as_view()),
     path("reports-against-me/", ReportsAgainstMeView.as_view()),
+    path("admin/reported-users/", AdminReportedUsersView.as_view()),
+    path("admin/reported-users/<int:user_id>/", AdminUserReportDetailView.as_view()),
 ]

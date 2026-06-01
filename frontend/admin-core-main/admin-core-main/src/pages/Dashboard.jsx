@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api/axiosConfig";
 import "../styles/dashboard.css";
 
@@ -122,9 +123,13 @@ function DonutChart({ data }) {
 }
 
 /* ── KPI card ──────────────────────────────────────────────── */
-function KpiCard({ label, value, Icon, color, spark }) {
+function KpiCard({ label, value, Icon, color, spark, onClick }) {
   return (
-    <div className="db-kpi" style={{ "--c": color }}>
+    <div
+      className={`db-kpi${onClick ? ' db-kpi--clickable' : ''}`}
+      style={{ "--c": color }}
+      onClick={onClick}
+    >
       <div className="db-kpi-top">
         <div className="db-kpi-icon"><Icon /></div>
         {spark && <Sparkline values={spark} color={color} />}
@@ -178,6 +183,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
   const [tab, setTab]         = useState("registrations");
+  const navigate              = useNavigate();
 
   const load = () => {
     setLoading(true);
@@ -238,6 +244,7 @@ export default function Dashboard() {
         <KpiCard label="Certificates Issued" value={s.total_certificates}                Icon={Ic.Award}    color="#f59e0b" />
         <KpiCard label="Quiz Attempts"       value={s.quiz_attempts}                     Icon={Ic.Quiz}     color="#8b5cf6" />
         <KpiCard label="Completion Rate"     value={`${s.completion_rate ?? 0}%`}        Icon={Ic.Check}    color="#ec4899" />
+        <KpiCard label="Reported Users"      value={s.reported_users_count ?? 0}         Icon={Ic.Alert}    color="#ef4444" onClick={() => navigate('/reported-users')} />
       </div>
 
       {/* ── secondary strip ── */}

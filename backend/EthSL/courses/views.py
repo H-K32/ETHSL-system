@@ -427,6 +427,16 @@ class AdminStatisticsView(APIView):
         placement_passed = placement_attempts.filter(passed=True).count()
         placement_pass_rate = round((placement_passed / placement_total) * 100, 1) if placement_total else 0
 
+        # Reported users count
+        from community.models import Report
+        from django.db.models import Count as DCount
+        reported_users_count = (
+            Report.objects
+            .values('reported_user')
+            .annotate(c=DCount('id'))
+            .count()
+        )
+
         return Response({
             'total_learners': total_users,
             'total_levels': total_levels,
@@ -439,6 +449,7 @@ class AdminStatisticsView(APIView):
             'quiz_attempts': quiz_attempts,
             'avg_quiz_score': avg_quiz_score,
             'completion_rate': completion_rate,
+            'reported_users_count': reported_users_count,
             'level_distribution': level_distribution,
             'recent_users': recent_users,
             'recent_quiz_attempts': recent_attempts,
