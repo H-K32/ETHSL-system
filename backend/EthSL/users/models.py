@@ -120,6 +120,25 @@ class User(AbstractUser):
         )
         
         
+class EmailChangeToken(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='email_change_tokens'
+    )
+    new_email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+
+    def is_expired(self):
+        from django.utils import timezone
+        from datetime import timedelta
+        return timezone.now() > self.created_at + timedelta(hours=24)
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.new_email}"
+
+
 class UserReport(models.Model):
     reporter = models.ForeignKey(
         User,

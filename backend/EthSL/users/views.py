@@ -237,21 +237,113 @@ class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user = request.user
+        from django.contrib.auth.password_validation import validate_password
+        from django.core.exceptions import ValidationError as DjangoValidationError
 
+        user = request.user
         current_password = request.data.get("current_password")
         new_password = request.data.get("new_password")
 
+        if not current_password or not new_password:
+            return Response({"detail": "All fields are required."}, status=400)
+
         if not user.check_password(current_password):
+            return Response({"detail": "Current password is incorrect."}, status=400)
+
+        if user.check_password(new_password):
             return Response(
-                {"detail": "Current password is incorrect"},
+                {"detail": "New password must be different from your current password."},
                 status=400
             )
 
+        try:
+            validate_password(new_password, user)
+        except DjangoValidationError as e:
+            return Response({"detail": e.messages[0]}, status=400)
+
         user.set_password(new_password)
         user.save()
+        return Response({"detail": "Password updated successfully."})
 
-        return Response({"detail": "Password updated successfully"})
+
+class EmailChangeRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from .models import EmailChangeToken
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError as DjangoValidationError
+
+        new_email = request.data.get("new_email", "").strip().lower()
+
+        if not new_email:
+            return Response({"detail": "Email is required."}, status=400)
+
+        try:
+            validate_email(new_email)
+        except DjangoValidationError:
+            return Response({"detail": "Invalid email format."}, status=400)
+
+        if new_email == request.user.email.lower():
+            return Response({"detail": "New email must be different from your current email."}, status=400)
+
+        if User.objects.filter(email__iexact=new_email).exclude(pk=request.user.pk).exists():
+            return Response({"detail": "This email is already in use by another account."}, status=400)
+
+        # Invalidate previous unused tokens for this user
+        EmailChangeToken.objects.filter(user=request.user, used=False).delete()
+
+        # Generate token the same way registration does
+        record = EmailChangeToken.objects.create(user=request.user, new_email=new_email)
+        uid = urlsafe_base64_encode(force_bytes(record.pk))
+        token = default_token_generator.make_token(request.user)
+
+        verify_link = f"https://ethsl-system-jl5a.vercel.app/verify-email-change/{uid}/{token}/"
+
+        resend.Emails.send({
+            "from": "ETHSL <onboarding@resend.dev>",
+            "to": [new_email],
+            "subject": "Verify your new email address",
+            "text": (
+                f"You requested an email change for your ETHSL account.\n\n"
+                f"Click the link below to verify your new email address:\n{verify_link}\n\n"
+                f"This link expires in 24 hours. If you did not request this, ignore this email."
+            ),
+        })
+
+        return Response({"detail": "Verification email sent. Please verify your new email address to complete the update."})
+
+
+class EmailChangeConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, uidb64, token):
+        from .models import EmailChangeToken
+
+        try:
+            record_pk = force_str(urlsafe_base64_decode(uidb64))
+            record = EmailChangeToken.objects.get(pk=record_pk)
+        except Exception:
+            return Response({"error": "Invalid or already-used verification link."}, status=400)
+
+        if record.used:
+            return Response({"error": "This verification link has already been used."}, status=400)
+
+        if record.is_expired():
+            return Response({"error": "This verification link has expired."}, status=400)
+
+        if not default_token_generator.check_token(record.user, token):
+            return Response({"error": "Invalid or expired token."}, status=400)
+
+        if User.objects.filter(email__iexact=record.new_email).exclude(pk=record.user.pk).exists():
+            return Response({"error": "This email is already in use by another account."}, status=400)
+
+        record.user.email = record.new_email
+        record.user.save(update_fields=["email"])
+        record.used = True
+        record.save(update_fields=["used"])
+
+        return Response({"message": "Email updated successfully."})
     
 
 class UserProfileView(APIView):

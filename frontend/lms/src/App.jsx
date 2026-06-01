@@ -24,6 +24,7 @@ import CompleteProfile from './pages/CompleteProfile.jsx'
 import AuthLayout from './components/AuthLayout.jsx'
 import CheckEmail from './pages/CheckEmail.jsx'
 import VerifyEmail from './pages/VerifyEmail.jsx'
+import VerifyEmailChange from './pages/VerifyEmailChange.jsx'
 
 export default function App() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/placement" element={<Placement />} />
         <Route path="/check-email" element={<CheckEmail />} />
         <Route path="/verify-email/:uidb64/:token" element={<VerifyEmail />} />
+        <Route path="/verify-email-change/:uidb64/:token" element={<VerifyEmailChange />} />
         
         
       </Route>

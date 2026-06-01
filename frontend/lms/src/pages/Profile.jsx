@@ -1,15 +1,30 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import useAsync from '../utils/useAsync.js'
 import { getProfile } from '../api/lms.js'
-import Spinner from '../components/Spinner.jsx'
-import ErrorState from '../components/ErrorState.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import api from '../api/client.js'
 import '../styles/profile.css'
 
+// Password strength validation — same rules as ResetPassword page
+function validatePassword(password) {
+  return {
+    minLength: password.length >= 8,
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSpecial: /[^A-Za-z0-9]/.test(password),
+  }
+}
+
+function isPasswordValid(checks) {
+  return Object.values(checks).every(Boolean)
+}
+
 export default function Profile() {
   const { user, logout, refreshUser } = useAuth()
+  const nav = useNavigate()
   const { data, loading, error, reload } = useAsync(getProfile, [])
   const [isEditing, setIsEditing] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
@@ -17,11 +32,15 @@ export default function Profile() {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
-    email: '',
     bio: '',
     country: '',
     learning_goal: ''
   })
+  // Email change state
+  const [newEmail, setNewEmail] = useState('')
+  const [emailChangeLoading, setEmailChangeLoading] = useState(false)
+  const [emailChangeMsg, setEmailChangeMsg] = useState({ type: '', text: '' })
+
   const [passwordData, setPasswordData] = useState({
     current_password: '',
     new_password: '',
@@ -36,7 +55,7 @@ export default function Profile() {
       <p>Loading profile...</p>
     </div>
   )
-  
+
   if (error) return (
     <div className="profile-container">
       <div className="profile-error">
@@ -54,43 +73,35 @@ export default function Profile() {
   }
   const courses = p.course_progress || p.courses || []
 
-  // Handle edit form - NOTE: username is NOT included (read-only in backend)
   const handleEditClick = () => {
     setFormData({
       first_name: p.first_name || '',
       last_name: p.last_name || '',
-      email: p.email || '',
       bio: p.bio || '',
       country: p.country || '',
       learning_goal: p.learning_goal || ''
     })
+    setNewEmail('')
+    setEmailChangeMsg({ type: '', text: '' })
     setIsEditing(true)
     setMessage({ type: '', text: '' })
   }
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   const handlePasswordChange = (e) => {
-    setPasswordData({
-      ...passwordData,
-      [e.target.name]: e.target.value
-    })
+    setPasswordData({ ...passwordData, [e.target.name]: e.target.value })
   }
 
-  // Update profile - using full_name from backend
+  // Update profile (no email — email has its own flow)
   const handleUpdateProfile = async (e) => {
     e.preventDefault()
     setMessage({ type: '', text: '' })
-    
     try {
       const fullName = `${formData.first_name} ${formData.last_name}`.trim()
       await api.patch('/users/profile/', {
-        email: formData.email,
         full_name: fullName,
         bio: formData.bio,
         country: formData.country,
@@ -102,41 +113,73 @@ export default function Profile() {
       setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
       const d = err.response?.data
-      setMessage({ type: 'error', text: d?.email?.[0] || d?.detail || 'Failed to update profile' })
+      setMessage({ type: 'error', text: d?.detail || d?.country?.[0] || 'Failed to update profile' })
     }
   }
 
-  // Change password
+  // Email change request
+  const handleEmailChangeRequest = async (e) => {
+    e.preventDefault()
+    setEmailChangeMsg({ type: '', text: '' })
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!newEmail.trim()) {
+      setEmailChangeMsg({ type: 'error', text: 'Please enter a new email address.' })
+      return
+    }
+    if (!emailRegex.test(newEmail.trim())) {
+      setEmailChangeMsg({ type: 'error', text: 'Invalid email format.' })
+      return
+    }
+
+    setEmailChangeLoading(true)
+    try {
+      const res = await api.post('/users/email-change-request/', { new_email: newEmail.trim() })
+      setEmailChangeMsg({ type: 'success', text: res.data?.detail || 'Verification email sent. Please verify your new email address to complete the update.' })
+      setNewEmail('')
+    } catch (err) {
+      const d = err.response?.data
+      setEmailChangeMsg({ type: 'error', text: d?.detail || 'Failed to send verification email.' })
+    } finally {
+      setEmailChangeLoading(false)
+    }
+  }
+
+  // Change password with full validation
   const handleChangePassword = async (e) => {
     e.preventDefault()
-    
-    if (passwordData.new_password !== passwordData.confirm_password) {
-      setMessage({ type: 'error', text: 'New passwords do not match' })
-      return
-    }
-    
-    if (passwordData.new_password.length < 8) {
-      setMessage({ type: 'error', text: 'Password must be at least 8 characters' })
-      return
-    }
-    
     setMessage({ type: '', text: '' })
-    
+
+    const { current_password, new_password, confirm_password } = passwordData
+
+    if (!current_password || !new_password || !confirm_password) {
+      setMessage({ type: 'error', text: 'All password fields are required.' })
+      return
+    }
+
+    const checks = validatePassword(new_password)
+    if (!isPasswordValid(checks)) {
+      setMessage({ type: 'error', text: 'Password does not meet the requirements.' })
+      return
+    }
+
+    if (new_password !== confirm_password) {
+      setMessage({ type: 'error', text: 'New passwords do not match.' })
+      return
+    }
+
     try {
-      await api.post('/users/change-password/', {
-        current_password: passwordData.current_password,
-        new_password: passwordData.new_password
+      const res = await api.post('/users/change-password/', {
+        current_password,
+        new_password
       })
-      
-      setMessage({ type: 'success', text: 'Password changed successfully!' })
+      setMessage({ type: 'success', text: res.data?.detail || 'Password updated successfully!' })
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' })
       setIsChangingPassword(false)
       setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
-      setMessage({ 
-        type: 'error', 
-        text: err.response?.data?.detail || 'Failed to change password' 
-      })
+      const d = err.response?.data
+      setMessage({ type: 'error', text: d?.detail || 'Failed to change password.' })
     }
   }
 
@@ -144,25 +187,24 @@ export default function Profile() {
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    
+
     if (file.size > 5 * 1024 * 1024) {
       setMessage({ type: 'error', text: 'Image must be less than 5MB' })
       return
     }
-    
     if (!file.type.startsWith('image/')) {
       setMessage({ type: 'error', text: 'Please upload an image file' })
       return
     }
-    
+
     setIsUploading(true)
     setMessage({ type: '', text: '' })
-    
-    const formData = new FormData()
-    formData.append('avatar_upload', file)
-    
+
+    const fd = new FormData()
+    fd.append('avatar_upload', file)
+
     try {
-      await api.patch('/users/profile/', formData, {
+      await api.patch('/users/profile/', fd, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       setAvatarPreview(URL.createObjectURL(file))
@@ -181,6 +223,8 @@ export default function Profile() {
     if (p.avatar) return p.avatar
     return null
   }
+
+  const pwChecks = validatePassword(passwordData.new_password)
 
   return (
     <div className="profile-container">
@@ -204,16 +248,16 @@ export default function Profile() {
             )}
             <label className="avatar-upload-label">
               <span>{isUploading ? '⏳' : '📷'}</span>
-              <input 
-                type="file" 
-                accept="image/*" 
+              <input
+                type="file"
+                accept="image/*"
                 onChange={handleAvatarUpload}
                 disabled={isUploading}
               />
             </label>
           </div>
         </div>
-        
+
         <div className="profile-info">
           <h1 className="profile-name">{p.full_name || p.username}</h1>
           <p className="profile-email">{p.email}</p>
@@ -225,11 +269,17 @@ export default function Profile() {
               </svg>
               Edit Profile
             </button>
-            <button onClick={() => setIsChangingPassword(true)} className="password-btn">
+            <button onClick={() => { setIsChangingPassword(true); setMessage({ type: '', text: '' }) }} className="password-btn">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
               Change Password
+            </button>
+            <button onClick={() => nav('/forgot-password')} className="forgot-btn">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Forgot Password?
             </button>
             <button onClick={logout} className="logout-button">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +309,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Edit Profile Modal - NO username field */}
+      {/* Edit Profile Modal */}
       {isEditing && (
         <div className="modal-overlay" onClick={() => setIsEditing(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -290,16 +340,6 @@ export default function Profile() {
                   />
                 </div>
               </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
               <div className="info-note">
                 <small>⚠️ Username cannot be changed</small>
               </div>
@@ -315,6 +355,42 @@ export default function Profile() {
                 <label>Learning Goal</label>
                 <input type="text" name="learning_goal" value={formData.learning_goal} onChange={handleInputChange} placeholder="e.g. speak fluently" />
               </div>
+
+              {/* Email Change Section */}
+              <div className="email-change-section">
+                <div className="email-change-header">
+                  <span>📧 Change Email Address</span>
+                </div>
+                <p className="email-change-note">
+                  Current: <strong>{p.email}</strong>
+                </p>
+                <p className="email-change-note">
+                  Enter a new email below. A verification link will be sent to the new address. Your current email remains active until verified.
+                </p>
+                <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                  <label>New Email Address</label>
+                  <input
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => { setNewEmail(e.target.value); setEmailChangeMsg({ type: '', text: '' }) }}
+                    placeholder="Enter new email"
+                  />
+                </div>
+                {emailChangeMsg.text && (
+                  <div className={`email-change-msg ${emailChangeMsg.type}`}>
+                    {emailChangeMsg.text}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="send-verification-btn"
+                  onClick={handleEmailChangeRequest}
+                  disabled={emailChangeLoading || !newEmail.trim()}
+                >
+                  {emailChangeLoading ? 'Sending...' : 'Send Verification Email'}
+                </button>
+              </div>
+
               <div className="modal-footer">
                 <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
                 <button type="submit" className="submit-btn">Save Changes</button>
@@ -353,6 +429,28 @@ export default function Profile() {
                   required
                 />
               </div>
+
+              {/* Live password requirements */}
+              {passwordData.new_password && (
+                <ul className="pw-checks">
+                  <li className={pwChecks.minLength ? 'check-pass' : 'check-fail'}>
+                    {pwChecks.minLength ? '✔' : '✖'} At least 8 characters
+                  </li>
+                  <li className={pwChecks.hasUpper ? 'check-pass' : 'check-fail'}>
+                    {pwChecks.hasUpper ? '✔' : '✖'} At least 1 uppercase letter
+                  </li>
+                  <li className={pwChecks.hasLower ? 'check-pass' : 'check-fail'}>
+                    {pwChecks.hasLower ? '✔' : '✖'} At least 1 lowercase letter
+                  </li>
+                  <li className={pwChecks.hasNumber ? 'check-pass' : 'check-fail'}>
+                    {pwChecks.hasNumber ? '✔' : '✖'} At least 1 number
+                  </li>
+                  <li className={pwChecks.hasSpecial ? 'check-pass' : 'check-fail'}>
+                    {pwChecks.hasSpecial ? '✔' : '✖'} At least 1 special character
+                  </li>
+                </ul>
+              )}
+
               <div className="form-group">
                 <label>Confirm New Password</label>
                 <input
@@ -363,9 +461,33 @@ export default function Profile() {
                   required
                 />
               </div>
+
+              {/* Forgot Password link */}
+              <div className="forgot-pw-link">
+                <button
+                  type="button"
+                  className="forgot-pw-btn"
+                  onClick={() => { setIsChangingPassword(false); nav('/forgot-password') }}
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
+              {message.text && (
+                <div className={`modal-message ${message.type}`}>
+                  {message.text}
+                </div>
+              )}
+
               <div className="modal-footer">
                 <button type="button" className="cancel-btn" onClick={() => setIsChangingPassword(false)}>Cancel</button>
-                <button type="submit" className="submit-btn">Update Password</button>
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={!isPasswordValid(pwChecks) || passwordData.new_password !== passwordData.confirm_password}
+                >
+                  Update Password
+                </button>
               </div>
             </form>
           </div>

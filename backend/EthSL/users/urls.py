@@ -11,6 +11,8 @@ from .views import (
     AdminUserListView,
     AdminProfileView,
     ChangePasswordView,
+    EmailChangeRequestView,
+    EmailChangeConfirmView,
     UserProfileView,
     CompleteProfileView,
     PlacementTestView,
@@ -60,6 +62,16 @@ urlpatterns = [
         "change-password/",
         ChangePasswordView.as_view(),
         name="change_password",
+    ),
+    path(
+        "email-change-request/",
+        EmailChangeRequestView.as_view(),
+        name="email_change_request",
+    ),
+    path(
+        "email-change-confirm/<uidb64>/<token>/",
+        EmailChangeConfirmView.as_view(),
+        name="email_change_confirm",
     ),
 
     # Admin

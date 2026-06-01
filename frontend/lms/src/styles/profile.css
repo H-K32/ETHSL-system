@@ -204,6 +204,18 @@
   transform: translateY(-2px);
 }
 
+.forgot-btn {
+  background: transparent;
+  color: #6b21a8;
+  border: 1.5px solid #6b21a8;
+}
+
+.forgot-btn:hover {
+  background: #6b21a8;
+  color: white;
+  transform: translateY(-2px);
+}
+
 .logout-button {
   background: transparent;
   color: #c62828;
@@ -708,4 +720,150 @@
   .form-row {
     gap: 0;
   }
+}
+
+/* ---------- Password Strength Checks ---------- */
+.pw-checks {
+  list-style: none;
+  padding: 0.75rem 1rem;
+  margin: -0.75rem 0 1.25rem;
+  background: rgba(0, 102, 255, 0.04);
+  border-radius: 14px;
+  border: 1px solid rgba(0, 102, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pw-checks li {
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.check-pass {
+  color: #1a7f37;
+}
+
+.check-fail {
+  color: #c62828;
+}
+
+/* ---------- Forgot Password Link ---------- */
+.forgot-pw-link {
+  margin: -0.5rem 0 1rem;
+  text-align: right;
+}
+
+.forgot-pw-btn {
+  background: none;
+  border: none;
+  color: #0066ff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.forgot-pw-btn:hover {
+  color: #0044cc;
+}
+
+/* ---------- Modal Inline Message ---------- */
+.modal-message {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.modal-message.success {
+  background: rgba(26, 127, 55, 0.1);
+  color: #1a7f37;
+  border: 1px solid rgba(26, 127, 55, 0.25);
+}
+
+.modal-message.error {
+  background: rgba(198, 40, 40, 0.08);
+  color: #c62828;
+  border: 1px solid rgba(198, 40, 40, 0.2);
+}
+
+/* ---------- Email Change Section ---------- */
+.email-change-section {
+  background: rgba(0, 102, 255, 0.04);
+  border: 1px solid rgba(0, 102, 255, 0.15);
+  border-radius: 18px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.email-change-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #003d99;
+  margin-bottom: 0.6rem;
+}
+
+.email-change-note {
+  font-size: 0.82rem;
+  color: #5a7a9e;
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+}
+
+.email-change-note strong {
+  color: #003380;
+}
+
+.email-change-msg {
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.email-change-msg.success {
+  background: rgba(26, 127, 55, 0.1);
+  color: #1a7f37;
+  border: 1px solid rgba(26, 127, 55, 0.25);
+}
+
+.email-change-msg.error {
+  background: rgba(198, 40, 40, 0.08);
+  color: #c62828;
+  border: 1px solid rgba(198, 40, 40, 0.2);
+}
+
+.send-verification-btn {
+  padding: 0.65rem 1.4rem;
+  border-radius: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #0066ff, #0044cc);
+  border: none;
+  color: white;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.25);
+}
+
+.send-verification-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.35);
+}
+
+.send-verification-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
