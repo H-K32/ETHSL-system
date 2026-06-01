@@ -8,6 +8,47 @@ import { useAuth } from '../context/AuthContext.jsx'
 import api from '../api/client.js'
 import '../styles/profile.css'
 
+// ISO 3166-1 country list (common subset — covers all real countries)
+const COUNTRIES = [
+  'Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda','Argentina','Armenia',
+  'Australia','Austria','Azerbaijan','Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium',
+  'Belize','Benin','Bhutan','Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei',
+  'Bulgaria','Burkina Faso','Burundi','Cabo Verde','Cambodia','Cameroon','Canada','Central African Republic',
+  'Chad','Chile','China','Colombia','Comoros','Congo','Costa Rica','Croatia','Cuba','Cyprus',
+  'Czech Republic','Denmark','Djibouti','Dominica','Dominican Republic','Ecuador','Egypt','El Salvador',
+  'Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia','Fiji','Finland','France','Gabon',
+  'Gambia','Georgia','Germany','Ghana','Greece','Grenada','Guatemala','Guinea','Guinea-Bissau',
+  'Guyana','Haiti','Honduras','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland',
+  'Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kiribati','Kuwait','Kyrgyzstan',
+  'Laos','Latvia','Lebanon','Lesotho','Liberia','Libya','Liechtenstein','Lithuania','Luxembourg',
+  'Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands','Mauritania','Mauritius',
+  'Mexico','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Morocco','Mozambique','Myanmar',
+  'Namibia','Nauru','Nepal','Netherlands','New Zealand','Nicaragua','Niger','Nigeria','North Korea',
+  'North Macedonia','Norway','Oman','Pakistan','Palau','Palestine','Panama','Papua New Guinea',
+  'Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda',
+  'Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino',
+  'Sao Tome and Principe','Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore',
+  'Slovakia','Slovenia','Solomon Islands','Somalia','South Africa','South Korea','South Sudan','Spain',
+  'Sri Lanka','Sudan','Suriname','Sweden','Switzerland','Syria','Taiwan','Tajikistan','Tanzania',
+  'Thailand','Timor-Leste','Togo','Tonga','Trinidad and Tobago','Tunisia','Turkey','Turkmenistan',
+  'Tuvalu','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay',
+  'Uzbekistan','Vanuatu','Vatican City','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'
+]
+
+const LEARNING_STYLE_LABELS = {
+  visual: 'Visual (videos, images)',
+  audio: 'Audio (listening)',
+  reading: 'Reading & Writing',
+  practice: 'Practice-based',
+}
+
+const STUDY_TIME_LABELS = {
+  '15min': '15 minutes / day',
+  '30min': '30 minutes / day',
+  '1hr': '1 hour / day',
+  '2hr+': '2+ hours / day',
+}
+
 export default function Profile() {
   const { user, logout, refreshUser } = useAuth()
   const { data, loading, error, reload } = useAsync(getProfile, [])
@@ -15,13 +56,17 @@ export default function Profile() {
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [formData, setFormData] = useState({
+    username: '',
     first_name: '',
     last_name: '',
     email: '',
     bio: '',
     country: '',
-    learning_goal: ''
+    learning_goal: '',
   })
+  const [countryQuery, setCountryQuery] = useState('')
+  const [showCountryList, setShowCountryList] = useState(false)
+  const [countryError, setCountryError] = useState('')
   const [passwordData, setPasswordData] = useState({
     current_password: '',
     new_password: '',
@@ -36,7 +81,7 @@ export default function Profile() {
       <p>Loading profile...</p>
     </div>
   )
-  
+
   if (error) return (
     <div className="profile-container">
       <div className="profile-error">
@@ -54,89 +99,115 @@ export default function Profile() {
   }
   const courses = p.course_progress || p.courses || []
 
-  // Handle edit form - NOTE: username is NOT included (read-only in backend)
+  const showMessage = (type, text) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage({ type: '', text: '' }), 4000)
+  }
+
   const handleEditClick = () => {
     setFormData({
+      username: p.username || '',
       first_name: p.first_name || '',
       last_name: p.last_name || '',
       email: p.email || '',
       bio: p.bio || '',
       country: p.country || '',
-      learning_goal: p.learning_goal || ''
+      learning_goal: p.learning_goal || '',
     })
+    setCountryQuery(p.country || '')
+    setCountryError('')
     setIsEditing(true)
     setMessage({ type: '', text: '' })
   }
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   const handlePasswordChange = (e) => {
-    setPasswordData({
-      ...passwordData,
-      [e.target.name]: e.target.value
-    })
+    setPasswordData({ ...passwordData, [e.target.name]: e.target.value })
   }
 
-  // Update profile - using full_name from backend
+  // Country dropdown helpers
+  const filteredCountries = COUNTRIES.filter(c =>
+    c.toLowerCase().includes(countryQuery.toLowerCase())
+  )
+
+  const selectCountry = (country) => {
+    setFormData(f => ({ ...f, country }))
+    setCountryQuery(country)
+    setShowCountryList(false)
+    setCountryError('')
+  }
+
+  const validateCountry = () => {
+    if (!formData.country) return true // optional field
+    const valid = COUNTRIES.some(c => c.toLowerCase() === formData.country.toLowerCase())
+    if (!valid) {
+      setCountryError('Country not recognized. Please select a valid country from the list.')
+      return false
+    }
+    setCountryError('')
+    return true
+  }
+
+  // Update profile — includes username, backend returns 400 with {username: [...]} if taken
   const handleUpdateProfile = async (e) => {
     e.preventDefault()
     setMessage({ type: '', text: '' })
-    
+
+    if (!validateCountry()) return
+
+    // Normalize country casing to match list
+    const matchedCountry = COUNTRIES.find(
+      c => c.toLowerCase() === formData.country.toLowerCase()
+    ) || formData.country
+
     try {
       const fullName = `${formData.first_name} ${formData.last_name}`.trim()
       await api.patch('/users/profile/', {
+        username: formData.username,
         email: formData.email,
         full_name: fullName,
         bio: formData.bio,
-        country: formData.country,
-        learning_goal: formData.learning_goal
+        country: matchedCountry,
+        learning_goal: formData.learning_goal,
       })
-      setMessage({ type: 'success', text: 'Profile updated successfully!' })
+      showMessage('success', 'Profile updated successfully!')
       setIsEditing(false)
       reload()
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
       const d = err.response?.data
-      setMessage({ type: 'error', text: d?.email?.[0] || d?.detail || 'Failed to update profile' })
+      if (d?.username) {
+        showMessage('error', 'Username already exists. Please choose a different username.')
+      } else {
+        showMessage('error', d?.email?.[0] || d?.detail || 'Failed to update profile')
+      }
     }
   }
 
   // Change password
   const handleChangePassword = async (e) => {
     e.preventDefault()
-    
     if (passwordData.new_password !== passwordData.confirm_password) {
-      setMessage({ type: 'error', text: 'New passwords do not match' })
+      showMessage('error', 'New passwords do not match')
       return
     }
-    
     if (passwordData.new_password.length < 8) {
-      setMessage({ type: 'error', text: 'Password must be at least 8 characters' })
+      showMessage('error', 'Password must be at least 8 characters')
       return
     }
-    
     setMessage({ type: '', text: '' })
-    
     try {
       await api.post('/users/change-password/', {
         current_password: passwordData.current_password,
         new_password: passwordData.new_password
       })
-      
-      setMessage({ type: 'success', text: 'Password changed successfully!' })
+      showMessage('success', 'Password changed successfully!')
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' })
       setIsChangingPassword(false)
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
-      setMessage({ 
-        type: 'error', 
-        text: err.response?.data?.detail || 'Failed to change password' 
-      })
+      showMessage('error', err.response?.data?.detail || 'Failed to change password')
     }
   }
 
@@ -144,33 +215,19 @@ export default function Profile() {
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    
-    if (file.size > 5 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'Image must be less than 5MB' })
-      return
-    }
-    
-    if (!file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'Please upload an image file' })
-      return
-    }
-    
+    if (file.size > 5 * 1024 * 1024) { showMessage('error', 'Image must be less than 5MB'); return }
+    if (!file.type.startsWith('image/')) { showMessage('error', 'Please upload an image file'); return }
     setIsUploading(true)
     setMessage({ type: '', text: '' })
-    
-    const formData = new FormData()
-    formData.append('avatar_upload', file)
-    
+    const fd = new FormData()
+    fd.append('avatar_upload', file)
     try {
-      await api.patch('/users/profile/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      await api.patch('/users/profile/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       setAvatarPreview(URL.createObjectURL(file))
-      setMessage({ type: 'success', text: 'Avatar updated successfully!' })
+      showMessage('success', 'Avatar updated successfully!')
       reload()
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.detail || 'Failed to upload avatar' })
+      showMessage('error', err.response?.data?.detail || 'Failed to upload avatar')
     } finally {
       setIsUploading(false)
     }
@@ -204,16 +261,11 @@ export default function Profile() {
             )}
             <label className="avatar-upload-label">
               <span>{isUploading ? '⏳' : '📷'}</span>
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleAvatarUpload}
-                disabled={isUploading}
-              />
+              <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={isUploading} />
             </label>
           </div>
         </div>
-        
+
         <div className="profile-info">
           <h1 className="profile-name">{p.full_name || p.username}</h1>
           <p className="profile-email">{p.email}</p>
@@ -259,7 +311,52 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Edit Profile Modal - NO username field */}
+      {/* About / Profile Details Section */}
+      {(p.bio || p.country || p.learning_goal || p.learning_style || p.daily_study_time || p.level) && (
+        <div style={{ marginBottom: '2.5rem' }}>
+          <div className="section-title">About</div>
+          <div className="profile-details-grid">
+            {p.bio && (
+              <div className="profile-detail-card profile-detail-card--full">
+                <span className="profile-detail-label">Bio</span>
+                <p className="profile-detail-value">{p.bio}</p>
+              </div>
+            )}
+            {p.country && (
+              <div className="profile-detail-card">
+                <span className="profile-detail-label">Country</span>
+                <p className="profile-detail-value">{p.country}</p>
+              </div>
+            )}
+            {p.learning_goal && (
+              <div className="profile-detail-card">
+                <span className="profile-detail-label">Learning Goal</span>
+                <p className="profile-detail-value">{p.learning_goal}</p>
+              </div>
+            )}
+            {p.learning_style && (
+              <div className="profile-detail-card">
+                <span className="profile-detail-label">Learning Style</span>
+                <p className="profile-detail-value">{LEARNING_STYLE_LABELS[p.learning_style] || p.learning_style}</p>
+              </div>
+            )}
+            {p.daily_study_time && (
+              <div className="profile-detail-card">
+                <span className="profile-detail-label">Daily Study Time</span>
+                <p className="profile-detail-value">{STUDY_TIME_LABELS[p.daily_study_time] || p.daily_study_time}</p>
+              </div>
+            )}
+            {p.level && (
+              <div className="profile-detail-card">
+                <span className="profile-detail-label">Learning Level</span>
+                <p className="profile-detail-value" style={{ textTransform: 'capitalize' }}>{p.level}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Profile Modal */}
       {isEditing && (
         <div className="modal-overlay" onClick={() => setIsEditing(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -268,48 +365,67 @@ export default function Profile() {
               <button className="modal-close" onClick={() => setIsEditing(false)}>×</button>
             </div>
             <form onSubmit={handleUpdateProfile}>
+              {/* Username */}
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="Username"
+                  minLength={3}
+                  maxLength={30}
+                  pattern="^[a-zA-Z0-9_]+$"
+                  title="Letters, numbers and underscores only"
+                  required
+                />
+              </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>First Name</label>
-                  <input
-                    type="text"
-                    name="first_name"
-                    value={formData.first_name}
-                    onChange={handleInputChange}
-                    placeholder="First name"
-                  />
+                  <input type="text" name="first_name" value={formData.first_name} onChange={handleInputChange} placeholder="First name" />
                 </div>
                 <div className="form-group">
                   <label>Last Name</label>
-                  <input
-                    type="text"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleInputChange}
-                    placeholder="Last name"
-                  />
+                  <input type="text" name="last_name" value={formData.last_name} onChange={handleInputChange} placeholder="Last name" />
                 </div>
               </div>
               <div className="form-group">
                 <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="info-note">
-                <small>⚠️ Username cannot be changed</small>
+                <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
               </div>
               <div className="form-group">
                 <label>Bio</label>
-                <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows={3} placeholder="Tell us about yourself" />
+                <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows={3} placeholder="Tell us about yourself" style={{ width: '100%', padding: '0.9rem 1.2rem', fontSize: '1rem', border: '1.5px solid rgba(0,102,255,0.2)', borderRadius: '16px', resize: 'vertical', fontFamily: 'Inter, sans-serif' }} />
               </div>
-              <div className="form-group">
+              {/* Country — searchable dropdown */}
+              <div className="form-group" style={{ position: 'relative' }}>
                 <label>Country</label>
-                <input type="text" name="country" value={formData.country} onChange={handleInputChange} placeholder="e.g. Ethiopia" />
+                <input
+                  type="text"
+                  value={countryQuery}
+                  onChange={e => {
+                    setCountryQuery(e.target.value)
+                    setFormData(f => ({ ...f, country: e.target.value }))
+                    setShowCountryList(true)
+                    setCountryError('')
+                  }}
+                  onFocus={() => setShowCountryList(true)}
+                  onBlur={() => setTimeout(() => setShowCountryList(false), 180)}
+                  placeholder="Search country..."
+                  autoComplete="off"
+                />
+                {countryError && <p className="field-error">{countryError}</p>}
+                {showCountryList && filteredCountries.length > 0 && (
+                  <ul className="country-dropdown">
+                    {filteredCountries.slice(0, 8).map(c => (
+                      <li key={c} onMouseDown={() => selectCountry(c)} className="country-option">
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <div className="form-group">
                 <label>Learning Goal</label>
@@ -335,51 +451,21 @@ export default function Profile() {
             <form onSubmit={handleChangePassword}>
               <div className="form-group">
                 <label>Current Password</label>
-                <input
-                  type="password"
-                  name="current_password"
-                  value={passwordData.current_password}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <input type="password" name="current_password" value={passwordData.current_password} onChange={handlePasswordChange} required />
               </div>
               <div className="form-group">
                 <label>New Password</label>
-                <input
-                  type="password"
-                  name="new_password"
-                  value={passwordData.new_password}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <input type="password" name="new_password" value={passwordData.new_password} onChange={handlePasswordChange} required />
               </div>
               <div className="form-group">
                 <label>Confirm New Password</label>
-                <input
-                  type="password"
-                  name="confirm_password"
-                  value={passwordData.confirm_password}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <input type="password" name="confirm_password" value={passwordData.confirm_password} onChange={handlePasswordChange} required />
               </div>
               <div className="modal-footer">
                 <button type="button" className="cancel-btn" onClick={() => setIsChangingPassword(false)}>Cancel</button>
                 <button type="submit" className="submit-btn">Update Password</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* About Section */}
-      {(p.bio || p.country || p.learning_goal) && (
-        <div className="section-title" style={{ marginTop: '1.5rem' }}>
-          About
-          <div className="course-list" style={{ marginTop: '0.75rem' }}>
-            {p.bio && <div className="course-progress-card"><span className="course-title">Bio</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.bio}</p></div>}
-            {p.country && <div className="course-progress-card"><span className="course-title">Country</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.country}</p></div>}
-            {p.learning_goal && <div className="course-progress-card"><span className="course-title">Learning Goal</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.learning_goal}</p></div>}
           </div>
         </div>
       )}
