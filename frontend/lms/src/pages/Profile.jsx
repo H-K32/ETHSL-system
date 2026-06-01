@@ -37,6 +37,12 @@ export default function Profile() {
     country: '',
     learning_goal: '',
   })
+  // Field-level errors
+  const [fieldErrors, setFieldErrors] = useState({ username: '', fullName: '' })
+  // Country dropdown state
+  const [countryQuery, setCountryQuery] = useState('')
+  const [showCountryList, setShowCountryList] = useState(false)
+  const [countryError, setCountryError] = useState('')
   // Email change state
   const [newEmail, setNewEmail] = useState('')
   const [emailChangeLoading, setEmailChangeLoading] = useState(false)
@@ -83,6 +89,9 @@ export default function Profile() {
       country: p.country || '',
       learning_goal: p.learning_goal || '',
     })
+    setCountryQuery(p.country || '')
+    setCountryError('')
+    setFieldErrors({ username: '', fullName: '' })
     setNewEmail('')
     setEmailChangeMsg({ type: '', text: '' })
     setIsEditing(true)
@@ -90,19 +99,91 @@ export default function Profile() {
   }
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+    // Clear the relevant field error as the user types
+    if (name === 'username') setFieldErrors(f => ({ ...f, username: '' }))
+    if (name === 'first_name' || name === 'last_name') setFieldErrors(f => ({ ...f, fullName: '' }))
   }
 
   const handlePasswordChange = (e) => {
     setPasswordData({ ...passwordData, [e.target.name]: e.target.value })
   }
 
+  // Validation regexes — LMS user only
+  const USERNAME_REGEX = /^[a-zA-Z0-9_.\-]+$/
+  const FULL_NAME_REGEX = /^[a-zA-Z'\s]+$/
+
+  const showMessage = (type, text) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage({ type: '', text: '' }), 4000)
+  }
+
+  // Country helpers
+  const COUNTRIES = [
+    'Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda','Argentina','Armenia',
+    'Australia','Austria','Azerbaijan','Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium',
+    'Belize','Benin','Bhutan','Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei',
+    'Bulgaria','Burkina Faso','Burundi','Cabo Verde','Cambodia','Cameroon','Canada','Central African Republic',
+    'Chad','Chile','China','Colombia','Comoros','Congo','Costa Rica','Croatia','Cuba','Cyprus',
+    'Czech Republic','Denmark','Djibouti','Dominica','Dominican Republic','Ecuador','Egypt','El Salvador',
+    'Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia','Fiji','Finland','France','Gabon',
+    'Gambia','Georgia','Germany','Ghana','Greece','Grenada','Guatemala','Guinea','Guinea-Bissau',
+    'Guyana','Haiti','Honduras','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland',
+    'Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kiribati','Kuwait','Kyrgyzstan',
+    'Laos','Latvia','Lebanon','Lesotho','Liberia','Libya','Liechtenstein','Lithuania','Luxembourg',
+    'Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands','Mauritania','Mauritius',
+    'Mexico','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Morocco','Mozambique','Myanmar',
+    'Namibia','Nauru','Nepal','Netherlands','New Zealand','Nicaragua','Niger','Nigeria','North Korea',
+    'North Macedonia','Norway','Oman','Pakistan','Palau','Palestine','Panama','Papua New Guinea',
+    'Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda',
+    'Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino',
+    'Sao Tome and Principe','Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore',
+    'Slovakia','Slovenia','Solomon Islands','Somalia','South Africa','South Korea','South Sudan','Spain',
+    'Sri Lanka','Sudan','Suriname','Sweden','Switzerland','Syria','Taiwan','Tajikistan','Tanzania',
+    'Thailand','Timor-Leste','Togo','Tonga','Trinidad and Tobago','Tunisia','Turkey','Turkmenistan',
+    'Tuvalu','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay',
+    'Uzbekistan','Vanuatu','Vatican City','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'
+  ]
+  const filteredCountries = COUNTRIES.filter(c =>
+    c.toLowerCase().includes(countryQuery.toLowerCase())
+  )
+  const selectCountry = (country) => {
+    setFormData(f => ({ ...f, country }))
+    setCountryQuery(country)
+    setShowCountryList(false)
+    setCountryError('')
+  }
+
   // Update profile (no email — email has its own flow)
   const handleUpdateProfile = async (e) => {
     e.preventDefault()
     setMessage({ type: '', text: '' })
+
+    // --- Username validation ---
+    const trimmedUsername = formData.username.trim()
+    if (trimmedUsername && !USERNAME_REGEX.test(trimmedUsername)) {
+      setFieldErrors(f => ({ ...f, username: 'Username can only contain letters, numbers, underscores, hyphens, and dots.' }))
+      return
+    }
+
+    // --- Full name validation ---
+    const fullName = `${formData.first_name} ${formData.last_name}`.trim()
+    if (fullName && !FULL_NAME_REGEX.test(fullName)) {
+      setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and apostrophes.' }))
+      return
+    }
+
+    // --- Country validation ---
+    if (formData.country && !COUNTRIES.some(c => c.toLowerCase() === formData.country.toLowerCase())) {
+      setCountryError('Country not recognized. Please select a valid country from the list.')
+      return
+    }
+    const matchedCountry = COUNTRIES.find(
+      c => c.toLowerCase() === formData.country.toLowerCase()
+    ) || formData.country
+
     try {
-      const fullName = `${formData.first_name} ${formData.last_name}`.trim()
       await api.patch('/users/profile/', {
         full_name: fullName,
         bio: formData.bio,
@@ -325,26 +406,53 @@ export default function Profile() {
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
+                  onBlur={() => {
+                    const v = formData.username.trim()
+                    if (v && !USERNAME_REGEX.test(v))
+                      setFieldErrors(f => ({ ...f, username: 'Username can only contain letters, numbers, underscores, hyphens, and dots.' }))
+                  }}
                   placeholder="Username"
                   minLength={3}
                   maxLength={30}
-                  pattern="^[a-zA-Z0-9_]+$"
-                  title="Letters, numbers and underscores only"
-                  style={usernameError ? { borderColor: '#c62828' } : {}}
-                  required
+                  style={fieldErrors.username ? { borderColor: '#c62828' } : {}}
                 />
-                {usernameError && <p className="field-error">{usernameError}</p>}
+                {fieldErrors.username && <p className="field-error">{fieldErrors.username}</p>}
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>First Name</label>
-                  <input type="text" name="first_name" value={formData.first_name} onChange={handleInputChange} placeholder="First name" />
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleInputChange}
+                    onBlur={() => {
+                      const full = `${formData.first_name} ${formData.last_name}`.trim()
+                      if (full && !FULL_NAME_REGEX.test(full))
+                        setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and apostrophes.' }))
+                    }}
+                    placeholder="First name"
+                    style={fieldErrors.fullName ? { borderColor: '#c62828' } : {}}
+                  />
                 </div>
                 <div className="form-group">
                   <label>Last Name</label>
-                  <input type="text" name="last_name" value={formData.last_name} onChange={handleInputChange} placeholder="Last name" />
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleInputChange}
+                    onBlur={() => {
+                      const full = `${formData.first_name} ${formData.last_name}`.trim()
+                      if (full && !FULL_NAME_REGEX.test(full))
+                        setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and apostrophes.' }))
+                    }}
+                    placeholder="Last name"
+                    style={fieldErrors.fullName ? { borderColor: '#c62828' } : {}}
+                  />
                 </div>
               </div>
+              {fieldErrors.fullName && <p className="field-error">{fieldErrors.fullName}</p>}
               <div className="info-note">
                 <small>⚠️ Username cannot be changed</small>
               </div>
