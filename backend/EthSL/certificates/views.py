@@ -544,8 +544,8 @@ class MyCertificatesView(APIView):
 
         try:
             certificates = Certificate.objects.filter(
-                learner=request.user
-            ).order_by("-issued_at")
+                    learner=request.user
+                ).order_by("issued_at")
         except Exception as e:
             print(f"Error fetching certificates: {e}")
             return Response([])
