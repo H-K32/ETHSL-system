@@ -480,6 +480,7 @@ class AdminQuizListCreateView(APIView):
             lesson_id=data.get("lesson"),
             course_id=data.get("course"),
             level_id=data.get("level"),
+            quiz_type=data.get("quiz_type", "lesson"),
             description=data.get("description"),
             passing_score=data.get("passing_score"),
         )
@@ -560,6 +561,7 @@ class AdminQuizDetailView(APIView):
         quiz.lesson_id = data.get("lesson")
         quiz.course_id = data.get("course")
         quiz.level_id = data.get("level")
+        quiz.quiz_type = data.get("quiz_type", quiz.quiz_type)
         quiz.description = data.get("description")
         quiz.passing_score = data.get("passing_score")
         quiz.save()

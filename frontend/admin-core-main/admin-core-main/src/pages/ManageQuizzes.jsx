@@ -163,8 +163,12 @@ const ManageQuizzes = () => {
   };
 
   const fetchLevels = async () => {
-    const res = await API.get("/courses/level/");
-    setLevels(res.data);
+    try {
+      const res = await API.get("/courses/level/");
+      setLevels(res.data);
+    } catch (err) {
+      console.error("Failed to fetch levels:", err.response?.status, err.response?.data);
+    }
   };
 
   useEffect(() => {
@@ -184,12 +188,11 @@ const ManageQuizzes = () => {
   // ================= EDIT =================
 const handleEdit = (quiz) => {
   let quizType = "lesson";
-
-  if (quiz.course) {
+  if (quiz.quiz_type === "placement") {
+    quizType = "placement";
+  } else if (quiz.course) {
     quizType = "course";
-  }
-
-  if (quiz.level) {
+  } else if (quiz.level) {
     quizType = "level";
   }
 
@@ -365,7 +368,10 @@ const handleSubmit = async (e) => {
   setFormErrors({});
 
   const payload = {
-    quiz_type: form.quiz_type === 'placement' ? 'placement' : form.quiz_type === 'level' ? 'final' : form.quiz_type,
+    quiz_type: form.quiz_type === 'placement' ? 'placement'
+             : form.quiz_type === 'level' ? 'final'
+             : form.quiz_type === 'course' ? 'final'
+             : 'lesson',
     lesson: form.quiz_type === "lesson" ? Number(form.lesson) : null,
     course: form.quiz_type === "course" ? Number(form.course) : null,
     level: (form.quiz_type === "level" || form.quiz_type === "placement") ? Number(form.level) : null,
@@ -467,9 +473,9 @@ const handleSubmit = async (e) => {
                 <tr key={q.id}>
                   <td>
                     {q.lesson && "Lesson Quiz"}
-                    {q.course && "Course Final Quiz"}
-                    {q.level && q.quiz_type === "placement" && "Placement Test"}
-                    {q.level && q.quiz_type !== "placement" && "Level Final Quiz"}
+                    {q.course && !q.lesson && "Course Final Quiz"}
+                    {q.level && !q.lesson && !q.course && (q.quiz_type === "placement" || q.quiz_type === "lesson") && "Placement Test"}
+                    {q.level && !q.lesson && !q.course && q.quiz_type === "final" && "Level Final Quiz"}
                   </td>
 
                   <td>
@@ -563,7 +569,7 @@ const handleSubmit = async (e) => {
               {levels
                 .filter((l) =>
                   form.quiz_type === "placement"
-                    ? l.name === "intermediate" || l.name === "advanced"
+                    ? ["intermediate", "advanced", "መካከለኛ", "ከፍተኛ"].includes(l.name)
                     : true
                 )
                 .map((l) => (

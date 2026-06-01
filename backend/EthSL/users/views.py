@@ -384,12 +384,27 @@ class PlacementTestView(APIView):
         if level_name not in ('intermediate', 'advanced'):
             return Response({'detail': 'level query param must be intermediate or advanced.'}, status=400)
 
+        # Map English level name to order since DB stores Amharic text in name field
+        level_order = {'intermediate': 2, 'advanced': 3}
+        order = level_order[level_name]
+
         quiz = Quiz.objects.filter(
             quiz_type='placement',
-            level__name=level_name,
+            level__order=order,
             lesson__isnull=True,
             course__isnull=True,
         ).prefetch_related('questions__options').first()
+
+        # Fallback: any level-linked quiz with no lesson/course for this level
+        if not quiz:
+            quiz = Quiz.objects.filter(
+                level__order=order,
+                lesson__isnull=True,
+                course__isnull=True,
+            ).prefetch_related('questions__options').first()
+            if quiz:
+                quiz.quiz_type = 'placement'
+                quiz.save(update_fields=['quiz_type'])
 
         if not quiz:
             return Response({'questions': [], 'quiz_id': None})
