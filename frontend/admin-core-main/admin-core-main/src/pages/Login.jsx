@@ -25,14 +25,17 @@ const Login = () => {
 
     } catch (err) {
       console.error("Login failed:", err);
-      if (err.response) {
-        if (err.response.status === 401) {
-          setError("Invalid username or password");
-        } else {
-          setError("Something went wrong. Try again.");
-        }
+      const data = err.response?.data;
+      if (data?.detail === "invalid_credentials" || data?.detail === "No active account found with the given credentials") {
+        setError("Invalid username or password.");
+      } else if (data?.detail === "account_inactive") {
+        setError("Your account is inactive. Please contact support.");
+      } else if (data?.detail) {
+        setError(data.detail);
+      } else if (!err.response) {
+        setError("Server not reachable. Please try again.");
       } else {
-        setError("Server not reachable");
+        setError("Invalid username or password.");
       }
     }
   };

@@ -47,14 +47,30 @@ class AdminPasswordResetConfirmSerializer(
 
             if not token_valid:
                 raise serializers.ValidationError(
-                    "Invalid token"
+                    "Invalid or expired token."
                 )
 
-            user.set_password(
-                attrs["password"]
-            )
+            new_password = attrs["password"]
 
+            # Password strength validation
+            from django.contrib.auth.password_validation import validate_password
+            from django.core.exceptions import ValidationError as DjangoValidationError
+            try:
+                validate_password(new_password, user)
+            except DjangoValidationError as e:
+                raise serializers.ValidationError({"password": list(e.messages)})
+
+            # Prevent reusing current password
+            if user.check_password(new_password):
+                raise serializers.ValidationError(
+                    {"password": "Can't use a password you've used before. Please choose a new password."}
+                )
+
+            user.set_password(new_password)
             user.save()
+
+        except serializers.ValidationError:
+            raise
 
         except Exception:
             raise serializers.ValidationError(

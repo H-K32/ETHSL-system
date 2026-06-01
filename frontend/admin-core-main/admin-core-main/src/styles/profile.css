@@ -124,3 +124,56 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Password Strength Checks ---------- */
+.pw-checks {
+  list-style: none;
+  padding: 0.6rem 0.9rem;
+  margin: -8px 0 12px;
+  background: #f8faff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pw-checks li {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.check-pass {
+  color: #16a34a;
+}
+
+.check-fail {
+  color: #dc2626;
+}
+
+/* ---------- Inline Messages ---------- */
+.profile-inline-msg {
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.profile-inline-msg.success {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.profile-inline-msg.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Disabled button state */
+.btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
