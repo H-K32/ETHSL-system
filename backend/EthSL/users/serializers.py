@@ -154,6 +154,7 @@ class UserSerializer(serializers.ModelSerializer):
             "placement_required",
             "placement_passed",
             "is_active",
+            "profile_completed",
         ]
         read_only_fields = ["username", "role", "streak_count"]
 

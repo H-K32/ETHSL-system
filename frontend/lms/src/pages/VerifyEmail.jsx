@@ -11,8 +11,7 @@ export default function VerifyEmail() {
     api.get(`/users/verify-email/${uidb64}/${token}/`)
       .then(() => {
         setStatus('success')
-        // Redirect to complete profile after email verification
-        setTimeout(() => nav('/complete-profile', { replace: true }), 2000)
+        setTimeout(() => nav('/login', { replace: true }), 2500)
       })
       .catch(() => setStatus('error'))
   }, [uidb64, token, nav])
@@ -31,7 +30,7 @@ export default function VerifyEmail() {
         <>
           <div className="text-5xl mb-4">✅</div>
           <h1 className="text-xl font-bold text-green-600">Email Verified!</h1>
-          <p className="text-gray-500 mt-2 text-sm">Redirecting you to complete your profile…</p>
+          <p className="text-gray-500 mt-2 text-sm">Your account is now active. Redirecting you to sign in…</p>
         </>
       )}
 

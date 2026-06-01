@@ -16,11 +16,23 @@ export default function Login() {
     e.preventDefault()
     setErr(null); setLoading(true)
     try {
-      await login(form)
-      const dest = loc.state?.from?.pathname || '/dashboard'
-      nav(dest, { replace: true })
+      const data = await login(form)
+      // Route based on profile completion state
+      const dest = loc.state?.from?.pathname
+      if (dest && dest !== '/login') {
+        nav(dest, { replace: true })
+      } else if (!data?.profile_completed) {
+        nav('/complete-profile', { replace: true })
+      } else {
+        nav('/dashboard', { replace: true })
+      }
     } catch (e) {
-      setErr(e?.response?.data?.detail || 'Invalid credentials')
+      const detail = e?.response?.data?.detail || ''
+      if (detail.toLowerCase().includes('no active account')) {
+        setErr('Account not verified. Please check your email and click the verification link.')
+      } else {
+        setErr(detail || 'Invalid credentials')
+      }
     } finally { setLoading(false) }
   }
 

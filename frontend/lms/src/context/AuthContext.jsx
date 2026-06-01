@@ -31,8 +31,9 @@ export function AuthProvider({ children }) {
     const refresh = data.refresh || data.refresh_token
     if (access) localStorage.setItem('access_token', access)
     if (refresh) localStorage.setItem('refresh_token', refresh)
-    await fetchMe()
-    return data
+    const profile = await authApi.me()
+    setUser(profile)
+    return profile
   }
 
   const register = async (payload) => {

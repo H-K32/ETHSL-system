@@ -108,21 +108,26 @@ class EmailVerificationStatusView(APIView):
 
 
 class VerifyEmailView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
-
-            if default_token_generator.check_token(user, token):
-                user.email_verified = True
-                user.is_active = True
-                user.save()
-                return Response({"message": "Email verified successfully"})
-
-            return Response({"error": "Invalid token"}, status=400)
-
         except Exception:
             return Response({"error": "Invalid link"}, status=400)
+
+        # Already verified — treat as success so re-clicks on the link still work
+        if user.email_verified and user.is_active:
+            return Response({"message": "Email already verified"})
+
+        if not default_token_generator.check_token(user, token):
+            return Response({"error": "Invalid or expired token"}, status=400)
+
+        user.email_verified = True
+        user.is_active = True
+        user.save(update_fields=["email_verified", "is_active"])
+        return Response({"message": "Email verified successfully"})
         
  
 # ---------------- REQUEST PASSWORD RESET ----------------
