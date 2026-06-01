@@ -248,6 +248,13 @@
   color: var(--color-sienna-600);
 }
 
+.report-btn:disabled,
+.report-small-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
 .post-title {
   font-family: var(--font-serif);
   font-size: 1.25rem;

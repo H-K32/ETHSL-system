@@ -17,7 +17,10 @@ export default function Profile() {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
-    email: ''
+    email: '',
+    bio: '',
+    country: '',
+    learning_goal: ''
   })
   const [passwordData, setPasswordData] = useState({
     current_password: '',
@@ -56,7 +59,10 @@ export default function Profile() {
     setFormData({
       first_name: p.first_name || '',
       last_name: p.last_name || '',
-      email: p.email || ''
+      email: p.email || '',
+      bio: p.bio || '',
+      country: p.country || '',
+      learning_goal: p.learning_goal || ''
     })
     setIsEditing(true)
     setMessage({ type: '', text: '' })
@@ -82,31 +88,21 @@ export default function Profile() {
     setMessage({ type: '', text: '' })
     
     try {
-      // Backend expects full_name field
       const fullName = `${formData.first_name} ${formData.last_name}`.trim()
-      
-      const updateData = {
+      await api.patch('/users/profile/', {
         email: formData.email,
-        full_name: fullName
-      }
-      
-      const response = await api.patch('/users/profile/', updateData)
-      
+        full_name: fullName,
+        bio: formData.bio,
+        country: formData.country,
+        learning_goal: formData.learning_goal
+      })
       setMessage({ type: 'success', text: 'Profile updated successfully!' })
       setIsEditing(false)
-      await refreshUser()
+      reload()
       setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
-      console.error('Update error:', err)
-      
-      let errorText = 'Failed to update profile'
-      if (err.response?.data?.email) {
-        errorText = err.response.data.email[0]
-      } else if (err.response?.data?.detail) {
-        errorText = err.response.data.detail
-      }
-      
-      setMessage({ type: 'error', text: errorText })
+      const d = err.response?.data
+      setMessage({ type: 'error', text: d?.email?.[0] || d?.detail || 'Failed to update profile' })
     }
   }
 
@@ -166,19 +162,15 @@ export default function Profile() {
     formData.append('avatar_upload', file)
     
     try {
-      const response = await api.patch('/users/profile/', formData, {
+      await api.patch('/users/profile/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      
       setAvatarPreview(URL.createObjectURL(file))
       setMessage({ type: 'success', text: 'Avatar updated successfully!' })
-      await refreshUser()
+      reload()
       setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
-      setMessage({ 
-        type: 'error', 
-        text: err.response?.data?.detail || 'Failed to upload avatar' 
-      })
+      setMessage({ type: 'error', text: err.response?.data?.detail || 'Failed to upload avatar' })
     } finally {
       setIsUploading(false)
     }
@@ -311,6 +303,18 @@ export default function Profile() {
               <div className="info-note">
                 <small>⚠️ Username cannot be changed</small>
               </div>
+              <div className="form-group">
+                <label>Bio</label>
+                <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows={3} placeholder="Tell us about yourself" />
+              </div>
+              <div className="form-group">
+                <label>Country</label>
+                <input type="text" name="country" value={formData.country} onChange={handleInputChange} placeholder="e.g. Ethiopia" />
+              </div>
+              <div className="form-group">
+                <label>Learning Goal</label>
+                <input type="text" name="learning_goal" value={formData.learning_goal} onChange={handleInputChange} placeholder="e.g. speak fluently" />
+              </div>
               <div className="modal-footer">
                 <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
                 <button type="submit" className="submit-btn">Save Changes</button>
@@ -364,6 +368,18 @@ export default function Profile() {
                 <button type="submit" className="submit-btn">Update Password</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* About Section */}
+      {(p.bio || p.country || p.learning_goal) && (
+        <div className="section-title" style={{ marginTop: '1.5rem' }}>
+          About
+          <div className="course-list" style={{ marginTop: '0.75rem' }}>
+            {p.bio && <div className="course-progress-card"><span className="course-title">Bio</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.bio}</p></div>}
+            {p.country && <div className="course-progress-card"><span className="course-title">Country</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.country}</p></div>}
+            {p.learning_goal && <div className="course-progress-card"><span className="course-title">Learning Goal</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.learning_goal}</p></div>}
           </div>
         </div>
       )}

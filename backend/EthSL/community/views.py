@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
+from datetime import timedelta
 
 from .models import Post, Comment, Report
 from users.models import User
@@ -28,13 +30,34 @@ class PostListCreateView(APIView):
         return Response(serializer.errors, status=400)
 
 
-# ---------------- POST DETAIL ----------------
+# ---------------- POST DETAIL / EDIT / DELETE ----------------
 class PostDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         return Response(PostSerializer(post).data)
+
+    def patch(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        if post.user != request.user:
+            return Response({'detail': 'Not allowed.'}, status=403)
+        if timezone.now() - post.created_at > timedelta(hours=48):
+            return Response({'detail': 'Posts can only be edited within 48 hours of creation.'}, status=403)
+        serializer = PostSerializer(post, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        if post.user != request.user:
+            return Response({'detail': 'Not allowed.'}, status=403)
+        if timezone.now() - post.created_at > timedelta(hours=48):
+            return Response({'detail': 'Posts can only be deleted within 48 hours of creation.'}, status=403)
+        post.delete()
+        return Response(status=204)
 
 
 # ---------------- COMMENTS ----------------
@@ -51,6 +74,8 @@ class CommentListCreateView(APIView):
         return Response(CommentSerializer(comments, many=True).data)
 
     def post(self, request):
+        if not request.data.get('content', '').strip():
+            return Response({'detail': 'Reply field cannot be empty.'}, status=400)
         serializer = CommentSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -79,3 +104,12 @@ class ReportUserView(APIView):
             return Response({"detail": "User reported successfully"}, status=201)
 
         return Response(serializer.errors, status=400)
+
+
+# ---------------- REPORTS AGAINST ME ----------------
+class ReportsAgainstMeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        reports = Report.objects.filter(reported_user=request.user).values('reason')
+        return Response(list(reports))
