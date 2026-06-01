@@ -49,6 +49,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("Invalid reset link")
 
+        except serializers.ValidationError:
+            raise
+
         except Exception:
             raise serializers.ValidationError("Invalid reset link")
 
