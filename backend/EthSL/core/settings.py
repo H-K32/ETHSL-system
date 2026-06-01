@@ -198,6 +198,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'BLACKLIST_AFTER_ROTATION': True,
     'ROTATE_REFRESH_TOKENS': True,
+    'TOKEN_OBTAIN_SERIALIZER': 'users.serializers.EmailOrUsernameTokenSerializer',
 }
 
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

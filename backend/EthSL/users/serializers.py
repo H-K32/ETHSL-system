@@ -185,9 +185,28 @@ class UserSerializer(serializers.ModelSerializer):
             instance.save()
 
         return super().update(instance, validated_data)
-# users/serializers.py
-
 class UserReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserReport
         fields = ["id", "reported_user", "reason"]
+
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
+
+
+class EmailOrUsernameTokenSerializer(TokenObtainPairSerializer):
+    """Accept either username or email in the username field."""
+
+    def validate(self, attrs):
+        login = attrs.get(self.username_field, "").strip()
+
+        # If the input looks like an email, resolve it to a username
+        if "@" in login:
+            try:
+                user_obj = User.objects.get(email__iexact=login)
+                attrs[self.username_field] = user_obj.username
+            except User.DoesNotExist:
+                raise AuthenticationFailed("No active account found with the given credentials")
+
+        return super().validate(attrs)
