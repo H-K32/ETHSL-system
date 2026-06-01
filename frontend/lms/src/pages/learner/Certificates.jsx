@@ -12,7 +12,7 @@ function formatIssuedAt(value) {
 
 function buildLevelLabel(certificate) {
   if (!certificate) return 'Level'
-  const rawLevel = certificate.level ?? certificate.level_name ?? certificate.course_level
+  const rawLevel = certificate.level_display ?? certificate.level ?? certificate.level_name ?? certificate.course_level
   if (rawLevel === undefined || rawLevel === null || rawLevel === '') return 'Level'
   return String(rawLevel).toLowerCase().includes('level') ? String(rawLevel) : `Level ${rawLevel}`
 }

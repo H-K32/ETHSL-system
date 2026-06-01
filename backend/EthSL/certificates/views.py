@@ -3,6 +3,8 @@ from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -19,6 +21,48 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 
 from .models import Certificate
+
+
+CERTIFICATE_FONT_NAME = "Ebrima"
+CERTIFICATE_FONT_BOLD_NAME = "Ebrima-Bold"
+
+
+def register_certificate_fonts():
+    for font_name, font_path in (
+        (CERTIFICATE_FONT_NAME, r"C:\Windows\Fonts\ebrima.ttf"),
+        (CERTIFICATE_FONT_BOLD_NAME, r"C:\Windows\Fonts\ebrimabd.ttf"),
+    ):
+        if font_name in pdfmetrics.getRegisteredFontNames():
+            continue
+
+        try:
+            pdfmetrics.registerFont(TTFont(font_name, font_path))
+        except Exception:
+            continue
+
+
+register_certificate_fonts()
+
+
+def certificate_text_font(is_bold=False):
+    if is_bold and CERTIFICATE_FONT_BOLD_NAME in pdfmetrics.getRegisteredFontNames():
+        return CERTIFICATE_FONT_BOLD_NAME
+
+    if CERTIFICATE_FONT_NAME in pdfmetrics.getRegisteredFontNames():
+        return CERTIFICATE_FONT_NAME
+
+    return "Helvetica-Bold" if is_bold else "Helvetica"
+
+
+def get_level_display_name(certificate):
+    level = getattr(certificate, "level", None)
+    if not level:
+        return "Level"
+
+    try:
+        return level.get_name_display() or "Level"
+    except Exception:
+        return level.name or "Level"
 
 
 def draw_certificate_background(canvas, doc):
@@ -145,7 +189,7 @@ def draw_certificate_background(canvas, doc):
     )
 
     # Footer text OUTSIDE border
-    canvas.setFont("Helvetica", 8)
+    canvas.setFont(certificate_text_font(), 8)
     canvas.setFillColor(colors.HexColor("#64748B"))
 
     canvas.drawCentredString(
@@ -170,7 +214,7 @@ def build_certificate_story(certificate):
     title_style = ParagraphStyle(
         "CertificateTitle",
         parent=style_sheet["Title"],
-        fontName="Helvetica-Bold",
+        fontName=certificate_text_font(is_bold=True),
         fontSize=28,
         leading=30,
         alignment=TA_CENTER,
@@ -182,7 +226,7 @@ def build_certificate_story(certificate):
     subtitle_style = ParagraphStyle(
         "CertificateSubtitle",
         parent=style_sheet["Heading2"],
-        fontName="Helvetica",
+        fontName=certificate_text_font(),
         fontSize=15,
         leading=20,
         alignment=TA_CENTER,
@@ -195,7 +239,7 @@ def build_certificate_story(certificate):
     name_style = ParagraphStyle(
         "RecipientName",
         parent=style_sheet["Heading1"],
-        fontName="Helvetica-Bold",
+        fontName=certificate_text_font(is_bold=True),
         fontSize=17,
         leading=22,
         alignment=TA_CENTER,
@@ -207,7 +251,7 @@ def build_certificate_story(certificate):
     body_style = ParagraphStyle(
         "CertificateBody",
         parent=style_sheet["BodyText"],
-        fontName="Helvetica",
+        fontName=certificate_text_font(),
         fontSize=12,
         leading=18,
         alignment=TA_CENTER,
@@ -218,7 +262,7 @@ def build_certificate_story(certificate):
     detail_style = ParagraphStyle(
         "CertificateDetail",
         parent=style_sheet["BodyText"],
-        fontName="Helvetica-Bold",
+        fontName=certificate_text_font(is_bold=True),
         fontSize=10,
         leading=14,
         alignment=TA_CENTER,
@@ -228,7 +272,7 @@ def build_certificate_story(certificate):
     signature_style = ParagraphStyle(
         "SignatureText",
         parent=style_sheet["BodyText"],
-        fontName="Helvetica",
+        fontName=certificate_text_font(),
         fontSize=9,
         leading=14,
         alignment=TA_CENTER,
@@ -238,7 +282,7 @@ def build_certificate_story(certificate):
     seal_style = ParagraphStyle(
         "SealText",
         parent=style_sheet["BodyText"],
-        fontName="Helvetica-Bold",
+        fontName=certificate_text_font(is_bold=True),
         fontSize=10,
         leading=15,
         alignment=TA_CENTER,
@@ -281,7 +325,7 @@ def build_certificate_story(certificate):
 
         Paragraph(
             f"has successfully completed the "
-            f"<b>{certificate.level.name.title()}</b> level",
+            f"<b>{get_level_display_name(certificate)}</b> level",
             body_style
         ),
 
@@ -332,7 +376,7 @@ def build_certificate_story(certificate):
 
                     ("FONTNAME",
                      (0, 0), (-1, 0),
-                     "Helvetica-Bold"),
+                     certificate_text_font(is_bold=True)),
 
                     ("ALIGN",
                      (0, 0), (-1, -1),
@@ -488,13 +532,16 @@ class MyCertificatesView(APIView):
         for cert in certificates:
             try:
                 level_name = cert.level.name if cert.level else "Unknown"
+                level_display = cert.level.get_name_display() if cert.level else "Unknown"
             except Exception as e:
                 print(f"Error accessing level for cert {cert.id}: {e}")
                 level_name = "Unknown"
+                level_display = "Unknown"
 
             data.append({
                 "id": cert.id,
                 "level": level_name,
+                "level_display": level_display,
                 "issued_at": cert.issued_at.isoformat(),
                 "certificate_id": cert.certificate_id,
             })
