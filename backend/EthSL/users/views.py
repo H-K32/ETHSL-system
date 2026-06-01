@@ -374,32 +374,35 @@ class CompleteProfileView(APIView):
 
 
 class PlacementTestView(APIView):
-    """Returns placement quiz questions from the DB (quiz linked to a level)."""
+    """Returns the placement quiz for the requested level (intermediate or advanced)."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         from courses.models import Quiz
-        # Find a quiz that is a level quiz (has level FK set, no lesson/course)
+
+        level_name = request.query_params.get('level', '').lower()
+        if level_name not in ('intermediate', 'advanced'):
+            return Response({'detail': 'level query param must be intermediate or advanced.'}, status=400)
+
         quiz = Quiz.objects.filter(
-            level__isnull=False,
+            quiz_type='placement',
+            level__name=level_name,
             lesson__isnull=True,
-            course__isnull=True
+            course__isnull=True,
         ).prefetch_related('questions__options').first()
 
         if not quiz:
             return Response({'questions': [], 'quiz_id': None})
 
-        questions = []
-        for q in quiz.questions.all():
-            questions.append({
+        questions = [
+            {
                 'id': q.id,
                 'question_text': q.question_text,
                 'points': q.points,
-                'options': [
-                    {'id': o.id, 'option_text': o.option_text}
-                    for o in q.options.all()
-                ]
-            })
+                'options': [{'id': o.id, 'option_text': o.option_text} for o in q.options.all()],
+            }
+            for q in quiz.questions.all()
+        ]
 
         return Response({'quiz_id': quiz.id, 'questions': questions})
 

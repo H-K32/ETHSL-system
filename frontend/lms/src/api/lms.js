@@ -35,8 +35,8 @@ export const getCertificatePdf = (certificateId) =>
 export const completeLesson = (lessonId) =>
   api.post(`/progress/complete-lesson/${lessonId}/`).then(r => r.data)
 
-export const getPlacementQuiz = () =>
-  api.get('/users/placement/').then((r) => r.data)
+export const getPlacementQuiz = (level) =>
+  api.get(`/users/placement/?level=${level}`).then((r) => r.data)
 
 export const submitPlacement = (quizId, answers, desiredLevel) =>
   api.post('/users/placement/submit/', {
