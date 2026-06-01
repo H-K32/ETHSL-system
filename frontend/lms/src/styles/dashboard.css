@@ -1,4 +1,17 @@
 /* ========================================
+   DASHBOARD — Warm Parchment Theme
+   Matches Levels.jsx visual language
+   ======================================== */
+
+.dashboard-parchment {
+  background-color: #f5f0e8;
+  background-image:
+    radial-gradient(#ddd5bb 1.2px, transparent 1.2px),
+    linear-gradient(rgba(27, 56, 31, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px, 40px 40px;
+}
+
+/* ========================================
    MANAGE USERS - COMPLETE CSS
    ======================================== */
 
