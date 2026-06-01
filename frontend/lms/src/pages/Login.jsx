@@ -28,7 +28,7 @@ export default function Login() {
       }
     } catch (e) {
       const detail = e?.response?.data?.detail || ''
-      if (detail.toLowerCase().includes('no active account')) {
+      if (detail === 'email_not_verified' || detail.toLowerCase().includes('no active account')) {
         setErr('Account not verified. Please check your email and click the verification link.')
       } else {
         setErr(detail || 'Invalid credentials')

@@ -14,7 +14,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (r) => r,
   (error) => {
-    if (error?.response?.status === 401) {
+    if (error?.response?.status === 401 && !error.config?.url?.includes('/login')) {
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
       if (!location.pathname.startsWith('/login')) {

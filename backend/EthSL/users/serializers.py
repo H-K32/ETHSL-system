@@ -201,12 +201,20 @@ class EmailOrUsernameTokenSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         login = attrs.get(self.username_field, "").strip()
 
-        # If the input looks like an email, resolve it to a username
+        # Resolve email to username, then check verification
         if "@" in login:
             try:
                 user_obj = User.objects.get(email__iexact=login)
                 attrs[self.username_field] = user_obj.username
             except User.DoesNotExist:
                 raise AuthenticationFailed("No active account found with the given credentials")
+        else:
+            try:
+                user_obj = User.objects.get(username=login)
+            except User.DoesNotExist:
+                user_obj = None
+
+        if user_obj and not user_obj.is_active and not user_obj.email_verified:
+            raise AuthenticationFailed("email_not_verified")
 
         return super().validate(attrs)
