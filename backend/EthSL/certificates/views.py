@@ -5,8 +5,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-import os
-from django.conf import settings
 
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -30,31 +28,16 @@ CERTIFICATE_FONT_BOLD_NAME = "Ebrima-Bold"
 
 
 def register_certificate_fonts():
-    # Try bundled fonts (recommended). Place font files under
-    # backend/EthSL/certificates/fonts/ (e.g. NotoSansEthiopic-Regular.ttf).
-    app_dir = os.path.dirname(__file__)
-    fonts_dir = os.path.join(app_dir, "fonts")
-
-    candidates = [
-        (CERTIFICATE_FONT_NAME, os.path.join(fonts_dir, "NotoSansEthiopic-Regular.ttf")),
-        (CERTIFICATE_FONT_BOLD_NAME, os.path.join(fonts_dir, "NotoSansEthiopic-Bold.ttf")),
-        # Fallback to common Windows Ebrima paths for local dev on Windows
+    for font_name, font_path in (
         (CERTIFICATE_FONT_NAME, r"C:\Windows\Fonts\ebrima.ttf"),
         (CERTIFICATE_FONT_BOLD_NAME, r"C:\Windows\Fonts\ebrimabd.ttf"),
-    ]
-
-    for font_name, font_path in candidates:
+    ):
         if font_name in pdfmetrics.getRegisteredFontNames():
-            continue
-
-        # Skip missing files (e.g. on Linux where Windows fonts path doesn't exist)
-        if not os.path.isfile(font_path):
             continue
 
         try:
             pdfmetrics.registerFont(TTFont(font_name, font_path))
         except Exception:
-            # If registration fails, continue to next candidate
             continue
 
 
@@ -75,9 +58,29 @@ def get_level_display_name(certificate):
     level = getattr(certificate, "level", None)
     if not level:
         return "Level"
-
     try:
-        return level.get_name_display() or "Level"
+        # Keep the Amharic display but show the English tier (Beginner/Intermediate/Advanced)
+        amharic = level.get_name_display() or level.name
+
+        # Determine first/last level by order
+        from courses.models import Level as CourseLevel
+
+        levels = list(CourseLevel.objects.order_by('order'))
+        if not levels:
+            return amharic
+
+        first_id = levels[0].id
+        last_id = levels[-1].id
+
+        if level.id == first_id:
+            eng = "Beginner"
+        elif level.id == last_id:
+            eng = "Advanced"
+        else:
+            eng = "Intermediate"
+
+        # Return only the English tier label (no Amharic) to avoid rendering issues
+        return eng
     except Exception:
         return level.name or "Level"
 
@@ -93,7 +96,7 @@ def draw_certificate_background(canvas, doc):
     canvas.setFillColor(colors.HexColor("#F8FAFC"))
     canvas.rect(0, 0, width, height, stroke=0, fill=1)
 
-    # Outer border
+    # Outer border — use app primary indigo to match frontend aesthetic
     canvas.setStrokeColor(colors.HexColor("#4F46E5"))
     canvas.setLineWidth(3)
     canvas.roundRect(
@@ -106,8 +109,8 @@ def draw_certificate_background(canvas, doc):
         fill=0
     )
 
-    # Inner border
-    canvas.setStrokeColor(colors.HexColor("#7C3AED"))
+    # Inner border — darker indigo to match certificate visuals
+    canvas.setStrokeColor(colors.HexColor("#003380"))
     canvas.setLineWidth(1.2)
     canvas.roundRect(
         20 * mm,
@@ -120,7 +123,7 @@ def draw_certificate_background(canvas, doc):
     )
 
     # Decorative top line
-    canvas.setStrokeColor(colors.HexColor("#A78BFA"))
+    canvas.setStrokeColor(colors.HexColor("#0052CC"))
     canvas.setLineWidth(1.5)
 
     canvas.line(
@@ -142,7 +145,7 @@ def draw_certificate_background(canvas, doc):
     corner_offset = 25 * mm
     corner_size = 8 * mm
 
-    canvas.setStrokeColor(colors.HexColor("#4F46E5"))
+    canvas.setStrokeColor(colors.HexColor("#003380"))
     canvas.setLineWidth(2)
 
     # Top-left
@@ -205,8 +208,8 @@ def draw_certificate_background(canvas, doc):
         corner_offset + corner_size
     )
 
-    # Footer text OUTSIDE border
-    canvas.setFont(certificate_text_font(), 8)
+    # Footer text OUTSIDE border — use Times for consistent rendering
+    canvas.setFont("Times-Roman", 8)
     canvas.setFillColor(colors.HexColor("#64748B"))
 
     canvas.drawCentredString(
@@ -231,7 +234,8 @@ def build_certificate_story(certificate):
     title_style = ParagraphStyle(
         "CertificateTitle",
         parent=style_sheet["Title"],
-        fontName=certificate_text_font(is_bold=True),
+        # Use a built-in PDF font so it renders consistently on any machine
+        fontName="Times-BoldItalic",
         fontSize=28,
         leading=30,
         alignment=TA_CENTER,
@@ -243,32 +247,33 @@ def build_certificate_story(certificate):
     subtitle_style = ParagraphStyle(
         "CertificateSubtitle",
         parent=style_sheet["Heading2"],
-        fontName=certificate_text_font(),
+        fontName="Times-Roman",
         fontSize=15,
         leading=20,
         alignment=TA_CENTER,
-        textColor=colors.HexColor("#4F46E5"),
+        # use app darker indigo for subtitle
+        textColor=colors.HexColor("#003380"),
         spaceBefore=6,
-        spaceAfter=14,
+        spaceAfter=8,
     )
 
     # Slightly smaller name
     name_style = ParagraphStyle(
         "RecipientName",
         parent=style_sheet["Heading1"],
-        fontName=certificate_text_font(is_bold=True),
-        fontSize=17,
-        leading=22,
+        fontName="Times-Bold",
+        fontSize=34,
+        leading=36,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#1E293B"),
-        spaceAfter=10,
-        spaceBefore=6,
+        spaceAfter=6,
+        spaceBefore=2,
     )
 
     body_style = ParagraphStyle(
         "CertificateBody",
         parent=style_sheet["BodyText"],
-        fontName=certificate_text_font(),
+        fontName="Times-Roman",
         fontSize=12,
         leading=18,
         alignment=TA_CENTER,
@@ -279,7 +284,7 @@ def build_certificate_story(certificate):
     detail_style = ParagraphStyle(
         "CertificateDetail",
         parent=style_sheet["BodyText"],
-        fontName=certificate_text_font(is_bold=True),
+        fontName="Times-Bold",
         fontSize=10,
         leading=14,
         alignment=TA_CENTER,
@@ -289,7 +294,7 @@ def build_certificate_story(certificate):
     signature_style = ParagraphStyle(
         "SignatureText",
         parent=style_sheet["BodyText"],
-        fontName=certificate_text_font(),
+        fontName="Times-Roman",
         fontSize=9,
         leading=14,
         alignment=TA_CENTER,
@@ -299,11 +304,11 @@ def build_certificate_story(certificate):
     seal_style = ParagraphStyle(
         "SealText",
         parent=style_sheet["BodyText"],
-        fontName=certificate_text_font(is_bold=True),
+        fontName="Times-Bold",
         fontSize=10,
         leading=15,
         alignment=TA_CENTER,
-        textColor=colors.HexColor("#4F46E5"),
+        textColor=colors.HexColor("#003380"),
     )
 
     issued_date = timezone.localtime(
@@ -331,22 +336,23 @@ def build_certificate_story(certificate):
             subtitle_style
         ),
 
-        Spacer(1, 12),
+        Spacer(1, 2),
 
         Paragraph(
             recipient_name,
             name_style
         ),
 
-        Spacer(1, 8),
+        Spacer(1, 6),
 
+        # Bold and color the level name (e.g. Advanced) so it stands out
         Paragraph(
-            f"has successfully completed the "
-            f"<b>{get_level_display_name(certificate)}</b> level",
+            f"Has successfully completed the "
+            f"<font color='#4F46E5'><b>{get_level_display_name(certificate)}</b></font> level",
             body_style
         ),
 
-        Spacer(1, 8),
+        Spacer(1, 2),
 
         Paragraph(
             "and has demonstrated dedication to learning "
@@ -538,8 +544,8 @@ class MyCertificatesView(APIView):
 
         try:
             certificates = Certificate.objects.filter(
-                learner=request.user
-            ).order_by("-issued_at")
+                    learner=request.user
+                ).order_by("issued_at")
         except Exception as e:
             print(f"Error fetching certificates: {e}")
             return Response([])
