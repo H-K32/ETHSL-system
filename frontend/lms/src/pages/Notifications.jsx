@@ -54,9 +54,7 @@ export default function Notifications() {
 
   const fetchReports = async () => {
     try {
-      // Note: You might need to create an endpoint to fetch reports received by the user
-      // For now, we'll use mock data or a placeholder
-      const response = await api.get('/users/reports-received/').catch(() => ({ data: [] }))
+      const response = await api.get('/community/reports-against-me/')
       setReports(response.data || [])
     } catch (err) {
       console.error('Error fetching reports:', err)
@@ -106,9 +104,6 @@ export default function Notifications() {
           <p className="notifications-subtitle">Stay updated with warnings and reports</p>
         </div>
         <div className="notifications-stats">
-          <span className="stats-badge">
-            {notifications.filter(n => !n.is_read).length} Unread
-          </span>
         </div>
       </div>
 
@@ -173,15 +168,17 @@ export default function Notifications() {
               <p>No one has reported you. Keep being a positive community member!</p>
             </div>
           ) : (
-            reports.map((report) => (
-              <div key={report.id} className="notification-card report">
+            reports.map((report, index) => (
+              <div key={report.id || index} className="notification-card report">
                 <div className="notification-icon">
                   <span>📢</span>
                 </div>
                 <div className="notification-content">
                   <div className="notification-header">
-                    <h3 className="notification-title">Report from {report.reporter?.username || 'User'}</h3>
-                    <span className="notification-date">{formatDate(report.created_at)}</span>
+                    <h3 className="notification-title">Report Filed Against You</h3>
+                    {report.created_at && (
+                      <span className="notification-date">{formatDate(report.created_at)}</span>
+                    )}
                   </div>
                   <p className="notification-message">
                     <strong>Reason:</strong> {report.reason}

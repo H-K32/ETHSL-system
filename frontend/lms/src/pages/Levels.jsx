@@ -107,13 +107,9 @@ export default function Levels() {
             className="group flex items-center space-x-2.5 font-mono text-xs font-black uppercase tracking-wider text-sienna-600 hover:text-sienna-700 transition"
           >
             <ArrowLeft className="w-4 h-4 text-sienna-500 group-hover:-translate-x-1.5 transition-transform" />
-            <span>Writer Dashboard</span>
+            <span>Dashboard</span>
           </Link>
           
-          <div className="flex items-center space-x-2 text-forest-800 font-mono text-[10px] tracking-widest uppercase font-bold">
-            <span className="w-1.5 h-1.5 bg-forest-500 rounded-full animate-ping" />
-            <span>Curriculum Matrix V.3</span>
-          </div>
         </header>
 
         {/* Hero Section styled like an elegant old literary prospectus */}
