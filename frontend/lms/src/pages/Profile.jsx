@@ -67,6 +67,7 @@ export default function Profile() {
   const [countryQuery, setCountryQuery] = useState('')
   const [showCountryList, setShowCountryList] = useState(false)
   const [countryError, setCountryError] = useState('')
+  const [usernameError, setUsernameError] = useState('')
   const [passwordData, setPasswordData] = useState({
     current_password: '',
     new_password: '',
@@ -116,12 +117,14 @@ export default function Profile() {
     })
     setCountryQuery(p.country || '')
     setCountryError('')
+    setUsernameError('')
     setIsEditing(true)
     setMessage({ type: '', text: '' })
   }
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
+    if (e.target.name === 'username') setUsernameError('')
   }
 
   const handlePasswordChange = (e) => {
@@ -179,7 +182,7 @@ export default function Profile() {
     } catch (err) {
       const d = err.response?.data
       if (d?.username) {
-        showMessage('error', 'Username already exists. Please choose a different username.')
+        setUsernameError('Username already exists. Please choose a different username.')
       } else {
         showMessage('error', d?.email?.[0] || d?.detail || 'Failed to update profile')
       }
@@ -378,8 +381,10 @@ export default function Profile() {
                   maxLength={30}
                   pattern="^[a-zA-Z0-9_]+$"
                   title="Letters, numbers and underscores only"
+                  style={usernameError ? { borderColor: '#c62828' } : {}}
                   required
                 />
+                {usernameError && <p className="field-error">{usernameError}</p>}
               </div>
               <div className="form-row">
                 <div className="form-group">
