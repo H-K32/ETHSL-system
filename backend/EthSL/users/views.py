@@ -224,13 +224,12 @@ class AdminProfileView(APIView):
         return Response(serializer.data)
 
     def put(self, request):
+        from .admin_profile_serializer import AdminProfileSerializer
         user = request.user
-        serializer = UserSerializer(user, data=request.data, partial=True)
-
+        serializer = AdminProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-
         return Response(serializer.errors, status=400)
     
 class ChangePasswordView(APIView):
