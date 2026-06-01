@@ -1,8 +1,16 @@
 .certificates-page {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 0 1rem;
+  padding: 3rem 1.5rem 2rem; /* reduce bottom space so cards sit closer to page bottom */
   animation: certificatesFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  
+  background-color: var(--color-bone-100);
+  background-image:
+    linear-gradient(var(--color-bone-200) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-bone-200) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
 }
 
 .certificates-page,
@@ -99,10 +107,18 @@
 
 .certificate-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 300px);
+  
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   justify-content: start;
   gap: 1.25rem;
-  margin-top: 1.5rem;
+  margin-top: 3rem; /* more space between header and cards */
+}
+
+
+@media (min-width: 1024px) {
+  .certificate-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .certificate-card {
@@ -112,6 +128,8 @@
   box-shadow: var(--shadow-premium);
   overflow: hidden;
   transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+  display: flex; /* ensure consistent card height and vertical layout */
+  flex-direction: column;
 }
 
 .certificate-card:hover {
@@ -131,6 +149,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  flex: 1 1 auto; /* allow link area to grow so cards match height */
 }
 
 .certificate-card-link:focus-visible,
@@ -162,6 +181,7 @@
   border-radius: 999px;
   background: var(--color-bone-100);
   color: var(--color-forest-900);
+  white-space: nowrap;
 }
 
 .certificate-card-id {
@@ -231,6 +251,8 @@
   text-transform: uppercase;
   cursor: pointer;
   transition: all var(--transition-smooth);
+  margin-top: auto; /* push download button to bottom of the card */
+  align-self: stretch;
 }
 
 .certificate-card-download:hover:not(:disabled) {
