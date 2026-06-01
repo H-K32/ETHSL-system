@@ -109,171 +109,155 @@ export default function Dashboard() {
 
  
 return (
-    <div className="max-w-5xl mx-auto dashboard-container">
+    <div className="min-h-screen dashboard-parchment p-4 sm:p-6 md:p-12 relative overflow-hidden">
+      {/* Atmospheric background spots matching Levels.jsx */}
+      <div className="absolute top-[-5%] left-[-10%] w-[50vw] h-[50vw] rounded-full pointer-events-none filter blur-[120px]" style={{ background: 'rgba(10,74,138,0.06)' }} />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[45vw] h-[45vw] rounded-full pointer-events-none filter blur-[100px]" style={{ background: 'rgba(30,108,181,0.05)' }} />
 
-      {/* HEADER */}
-      <header className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-bone-300 pb-5 mb-8 gap-4">
+      <div className="max-w-5xl mx-auto z-10 relative">
 
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-sienna-50 text-sienna-600 rounded-xl flex items-center justify-center border border-sienna-200">
-            <FeatherIcon className="w-5 h-5 text-sienna-500 transform -rotate-12" />
-          </div>
-
-          <div>
-            <span className="font-serif font-black text-2xl text-forest-900 block">
-              Sienna & Spruce
-            </span>
-            <span className="font-mono text-[9px] uppercase text-forest-600 font-extrabold">
-              Scribe Scriptorium
-            </span>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
-
-          <Link to="/curriculum" className="flex items-center gap-2 font-black uppercase text-sienna-600">
-            <SyllabusIcon className="w-4 h-4" />
-            Curriculum Flow
-          </Link>
-
-          <span className="text-xs font-bold text-forest-900 bg-white/80 py-1.5 px-3 rounded-lg border">
-            Writer: <strong className="text-sienna-600">{user?.username || 'Guest'}</strong>
-          </span>
-
-          <button
-            onClick={() => {
-              logout()
-              navigate('/register', { replace: true })
-            }}
-            className="flex items-center gap-2 font-black uppercase text-rose-700"
-          >
-            <LogoutIcon className="w-4 h-4" />
-            Logout
-          </button>
-
-        </div>
-      </header>
-
-      {/* WELCOME */}
-      <div className="mb-10 text-center md:text-left bg-[#faf8f4] border rounded-2xl p-8">
-
-        <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-[#cb53331a] text-[#b54323] border">
-          <SparklesIcon className="w-3 h-3" />
-          Progress Tracker
-        </div>
-
-        <h1 className="text-4xl font-serif font-black mb-3 text-[#0f2a16]">
-          Welcome back, <span style={{ color: '#b54323' }}>
-            {user?.username || 'Student'}
-          </span>!
-        </h1>
-
-        <p className="text-sm text-[#3a5a3e] max-w-2xl">
-          Continue your learning journey. Keep improving step by step.
-        </p>
-
-      </div>
-
-      {/* STATS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-
-        {(stats || []).map((stat, i) => (
-          <div key={i} className="bg-white border rounded-2xl p-5">
-            <div className="flex justify-between mb-3">
-              <span className="text-2xl">{stat.icon}</span>
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: stat.color }} />
+        {/* HEADER */}
+        <header className="flex items-center justify-between border-b pb-5 mb-8" style={{ borderColor: 'var(--mist-2)' }}>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
+              <FeatherIcon className="w-5 h-5 transform -rotate-12" style={{ color: 'var(--deep-blue)' }} />
             </div>
-
-            <p className="text-2xl font-bold">{stat.value ?? 0}</p>
-            <p className="text-xs uppercase font-bold text-gray-600">
-              {stat.label}
-            </p>
           </div>
-        ))}
 
-      </div>
-
-      {/* MAIN GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-
-        {/* Recent Activity */}
-        <div className="bg-white border rounded-2xl p-6">
-
-          <div className="flex justify-between border-b pb-4 mb-5">
-            <h3 className="font-serif font-bold">Recent Activities</h3>
-            <Link to="/levels" className="text-xs font-bold text-sienna-600">
-              View All →
+          <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+            <Link to="/curriculum" className="flex items-center gap-2 font-black uppercase" style={{ color: 'var(--deep-blue)' }}>
+              <SyllabusIcon className="w-4 h-4" />
+              Curriculum Flow
             </Link>
+            <span className="text-xs font-bold py-1.5 px-3 rounded-lg border" style={{ color: 'var(--navy-deep)', background: 'white', borderColor: 'var(--mist-2)' }}>
+              Learner: <strong style={{ color: 'var(--deep-blue)' }}>{user?.username || 'Guest'}</strong>
+            </span>
+            <button
+              onClick={() => { logout(); navigate('/register', { replace: true }) }}
+              className="flex items-center gap-2 font-black uppercase text-rose-700"
+            >
+              <LogoutIcon className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
+        </header>
+
+        {/* WELCOME */}
+        <div className="mb-10 text-center md:text-left">
+          <div className="inline-flex items-center gap-1.5 rounded-full font-mono text-[10px] tracking-widest uppercase font-black px-4 py-1.5 mb-4 border shadow-sm" style={{ background: 'var(--mist)', color: 'var(--deep-blue)', borderColor: 'var(--mist-2)' }}>
+            <SparklesIcon className="w-3.5 h-3.5" />
+            <span>Progress Tracker</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight leading-none mb-4" style={{ color: 'var(--navy-deep)' }}>
+            Welcome back, <span style={{ color: 'var(--deep-blue)' }}>
+              {(user?.first_name && user?.last_name)
+                ? `${user.first_name} ${user.last_name}`
+                : user?.first_name || user?.username || 'Student'}
+            </span>!
+          </h1>
+          <p className="text-sm font-sans max-w-2xl" style={{ color: 'var(--ink)', opacity: 0.75 }}>
+            Continue your learning journey. Keep improving step by step.
+          </p>
+        </div>
+
+        {/* STATS */}
+        <div className="rounded-2xl border p-6 mb-10 shadow-sm relative overflow-hidden" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full filter blur-xl pointer-events-none" style={{ background: 'rgba(10,74,138,0.04)' }} />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {(stats || []).map((stat, i) => (
+              <div key={i} className="rounded-xl border p-4" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
+                <div className="flex justify-between mb-3">
+                  <span className="text-2xl">{stat.icon}</span>
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: stat.color }} />
+                </div>
+                <p className="text-2xl font-serif font-black" style={{ color: 'var(--navy-deep)' }}>{stat.value ?? 0}</p>
+                <p className="text-[10px] font-mono uppercase font-extrabold tracking-wide mt-1" style={{ color: 'var(--deep-blue)' }}>{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+
+          {/* Recent Activity */}
+          <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
+            <div className="flex justify-between border-b pb-4 mb-5" style={{ borderColor: 'var(--mist-2)' }}>
+              <h3 className="font-serif font-black" style={{ color: 'var(--navy-deep)' }}>Recent Activities</h3>
+              <Link to="/levels" className="text-[10px] font-mono font-black uppercase tracking-wider" style={{ color: 'var(--deep-blue)' }}>
+                View All →
+              </Link>
+            </div>
+            {recentActivities.length === 0 ? (
+              <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>No recent activity yet. Start learning!</p>
+            ) : recentActivities.map((a, i) => (
+              <div key={i} className="flex gap-3 p-3 rounded-xl mb-3 border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
+                <div className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ background: 'var(--aqua-bright)' }} />
+                <div>
+                  <p className="text-xs font-bold" style={{ color: 'var(--navy-deep)' }}>{a.title}</p>
+                  <p className="text-[10px] font-mono" style={{ color: 'var(--ink)', opacity: 0.6 }}>{a.date}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {recentActivities.length === 0 ? (
-            <p className="text-xs text-gray-400 italic">No recent activity yet. Start learning!</p>
-          ) : recentActivities.map((a, i) => (
-            <div key={i} className="flex gap-3 p-3 bg-gray-50 rounded-xl mb-3">
-              <div className="w-2 h-2 bg-sienna-500 rounded-full mt-2" />
-              <div>
-                <p className="text-xs font-bold">{a.title}</p>
-                <p className="text-[10px] text-gray-500">{a.date}</p>
-              </div>
+          {/* Recommended */}
+          <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
+            <div className="flex justify-between border-b pb-4 mb-5" style={{ borderColor: 'var(--mist-2)' }}>
+              <h3 className="font-serif font-black" style={{ color: 'var(--navy-deep)' }}>Recommended</h3>
+              <Link to="/levels" className="text-[10px] font-mono font-black uppercase tracking-wider" style={{ color: 'var(--deep-blue)' }}>
+                View All →
+              </Link>
             </div>
-          ))}
+            {recommendedLevels.length === 0 ? (
+              <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>Complete lessons to get recommendations.</p>
+            ) : recommendedLevels.map((l, i) => (
+              <div key={i} className="p-4 rounded-xl mb-4 border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
+                <div className="flex justify-between mb-1">
+                  <p className="font-serif font-bold text-sm" style={{ color: 'var(--navy-deep)' }}>{l.name}</p>
+                  <span className="text-[10px] font-mono font-black" style={{ color: 'var(--deep-blue)' }}>{l.progress}%</span>
+                </div>
+                <p className="text-xs font-sans mb-3" style={{ color: 'var(--ink)', opacity: 0.7 }}>{l.description}</p>
+                <div className="h-2 rounded-full" style={{ background: 'var(--mist-2)' }}>
+                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${l.progress}%`, background: 'var(--aqua-bright)' }} />
+                </div>
+              </div>
+            ))}
+          </div>
 
         </div>
 
-        {/* Recommended */}
-        <div className="bg-white border rounded-2xl p-6">
-
-          <div className="flex justify-between border-b pb-4 mb-5">
-            <h3 className="font-serif font-bold">Recommended</h3>
-            <Link to="/levels" className="text-xs font-bold text-sienna-600">
-              View All →
+        {/* QUICK ACTIONS */}
+        <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
+          <h3 className="font-serif font-black mb-5 flex items-center gap-2" style={{ color: 'var(--navy-deep)' }}>
+            <RefreshIcon className="w-4 h-4" style={{ color: 'var(--aqua-bright)' }} />
+            Quick Actions
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Link
+              to="/levels"
+              className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors"
+              style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}
+            >
+              📖 Continue Learning
             </Link>
+            <Link
+              to="/levels"
+              className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors"
+              style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}
+            >
+              📊 View Progress
+            </Link>
+            <button
+              onClick={handleRetake}
+              className="rounded-xl p-4 font-mono font-black text-xs uppercase tracking-wider border transition-colors"
+              style={{ background: 'var(--mist-2)', borderColor: 'var(--aqua-bright)', color: 'var(--deep-blue)' }}
+            >
+              🔄 Retake Level
+            </button>
           </div>
-
-          {recommendedLevels.length === 0 ? (
-            <p className="text-xs text-gray-400 italic">Complete lessons to get recommendations.</p>
-          ) : recommendedLevels.map((l, i) => (
-            <div key={i} className="p-4 bg-gray-50 rounded-xl mb-4">
-              <div className="flex justify-between mb-1">
-                <p className="font-bold text-sm">{l.name}</p>
-                <span className="text-xs text-sienna-600">{l.progress}%</span>
-              </div>
-              <p className="text-xs mb-3">{l.description}</p>
-              <div className="h-2 bg-gray-200 rounded-full">
-                <div className="h-2 bg-black rounded-full" style={{ width: `${l.progress}%` }} />
-              </div>
-            </div>
-          ))}
-
         </div>
 
       </div>
-
-      {/* QUICK ACTIONS */}
-      <div className="bg-gray-50 border rounded-2xl p-6">
-
-        <h3 className="font-serif font-bold mb-4">Quick Actions</h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-          <Link to="/levels" className="bg-white border rounded-xl p-4 text-center font-bold">
-            📖 Continue Learning
-          </Link>
-
-          <Link to="/levels" className="bg-white border rounded-xl p-4 text-center font-bold">
-            📊 View Progress
-          </Link>
-
-          <button
-            onClick={handleRetake}
-            className="bg-sienna-100 border border-sienna-200 rounded-xl p-4 font-bold"
-          >
-            🔄 Retake Level
-          </button>
-
-        </div>
-
-      </div>
-
     </div>
 )}

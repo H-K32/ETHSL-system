@@ -71,24 +71,24 @@ export default function Levels() {
   const premiumMetaMap = {
     "lvl-1": {
       roman: "I",
-      difficulty: "መሰረታዊ ጸሐፊ",
-      time: "የ4 ሰዓታት ጥናት",
-      focus: "አገባብ እና ትህትና",
-      quote: "ዘይቤ የሰው ልጅ መንፈስ ፊርማ ነው።"
+      difficulty: "Foundational Scribe",
+      time: "4 Hours of Study",
+      focus: "Grammar & Etiquette",
+      quote: "Style is the signature of the human spirit."
     },
     "lvl-2": {
       roman: "II",
-      difficulty: "የላቀ ተናጋሪ",
-      time: "የ6 ሰዓታት ጥናት",
-      focus: "ግልጽነት እና የስሜት ሁኔታዎች",
-      quote: "ብዕር የግዛቶች ገዥ ነው።"
+      difficulty: "Advanced Speaker",
+      time: "6 Hours of Study",
+      focus: "Clarity & Emotional States",
+      quote: "The pen is the ruler of kingdoms."
     },
     "lvl-3": {
       roman: "III",
-      difficulty: "ዋና አርታዒ",
-      time: "የ10 ሰዓታት ዝግጅት",
-      focus: "ክላሲካል ስብስብ",
-      quote: "ያለ ፍርሃት ጻፍ፣ ያለ ምህረት አርም::"
+      difficulty: "Master Editor",
+      time: "10 Hours of Preparation",
+      focus: "Classical Collection",
+      quote: "Write without fear, edit without mercy."
     }
   }
 
@@ -107,12 +107,12 @@ export default function Levels() {
             className="group flex items-center space-x-2.5 font-mono text-xs font-black uppercase tracking-wider text-sienna-600 hover:text-sienna-700 transition"
           >
             <ArrowLeft className="w-4 h-4 text-sienna-500 group-hover:-translate-x-1.5 transition-transform" />
-            <span>የጸሐፊ ዳሽቦርድ</span>
+            <span>Writer Dashboard</span>
           </Link>
           
           <div className="flex items-center space-x-2 text-forest-800 font-mono text-[10px] tracking-widest uppercase font-bold">
             <span className="w-1.5 h-1.5 bg-forest-500 rounded-full animate-ping" />
-            <span>የስርዓተ-ትምህርት ማትሪክስ V.3</span>
+            <span>Curriculum Matrix V.3</span>
           </div>
         </header>
 
@@ -120,10 +120,10 @@ export default function Levels() {
         <div className="mb-10 text-center md:text-left">
           <div className="inline-flex items-center gap-1.5 bg-sienna-100 text-sienna-800 rounded-full font-mono text-[10px] tracking-widest uppercase font-black px-4 py-1.5 mb-4 border border-sienna-200/50 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-sienna-600" />
-            <span>የተዋቀረ መንገድ</span>
+            <span>Structured Pathway</span>
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black text-forest-900 tracking-tight leading-none mb-4">
-            የቅልጥፍና ደረጃዎች
+            Proficiency Levels
           </h1>
         </div>
 
@@ -136,15 +136,15 @@ export default function Levels() {
               <Compass className="w-6 h-6 text-sienna-400" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-bold text-forest-900">አካዳሚያዊ እድገት</h3>
-              <p className="text-xs font-sans text-forest-600 font-medium">የተከፈቱት ደረጃዎች ንቁ የሆኑ የትምህርት አቅሞችን ይወስናሉ።</p>
+              <h3 className="font-serif text-lg font-bold text-forest-900">Academic Progress</h3>
+              <p className="text-xs font-sans text-forest-600 font-medium">Unlocked levels determine active learning capacities.</p>
             </div>
           </div>
           
           <div className="w-full md:w-80">
             <div className="flex justify-between items-center mb-1.5 text-xs font-mono font-black text-forest-850 tracking-wide">
-              <span>የመንገድ መለኪያዎች</span>
-              <span>{unlockedCount} / {totalCount} ንቁ ደረጃዎች</span>
+              <span>Pathway Metrics</span>
+              <span>{unlockedCount} / {totalCount} Active Levels</span>
             </div>
             <div className="h-2 bg-bone-200 rounded-full overflow-hidden border border-bone-300">
               <div 
@@ -159,17 +159,17 @@ export default function Levels() {
         <div className="flex items-center justify-between mb-4 mt-2">
           <h2 className="font-serif text-2xl font-black text-forest-900 tracking-tight flex items-center gap-2">
             <Award className="w-5 h-5 text-sienna-500" />
-            <span>የስርዓተ-ትምህርት ፍሰት</span>
+            <span>Curriculum Flow</span>
           </h2>
           <span className="font-mono text-[10px] text-rose-700 font-extrabold tracking-widest uppercase">
-            የካርታ ትስስር መስመሮች በርተዋል
+            Map Connection Lines Active
           </span>
         </div>
 
         {/* Levels Grid with premium visual updates */}
         {levels.length === 0 ? (
           <div className="mt-8">
-            <EmptyState title="ዝርዝሮች አልተገኙም" hint="ለመጀመር በቅርቡ ይመለሱ።" />
+            <EmptyState title="No levels found" hint="Check back soon to get started." />
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 levels-grid">
@@ -177,10 +177,10 @@ export default function Levels() {
               const locked = !Boolean(l.unlocked)
               const customMeta = premiumMetaMap[l.id] || {
                 roman: String(index + 1),
-                difficulty: "ጥንታዊ ተማሪ",
-                time: "ተለዋዋጭ የጥናት ጊዜ",
-                focus: "የአርትዖት ስብስብ",
-                quote: "መጻፍ ማለት ማሰብን የሚታይ ማድረግ ነው።"
+                difficulty: "Classic Learner",
+                time: "Variable Study Time",
+                focus: "Editorial Collection",
+                quote: "Writing is thinking made visible."
               }
 
               const Card = (
@@ -207,15 +207,15 @@ export default function Levels() {
                         }`}
                       >
                         <BookOpen className="w-3 h-3 text-sienna-500" />
-                        <span>ምዕራፍ {l.order ?? index + 1}</span>
+                        <span>Chapter {l.order ?? index + 1}</span>
                       </span>
                       {locked ? (
                         <span className="text-[10px] font-mono font-black uppercase tracking-wider text-bone-400 bg-bone-200 px-2 py-0.5 rounded flex items-center gap-1 border border-bone-300">
-                          <Lock className="w-2.5 h-2.5 text-bone-450" /> የተቆለፈ
+                          <Lock className="w-2.5 h-2.5 text-bone-450" /> Locked
                         </span>
                       ) : (
                         <span className="text-[10px] font-mono font-black uppercase tracking-wider text-forest-800 bg-forest-100 px-2 py-0.5 rounded border border-forest-200">
-                          ንቁ
+                          Active
                         </span>
                       )}
                     </div>
@@ -250,10 +250,10 @@ export default function Levels() {
                   <div className="mt-6 pt-4 border-t border-dashed border-bone-300 flex items-center justify-between z-10 relative">
                     <div className="flex flex-col">
                       <span className="text-[9px] font-mono font-black uppercase text-bone-400 leading-none">
-                        የደረጃዎች ኮምፓስ
+                        Level Compass
                       </span>
                       <span className="text-xs font-mono font-bold uppercase tracking-wider text-forest-800 mt-0.5">
-                        {locked ? 'የተቆለፈ ትምህርት' : 'ጉዞውን ጀምር'}
+                        {locked ? 'Locked Content' : 'Begin Journey'}
                       </span>
                     </div>
                     <span className="w-9 h-9 rounded-full bg-bone-200 flex items-center justify-center transition-colors duration-200 level-arrow-circle border border-bone-300">
@@ -269,7 +269,7 @@ export default function Levels() {
                   <div className="absolute inset-0 bg-bone-900/5 backdrop-blur-[0.5px] rounded-3xl z-20 pointer-events-none transition-all duration-300 group-hover:bg-bone-900/10" />
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 bg-forest-950 text-bone-100 px-4 py-2 rounded-xl border border-sienna-600 shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 flex items-center gap-2 pointer-events-none whitespace-nowrap">
                     <Lock className="w-3.5 h-3.5 text-sienna-450 animate-bounce" />
-                    <span className="font-mono text-[10px] font-extrabold uppercase">የቀደመውን ክፍል ሲያጠናቅቁ ይከፈታል</span>
+                    <span className="font-mono text-[10px] font-extrabold uppercase">Unlocks when you complete the previous section</span>
                   </div>
                   {Card}
                 </div>
