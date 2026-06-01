@@ -5,6 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+import os
+from django.conf import settings
 
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -28,16 +30,31 @@ CERTIFICATE_FONT_BOLD_NAME = "Ebrima-Bold"
 
 
 def register_certificate_fonts():
-    for font_name, font_path in (
+    # Try bundled fonts (recommended). Place font files under
+    # backend/EthSL/certificates/fonts/ (e.g. NotoSansEthiopic-Regular.ttf).
+    app_dir = os.path.dirname(__file__)
+    fonts_dir = os.path.join(app_dir, "fonts")
+
+    candidates = [
+        (CERTIFICATE_FONT_NAME, os.path.join(fonts_dir, "NotoSansEthiopic-Regular.ttf")),
+        (CERTIFICATE_FONT_BOLD_NAME, os.path.join(fonts_dir, "NotoSansEthiopic-Bold.ttf")),
+        # Fallback to common Windows Ebrima paths for local dev on Windows
         (CERTIFICATE_FONT_NAME, r"C:\Windows\Fonts\ebrima.ttf"),
         (CERTIFICATE_FONT_BOLD_NAME, r"C:\Windows\Fonts\ebrimabd.ttf"),
-    ):
+    ]
+
+    for font_name, font_path in candidates:
         if font_name in pdfmetrics.getRegisteredFontNames():
+            continue
+
+        # Skip missing files (e.g. on Linux where Windows fonts path doesn't exist)
+        if not os.path.isfile(font_path):
             continue
 
         try:
             pdfmetrics.registerFont(TTFont(font_name, font_path))
         except Exception:
+            # If registration fails, continue to next candidate
             continue
 
 
