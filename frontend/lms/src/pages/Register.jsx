@@ -84,6 +84,7 @@ export default function Register() {
       const data = e?.response?.data
 
       setErr(
+        data?.username?.[0] ? 'Use a different username' : null ||
         data?.email?.[0] ||
         data?.password?.[0] ||
         data?.detail ||
