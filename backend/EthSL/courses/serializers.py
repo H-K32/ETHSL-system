@@ -179,6 +179,7 @@ class QuizSerializer(serializers.ModelSerializer):
         model = Quiz
         fields = [
             "id",
+            "quiz_type",
             "lesson",
             "course",
             "level",

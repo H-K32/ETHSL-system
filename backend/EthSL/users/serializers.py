@@ -214,7 +214,10 @@ class EmailOrUsernameTokenSerializer(TokenObtainPairSerializer):
             except User.DoesNotExist:
                 user_obj = None
 
-        if user_obj and not user_obj.is_active and not user_obj.email_verified:
-            raise AuthenticationFailed("email_not_verified")
+        if user_obj and not user_obj.is_active:
+            raise AuthenticationFailed("account_inactive")
 
-        return super().validate(attrs)
+        try:
+            return super().validate(attrs)
+        except AuthenticationFailed:
+            raise AuthenticationFailed("invalid_credentials")

@@ -28,10 +28,10 @@ export default function Login() {
       }
     } catch (e) {
       const detail = e?.response?.data?.detail || ''
-      if (detail === 'email_not_verified' || detail.toLowerCase().includes('no active account')) {
-        setErr('Account not verified. Please check your email and click the verification link.')
+      if (detail === 'account_inactive') {
+        setErr('inactive')
       } else {
-        setErr(detail || 'Invalid credentials')
+        setErr('Invalid username/email or password.')
       }
     } finally { setLoading(false) }
   }
@@ -82,7 +82,14 @@ export default function Login() {
             
           </div>
 
-          {err && <p className="lp-error">{err}</p>}
+          {err === 'inactive' ? (
+            <p className="lp-error">
+              No active account was found. If you have already registered, please{' '}
+              <a href="/#contact" className="lp-link">Contact Us</a>{' '}for assistance.
+            </p>
+          ) : err ? (
+            <p className="lp-error">{err}</p>
+          ) : null}
 
           <button disabled={loading} className="lp-btn">
             <span>{loading ? 'Signing in…' : 'Sign in'}</span>

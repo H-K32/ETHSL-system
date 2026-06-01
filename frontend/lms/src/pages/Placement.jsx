@@ -9,7 +9,7 @@ export default function Placement() {
   const { state } = useLocation()
   const desiredLevel = state?.level || 'intermediate' // Get level from previous page or default
   
-  const { data: quiz, loading, error, reload } = useAsync(() => getPlacementQuiz(), [])
+  const { data: quiz, loading, error, reload } = useAsync(() => getPlacementQuiz(desiredLevel), [desiredLevel])
   const [answers, setAnswers] = useState({})
   const [result, setResult] = useState(null)
   const [submitting, setSubmitting] = useState(false)
