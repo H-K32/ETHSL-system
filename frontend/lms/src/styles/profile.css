@@ -534,6 +534,118 @@
   box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
 }
 
+/* ---------- Profile Details Grid (About section) ---------- */
+.profile-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.profile-detail-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(0, 102, 255, 0.1);
+  transition: all 0.25s ease;
+}
+
+.profile-detail-card:hover {
+  border-color: rgba(0, 102, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 51, 128, 0.07);
+}
+
+.profile-detail-card--full {
+  grid-column: 1 / -1;
+}
+
+.profile-detail-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a9bc2;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.profile-detail-value {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #003380;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ---------- Country Dropdown ---------- */
+.country-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1.5px solid rgba(0, 102, 255, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 51, 128, 0.12);
+  z-index: 200;
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.country-option {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.92rem;
+  color: #003380;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.country-option:hover {
+  background: rgba(0, 102, 255, 0.07);
+}
+
+/* ---------- Field Error ---------- */
+.field-error {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: #c62828;
+  font-weight: 500;
+}
+
+/* ---------- Textarea in modal form ---------- */
+.modal-content form textarea {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  border: 1.5px solid rgba(0, 102, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  background: #fefefe;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.modal-content form textarea:focus {
+  outline: none;
+  border-color: #0066ff;
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+}
+
+/* ---------- Responsive for details grid ---------- */
+@media (max-width: 640px) {
+  .profile-details-grid {
+    grid-template-columns: 1fr;
+  }
+  .profile-detail-card--full {
+    grid-column: 1;
+  }
+}
+
 /* ---------- Loading State ---------- */
 .profile-loading {
   min-height: 70vh;

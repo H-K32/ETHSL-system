@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import api from '../api/client.js'
 import '../styles/community.css'
@@ -15,6 +15,14 @@ export default function Community() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // toast notifications
+  const [toasts, setToasts] = useState([])
+  const notify = useCallback((text, type = 'error') => {
+    const id = Date.now()
+    setToasts(t => [...t, { id, text, type }])
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 4000)
+  }, [])
+
   // create post
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newPost, setNewPost] = useState({ title: '', content: '' })
@@ -29,6 +37,9 @@ export default function Community() {
   // edit post
   const [editingPost, setEditingPost] = useState(null)
   const [editForm, setEditForm] = useState({ title: '', content: '' })
+
+  // delete confirmation modal
+  const [deleteTarget, setDeleteTarget] = useState(null)
 
   // report
   const [showReportModal, setShowReportModal] = useState(false)
@@ -80,8 +91,9 @@ export default function Community() {
       setPosts([res.data, ...posts])
       setNewPost({ title: '', content: '' })
       setShowCreateModal(false)
+      notify('Discussion posted successfully!', 'success')
     } catch {
-      alert('Failed to create post')
+      notify('Failed to create post')
     } finally {
       setSubmitting(false)
     }
@@ -90,24 +102,44 @@ export default function Community() {
   const handleEditPost = async (e) => {
     e.preventDefault()
     if (!editForm.title.trim() || !editForm.content.trim()) return
+    if (!canEdit(editingPost.created_at)) {
+      notify('Posts older than 2 days cannot be edited or deleted.')
+      setEditingPost(null)
+      return
+    }
     try {
       const res = await api.patch(`/community/posts/${editingPost.id}/`, editForm)
       setPosts(posts.map(p => p.id === editingPost.id ? res.data : p))
       if (selectedPost?.id === editingPost.id) setSelectedPost(res.data)
       setEditingPost(null)
+      notify('Discussion updated successfully!', 'success')
     } catch (err) {
-      alert(err?.response?.data?.detail || 'Failed to edit post')
+      notify(err?.response?.data?.detail || 'Failed to edit post')
     }
   }
 
-  const handleDeletePost = async (post) => {
-    if (!window.confirm('Delete this post?')) return
+  // Opens the delete confirmation modal
+  const requestDeletePost = (post, e) => {
+    e.stopPropagation()
+    if (!canEdit(post.created_at)) {
+      notify('Posts older than 2 days cannot be edited or deleted.')
+      return
+    }
+    setDeleteTarget(post)
+  }
+
+  // Confirmed delete
+  const confirmDeletePost = async () => {
+    if (!deleteTarget) return
     try {
-      await api.delete(`/community/posts/${post.id}/`)
-      setPosts(posts.filter(p => p.id !== post.id))
-      if (selectedPost?.id === post.id) setSelectedPost(null)
+      await api.delete(`/community/posts/${deleteTarget.id}/`)
+      setPosts(posts.filter(p => p.id !== deleteTarget.id))
+      if (selectedPost?.id === deleteTarget.id) setSelectedPost(null)
+      notify('Discussion deleted.', 'success')
     } catch (err) {
-      alert(err?.response?.data?.detail || 'Failed to delete post')
+      notify(err?.response?.data?.detail || 'Failed to delete post')
+    } finally {
+      setDeleteTarget(null)
     }
   }
 
@@ -123,7 +155,7 @@ export default function Community() {
       setNewComment('')
       setPosts(posts.map(p => p.id === postId ? { ...p, replies: (p.replies || 0) + 1 } : p))
     } catch {
-      alert('Failed to add comment')
+      notify('Failed to add comment')
     }
   }
 
@@ -139,7 +171,7 @@ export default function Community() {
       setShowReportSuccess(true)
     } catch (err) {
       const msg = err.response?.data ? Object.values(err.response.data).flat().join(', ') : 'Failed to report user.'
-      alert(msg)
+      notify(msg)
     } finally {
       setReportSubmitting(false)
     }
@@ -181,6 +213,16 @@ export default function Community() {
 
   return (
     <div className="community-container">
+
+      {/* Toast Notifications */}
+      <div className="community-toasts">
+        {toasts.map(t => (
+          <div key={t.id} className={`community-toast community-toast--${t.type}`}>
+            {t.type === 'success' ? '✓' : '✕'} {t.text}
+          </div>
+        ))}
+      </div>
+
       {/* Header */}
       <div className="community-header">
         <div>
@@ -225,16 +267,22 @@ export default function Community() {
                       <>
                         <button
                           className="report-btn"
-                          disabled={!editable}
-                          title={!editable ? 'Posts can only be edited within 48 hours of creation.' : ''}
-                          onClick={() => { setEditingPost(post); setEditForm({ title: post.title || '', content: post.content }) }}
+                          title={!editable ? 'Posts older than 2 days cannot be edited or deleted.' : 'Edit'}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (!editable) {
+                              notify('Posts older than 2 days cannot be edited or deleted.')
+                              return
+                            }
+                            setEditingPost(post)
+                            setEditForm({ title: post.title || '', content: post.content })
+                          }}
                         >Edit</button>
                         <button
                           className="report-btn"
-                          disabled={!editable}
-                          title={!editable ? 'Posts can only be deleted within 48 hours of creation.' : ''}
+                          title={!editable ? 'Posts older than 2 days cannot be edited or deleted.' : 'Delete'}
                           style={{ color: editable ? 'var(--color-sienna-600)' : undefined }}
-                          onClick={() => handleDeletePost(post)}
+                          onClick={(e) => requestDeletePost(post, e)}
                         >Delete</button>
                       </>
                     )}
@@ -253,6 +301,21 @@ export default function Community() {
           })
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className="modal-overlay" onClick={() => setDeleteTarget(null)}>
+          <div className="modal-content delete-confirm-modal" onClick={e => e.stopPropagation()}>
+            <div className="delete-confirm-icon">🗑️</div>
+            <h2 className="delete-confirm-title">Delete Discussion</h2>
+            <p className="delete-confirm-message">Are you sure you want to delete this discussion? This action cannot be undone.</p>
+            <div className="delete-confirm-actions">
+              <button className="cancel-btn" onClick={() => setDeleteTarget(null)}>Cancel</button>
+              <button className="submit-btn delete-btn" onClick={confirmDeletePost}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Post Modal */}
       {showCreateModal && (

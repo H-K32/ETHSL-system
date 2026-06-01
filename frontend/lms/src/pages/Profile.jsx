@@ -30,11 +30,12 @@ export default function Profile() {
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [formData, setFormData] = useState({
+    username: '',
     first_name: '',
     last_name: '',
     bio: '',
     country: '',
-    learning_goal: ''
+    learning_goal: '',
   })
   // Email change state
   const [newEmail, setNewEmail] = useState('')
@@ -75,11 +76,12 @@ export default function Profile() {
 
   const handleEditClick = () => {
     setFormData({
+      username: p.username || '',
       first_name: p.first_name || '',
       last_name: p.last_name || '',
       bio: p.bio || '',
       country: p.country || '',
-      learning_goal: p.learning_goal || ''
+      learning_goal: p.learning_goal || '',
     })
     setNewEmail('')
     setEmailChangeMsg({ type: '', text: '' })
@@ -104,13 +106,12 @@ export default function Profile() {
       await api.patch('/users/profile/', {
         full_name: fullName,
         bio: formData.bio,
-        country: formData.country,
-        learning_goal: formData.learning_goal
+        country: matchedCountry,
+        learning_goal: formData.learning_goal,
       })
-      setMessage({ type: 'success', text: 'Profile updated successfully!' })
+      showMessage('success', 'Profile updated successfully!')
       setIsEditing(false)
       reload()
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
       const d = err.response?.data
       setMessage({ type: 'error', text: d?.detail || d?.country?.[0] || 'Failed to update profile' })
@@ -176,7 +177,6 @@ export default function Profile() {
       setMessage({ type: 'success', text: res.data?.detail || 'Password updated successfully!' })
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' })
       setIsChangingPassword(false)
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
       const d = err.response?.data
       setMessage({ type: 'error', text: d?.detail || 'Failed to change password.' })
@@ -208,11 +208,10 @@ export default function Profile() {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       setAvatarPreview(URL.createObjectURL(file))
-      setMessage({ type: 'success', text: 'Avatar updated successfully!' })
+      showMessage('success', 'Avatar updated successfully!')
       reload()
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.detail || 'Failed to upload avatar' })
+      showMessage('error', err.response?.data?.detail || 'Failed to upload avatar')
     } finally {
       setIsUploading(false)
     }
@@ -318,26 +317,32 @@ export default function Profile() {
               <button className="modal-close" onClick={() => setIsEditing(false)}>×</button>
             </div>
             <form onSubmit={handleUpdateProfile}>
+              {/* Username */}
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="Username"
+                  minLength={3}
+                  maxLength={30}
+                  pattern="^[a-zA-Z0-9_]+$"
+                  title="Letters, numbers and underscores only"
+                  style={usernameError ? { borderColor: '#c62828' } : {}}
+                  required
+                />
+                {usernameError && <p className="field-error">{usernameError}</p>}
+              </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>First Name</label>
-                  <input
-                    type="text"
-                    name="first_name"
-                    value={formData.first_name}
-                    onChange={handleInputChange}
-                    placeholder="First name"
-                  />
+                  <input type="text" name="first_name" value={formData.first_name} onChange={handleInputChange} placeholder="First name" />
                 </div>
                 <div className="form-group">
                   <label>Last Name</label>
-                  <input
-                    type="text"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleInputChange}
-                    placeholder="Last name"
-                  />
+                  <input type="text" name="last_name" value={formData.last_name} onChange={handleInputChange} placeholder="Last name" />
                 </div>
               </div>
               <div className="info-note">
@@ -345,11 +350,35 @@ export default function Profile() {
               </div>
               <div className="form-group">
                 <label>Bio</label>
-                <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows={3} placeholder="Tell us about yourself" />
+                <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows={3} placeholder="Tell us about yourself" style={{ width: '100%', padding: '0.9rem 1.2rem', fontSize: '1rem', border: '1.5px solid rgba(0,102,255,0.2)', borderRadius: '16px', resize: 'vertical', fontFamily: 'Inter, sans-serif' }} />
               </div>
-              <div className="form-group">
+              {/* Country — searchable dropdown */}
+              <div className="form-group" style={{ position: 'relative' }}>
                 <label>Country</label>
-                <input type="text" name="country" value={formData.country} onChange={handleInputChange} placeholder="e.g. Ethiopia" />
+                <input
+                  type="text"
+                  value={countryQuery}
+                  onChange={e => {
+                    setCountryQuery(e.target.value)
+                    setFormData(f => ({ ...f, country: e.target.value }))
+                    setShowCountryList(true)
+                    setCountryError('')
+                  }}
+                  onFocus={() => setShowCountryList(true)}
+                  onBlur={() => setTimeout(() => setShowCountryList(false), 180)}
+                  placeholder="Search country..."
+                  autoComplete="off"
+                />
+                {countryError && <p className="field-error">{countryError}</p>}
+                {showCountryList && filteredCountries.length > 0 && (
+                  <ul className="country-dropdown">
+                    {filteredCountries.slice(0, 8).map(c => (
+                      <li key={c} onMouseDown={() => selectCountry(c)} className="country-option">
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <div className="form-group">
                 <label>Learning Goal</label>
@@ -411,23 +440,11 @@ export default function Profile() {
             <form onSubmit={handleChangePassword}>
               <div className="form-group">
                 <label>Current Password</label>
-                <input
-                  type="password"
-                  name="current_password"
-                  value={passwordData.current_password}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <input type="password" name="current_password" value={passwordData.current_password} onChange={handlePasswordChange} required />
               </div>
               <div className="form-group">
                 <label>New Password</label>
-                <input
-                  type="password"
-                  name="new_password"
-                  value={passwordData.new_password}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <input type="password" name="new_password" value={passwordData.new_password} onChange={handlePasswordChange} required />
               </div>
 
               {/* Live password requirements */}
@@ -453,13 +470,7 @@ export default function Profile() {
 
               <div className="form-group">
                 <label>Confirm New Password</label>
-                <input
-                  type="password"
-                  name="confirm_password"
-                  value={passwordData.confirm_password}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <input type="password" name="confirm_password" value={passwordData.confirm_password} onChange={handlePasswordChange} required />
               </div>
 
               {/* Forgot Password link */}
@@ -490,18 +501,6 @@ export default function Profile() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* About Section */}
-      {(p.bio || p.country || p.learning_goal) && (
-        <div className="section-title" style={{ marginTop: '1.5rem' }}>
-          About
-          <div className="course-list" style={{ marginTop: '0.75rem' }}>
-            {p.bio && <div className="course-progress-card"><span className="course-title">Bio</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.bio}</p></div>}
-            {p.country && <div className="course-progress-card"><span className="course-title">Country</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.country}</p></div>}
-            {p.learning_goal && <div className="course-progress-card"><span className="course-title">Learning Goal</span><p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#555' }}>{p.learning_goal}</p></div>}
           </div>
         </div>
       )}

@@ -569,6 +569,102 @@
   border-color: var(--color-sienna-600);
 }
 
+/* Toast Notifications */
+.community-toasts {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  pointer-events: none;
+}
+
+.community-toast {
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  animation: toastIn 0.25s ease, toastOut 0.3s ease 3.7s forwards;
+  max-width: 340px;
+}
+
+.community-toast--success {
+  background: var(--color-forest-900);
+  color: var(--color-bone-50);
+  border-left: 4px solid var(--color-sienna-600);
+}
+
+.community-toast--error {
+  background: #fff5f5;
+  color: #c62828;
+  border-left: 4px solid #c62828;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* Delete Confirmation Modal */
+.delete-confirm-modal {
+  max-width: 420px;
+  text-align: center;
+  padding: 2.5rem 2rem;
+  animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.delete-confirm-icon {
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+
+.delete-confirm-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-forest-900);
+  margin: 0 0 0.75rem;
+}
+
+.delete-confirm-message {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  color: var(--color-forest-600);
+  line-height: 1.55;
+  margin: 0 0 1.75rem;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.delete-btn {
+  background: #c62828 !important;
+  border-color: #c62828 !important;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #a31f1f !important;
+  border-color: #a31f1f !important;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .community-container { padding: 2rem 1rem 3rem; }
