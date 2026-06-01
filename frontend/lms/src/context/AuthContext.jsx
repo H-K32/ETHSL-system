@@ -48,14 +48,12 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     const refreshToken = localStorage.getItem('refresh_token')
-
     try {
       if (refreshToken) {
         await authApi.logout(refreshToken)
       }
-    } catch (error) {
-      // if backend logout fails, still clear client auth state
-      console.warn('Backend logout failed', error)
+    } catch {
+      // ignore — clear client state regardless
     } finally {
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')

@@ -43,6 +43,20 @@ from .admin_password_serializer import (
 )
 resend.api_key = settings.RESEND_API_KEY
 
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get("refresh")
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except Exception:
+                pass  # already blacklisted or invalid — still log out
+        return Response({"detail": "Logged out successfully."}, status=200)
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -302,8 +316,151 @@ class UserProfileView(APIView):
 
     def patch(self, request):
         return self.put(request)
-    
 
+
+class CompleteProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+
+        # Required: level
+        level = data.get('level')
+        if not level or level not in ['beginner', 'intermediate', 'advanced']:
+            return Response({'detail': 'Level is required.'}, status=400)
+
+        user.level = level
+        user.placement_required = level in ['intermediate', 'advanced']
+        user.placement_passed = level == 'beginner'
+
+        # Optional fields
+        if data.get('bio'):
+            user.bio = data.get('bio')
+        if data.get('country'):
+            user.country = data.get('country')
+        if data.get('learning_goal'):
+            user.learning_goal = data.get('learning_goal')
+        if data.get('learning_style'):
+            user.learning_style = data.get('learning_style')
+        if data.get('daily_study_time'):
+            user.daily_study_time = data.get('daily_study_time')
+
+        # Avatar upload to Cloudinary
+        avatar = request.FILES.get('avatar')
+        if avatar:
+            import cloudinary.uploader
+            result = cloudinary.uploader.upload(
+                avatar,
+                folder='images/avatar',
+                resource_type='image'
+            )
+            user.avatar = result['secure_url']
+
+        user.profile_completed = True
+        user.save()
+
+        serializer = UserSerializer(user)
+        return Response({
+            'user': serializer.data,
+            'placement_required': user.placement_required,
+        })
+
+
+class PlacementTestView(APIView):
+    """Returns placement quiz questions from the DB (quiz linked to a level)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from courses.models import Quiz
+        # Find a quiz that is a level quiz (has level FK set, no lesson/course)
+        quiz = Quiz.objects.filter(
+            level__isnull=False,
+            lesson__isnull=True,
+            course__isnull=True
+        ).prefetch_related('questions__options').first()
+
+        if not quiz:
+            return Response({'questions': [], 'quiz_id': None})
+
+        questions = []
+        for q in quiz.questions.all():
+            questions.append({
+                'id': q.id,
+                'question_text': q.question_text,
+                'points': q.points,
+                'options': [
+                    {'id': o.id, 'option_text': o.option_text}
+                    for o in q.options.all()
+                ]
+            })
+
+        return Response({'quiz_id': quiz.id, 'questions': questions})
+
+
+class PlacementSubmitView(APIView):
+    """Scores placement test, assigns level, sets placement_passed."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from courses.models import Quiz, Question, Option
+        from progress.models import QuizAttempt, Answer
+
+        quiz_id = request.data.get('quiz_id')
+        answers_data = request.data.get('answers', [])
+        desired_level = request.data.get('desired_level', 'beginner')
+
+        user = request.user
+
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+        except Quiz.DoesNotExist:
+            return Response({'detail': 'Quiz not found.'}, status=404)
+
+        attempt = QuizAttempt.objects.create(user=user, quiz=quiz)
+        score = 0
+        total_points = 0
+
+        for ans in answers_data:
+            try:
+                question = Question.objects.get(id=ans['question'])
+                option = Option.objects.get(id=ans['selected_option'])
+                total_points += question.points
+                if option.is_correct:
+                    score += question.points
+                Answer.objects.create(
+                    attempt=attempt,
+                    question=question,
+                    selected_option=option,
+                    is_correct=option.is_correct
+                )
+            except (Question.DoesNotExist, Option.DoesNotExist):
+                continue
+
+        passed = score >= quiz.passing_score
+        attempt.score = score
+        attempt.passed = passed
+        attempt.save()
+
+        if passed:
+            user.level = desired_level
+            user.placement_passed = True
+            user.placement_required = False
+        else:
+            # Failed — fall back to beginner
+            user.level = 'beginner'
+            user.placement_passed = True
+            user.placement_required = False
+
+        user.save()
+
+        return Response({
+            'score': score,
+            'passed': passed,
+            'assigned_level': user.level,
+            'assigned_level_display': user.get_level_display(),
+        })
 
 
 # ---------------- REPORT USER ----------------

@@ -18,7 +18,8 @@ export default function CheckEmail() {
         )
         if (data.verified) {
           clearInterval(intervalRef.current)
-          nav('/login')
+          // Redirect to complete profile instead of login
+          nav('/complete-profile', { replace: true })
         }
       } catch {
         // silently ignore network errors and keep polling

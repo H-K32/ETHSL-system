@@ -8,7 +8,9 @@ const createEmptyQuestion = () => ({
 
   question_text: "",
   question_image: null,
+  question_image_url: "",
   question_video: null,
+  question_video_url: "",
 
   points: 1,
 
@@ -17,14 +19,18 @@ const createEmptyQuestion = () => ({
       option_type: "text",
       option_text: "",
       option_image: null,
+      option_image_url: "",
       option_video: null,
+      option_video_url: "",
       is_correct: false,
     },
     {
       option_type: "text",
       option_text: "",
       option_image: null,
+      option_image_url: "",
       option_video: null,
+      option_video_url: "",
       is_correct: false,
     },
   ],
@@ -60,6 +66,85 @@ const ManageQuizzes = () => {
   const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState(emptyForm);
+  const [formErrors, setFormErrors] = useState({});
+
+  const normalizePositiveInt = (value) => {
+    if (value === "" || value === null || value === undefined) {
+      return "";
+    }
+
+    const numberValue = Number(value);
+    if (Number.isNaN(numberValue)) {
+      return "";
+    }
+
+    return numberValue < 1 ? 1 : numberValue;
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!form.passing_score || Number(form.passing_score) < 1) {
+      errors.passing_score = "Passing score must be at least 1.";
+    }
+
+    if (!Array.isArray(form.questions) || form.questions.length < 2) {
+      errors.questions = "Quiz must contain at least two questions.";
+    }
+
+    const questionErrors = {};
+
+    form.questions.forEach((q, qIndex) => {
+      const qError = {};
+
+      const hasQuestionContent =
+        (q.question_type === "text" && q.question_text?.trim()) ||
+        (q.question_type === "image" && (q.question_image || q.question_image_url)) ||
+        (q.question_type === "video" && (q.question_video || q.question_video_url));
+
+      if (!hasQuestionContent) {
+        qError.question = "Question must include text, image, or video.";
+      }
+
+      if (!q.points || Number(q.points) < 1) {
+        qError.points = "Points must be at least 1.";
+      }
+
+      if (!Array.isArray(q.options) || q.options.length < 2) {
+        qError.options = "Each question needs at least two options.";
+      }
+
+      const optionErrors = {};
+      q.options?.forEach((o, oIndex) => {
+        const hasOptionContent =
+          (o.option_type === "text" && o.option_text?.trim()) ||
+          (o.option_type === "image" && (o.option_image || o.option_image_url)) ||
+          (o.option_type === "video" && (o.option_video || o.option_video_url));
+
+        if (!hasOptionContent) {
+          optionErrors[oIndex] = "Option must include text, image, or video.";
+        }
+      });
+
+      if (Object.keys(optionErrors).length > 0) {
+        qError.option_errors = optionErrors;
+      }
+
+      if (!q.options?.some((o) => o.is_correct)) {
+        qError.correct = "Select one correct answer.";
+      }
+
+      if (Object.keys(qError).length > 0) {
+        questionErrors[qIndex] = qError;
+      }
+    });
+
+    if (Object.keys(questionErrors).length > 0) {
+      errors.question_errors = questionErrors;
+    }
+
+    return errors;
+  };
 
   // ================= FETCH =================
   const fetchQuizzes = async () => {
@@ -120,6 +205,7 @@ const handleEdit = (quiz) => {
 
     questions: quiz.questions
       ? quiz.questions.map((q) => ({
+          id: q.id, // Track existing question ID
           ...q,
 
           question_type: q.question_image
@@ -128,7 +214,12 @@ const handleEdit = (quiz) => {
             ? "video"
             : "text",
 
+          // Store existing URLs separately so we can display them
+          question_image_url: q.question_image || "",
+          question_video_url: q.question_video || "",
+          
           options: q.options.map((o) => ({
+            id: o.id, // Track existing option ID
             ...o,
 
             option_type: o.option_image
@@ -137,9 +228,8 @@ const handleEdit = (quiz) => {
               ? "video"
               : "text",
 
-            // 🔥 FIX ADDED HERE (IMPORTANT)
-            option_image: o.option_image || null,
-            option_video: o.option_video || null,
+            option_image_url: o.option_image || "",
+            option_video_url: o.option_video || "",
           })),
         }))
       : [],
@@ -185,10 +275,12 @@ const cancelDelete = () => {
   };
 
 const updateQuestion = (index, field, value) => {
+  const newValue = field === "points" ? normalizePositiveInt(value) : value;
+
   setForm((prev) => ({
     ...prev,
     questions: prev.questions.map((q, i) =>
-      i === index ? { ...q, [field]: value } : q
+      i === index ? { ...q, [field]: newValue } : q
     ),
   }));
 };
@@ -207,7 +299,9 @@ const updateQuestion = (index, field, value) => {
           option_type: "text",
           option_text: "",
           option_image: null,
+          option_image_url: "",
           option_video: null,
+          option_video_url: "",
           is_correct: false,
         },
       ],
@@ -261,6 +355,14 @@ const updateOption = (qIndex, oIndex, field, value) => {
   // ================= SUBMIT =================
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  const errors = validateForm();
+  if (Object.keys(errors).length > 0) {
+    setFormErrors(errors);
+    return;
+  }
+
+  setFormErrors({});
 
   const payload = {
     lesson:
@@ -527,16 +629,24 @@ const handleSubmit = async (e) => {
           {/* PASSING SCORE */}
           <input
             type="number"
+            min={1}
+            step={1}
             placeholder="Passing Score"
             value={form.passing_score}
             onChange={(e) =>
               setForm({
                 ...form,
-                passing_score: e.target.value,
+                passing_score: normalizePositiveInt(e.target.value),
               })
             }
             required
           />
+          {formErrors.passing_score && (
+            <p style={{ color: "red" }}>{formErrors.passing_score}</p>
+          )}
+          {formErrors.questions && (
+            <p style={{ color: "red" }}>{formErrors.questions}</p>
+          )}
 
 {/* QUESTIONS */}
 <h3>Questions</h3>
@@ -593,42 +703,70 @@ const handleSubmit = async (e) => {
     )}
 
     {q.question_type === "image" && (
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files[0];
-          if (file) updateQuestion(qIndex, "question_image", file);
-        }}
-      />
+      <div>
+        {q.question_image_url && editingId && (
+          <div style={{ marginBottom: "8px", fontSize: "12px", color: "#666" }}>
+            Current: <a href={q.question_image_url} target="_blank" rel="noreferrer">view image</a>
+          </div>
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) updateQuestion(qIndex, "question_image", file);
+          }}
+        />
+        {q.question_image_url && editingId && !q.question_image && (
+          <p style={{ fontSize: "11px", color: "#888" }}>Leave empty to keep existing image</p>
+        )}
+      </div>
     )}
 
     {q.question_type === "video" && (
-      <input
-        type="file"
-        accept="video/*"
-        onChange={(e) => {
-          const file = e.target.files[0];
-          if (file) updateQuestion(qIndex, "question_video", file);
-        }}
-      />
+      <div>
+        {q.question_video_url && editingId && (
+          <div style={{ marginBottom: "8px", fontSize: "12px", color: "#666" }}>
+            Current: <a href={q.question_video_url} target="_blank" rel="noreferrer">view video</a>
+          </div>
+        )}
+        <input
+          type="file"
+          accept="video/*"
+          onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) updateQuestion(qIndex, "question_video", file);
+          }}
+        />
+        {q.question_video_url && editingId && !q.question_video && (
+          <p style={{ fontSize: "11px", color: "#888" }}>Leave empty to keep existing video</p>
+        )}
+      </div>
     )}
 
     {/* ================= QUESTION VALIDATION ================= */}
-    {!q.question_text &&
-      q.question_type === "text" && (
-        <p style={{ color: "red" }}>Question cannot be empty</p>
-      )}
+    {formErrors.question_errors?.[qIndex]?.question && (
+      <p style={{ color: "red" }}>
+        {formErrors.question_errors[qIndex].question}
+      </p>
+    )}
 
     {/* POINTS */}
     <input
       type="number"
+      min={1}
+      step={1}
       placeholder="Points"
       value={q.points}
       onChange={(e) =>
         updateQuestion(qIndex, "points", e.target.value)
       }
     />
+    {formErrors.question_errors?.[qIndex]?.points && (
+      <p style={{ color: "red" }}>
+        {formErrors.question_errors[qIndex].points}
+      </p>
+    )}
 
     {/* ================= ADD OPTION ================= */}
     <button type="button" onClick={() => addOption(qIndex)}>
@@ -694,28 +832,48 @@ const handleSubmit = async (e) => {
 
         {/* IMAGE OPTION */}
         {o.option_type === "image" && (
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file)
-                updateOption(qIndex, oIndex, "option_image", file);
-            }}
-          />
+          <div>
+            {o.option_image_url && editingId && (
+              <div style={{ marginBottom: "6px", fontSize: "11px", color: "#666" }}>
+                Current: <a href={o.option_image_url} target="_blank" rel="noreferrer">view image</a>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file)
+                  updateOption(qIndex, oIndex, "option_image", file);
+              }}
+            />
+            {o.option_image_url && editingId && !o.option_image && (
+              <p style={{ fontSize: "10px", color: "#888" }}>Leave empty to keep</p>
+            )}
+          </div>
         )}
 
         {/* VIDEO OPTION */}
         {o.option_type === "video" && (
-          <input
-            type="file"
-            accept="video/*"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file)
-                updateOption(qIndex, oIndex, "option_video", file);
-            }}
-          />
+          <div>
+            {o.option_video_url && editingId && (
+              <div style={{ marginBottom: "6px", fontSize: "11px", color: "#666" }}>
+                Current: <a href={o.option_video_url} target="_blank" rel="noreferrer">view video</a>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="video/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file)
+                  updateOption(qIndex, oIndex, "option_video", file);
+              }}
+            />
+            {o.option_video_url && editingId && !o.option_video && (
+              <p style={{ fontSize: "10px", color: "#888" }}>Leave empty to keep</p>
+            )}
+          </div>
         )}
 
         {/* ================= CORRECT (RADIO BEHAVIOR) ================= */}
@@ -739,22 +897,26 @@ const handleSubmit = async (e) => {
           />
           Correct
         </label>
-      </div>
-    ))}
+            {formErrors.question_errors?.[qIndex]?.option_errors?.[oIndex] && (
+              <p style={{ color: "red", marginTop: 4 }}>
+                {formErrors.question_errors[qIndex].option_errors[oIndex]}
+              </p>
+            )}
+          </div>
+        ))}
 
-    {/* ================= OPTION VALIDATION ================= */}
-    {q.options.length < 2 && (
-      <p style={{ color: "red" }}>
-        At least 2 options required
-      </p>
-    )}
+        {/* ================= OPTION VALIDATION ================= */}
+        {formErrors.question_errors?.[qIndex]?.options && (
+          <p style={{ color: "red" }}>
+            {formErrors.question_errors[qIndex].options}
+          </p>
+        )}
 
-    {!q.options.some((o) => o.is_correct) && (
-      <p style={{ color: "red" }}>
-        Select at least one correct answer
-      </p>
-    )}
- 
+        {formErrors.question_errors?.[qIndex]?.correct && (
+          <p style={{ color: "red" }}>
+            {formErrors.question_errors[qIndex].correct}
+          </p>
+        )}
 
     {/* ================= DELETE QUESTION ================= */}
     <button

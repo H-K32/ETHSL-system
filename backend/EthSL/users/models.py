@@ -64,6 +64,47 @@ class User(AbstractUser):
         default=None
     )
 
+    country = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
+
+    bio = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    learning_goal = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+
+    learning_style = models.CharField(
+        max_length=50,
+        choices=[
+            ("visual", "Visual"),
+            ("audio", "Audio"),
+            ("reading", "Reading"),
+            ("practice", "Practice-based"),
+        ],
+        null=True,
+        blank=True
+    )
+
+    daily_study_time = models.CharField(
+        max_length=50,
+        choices=[
+            ("15min", "15 minutes"),
+            ("30min", "30 minutes"),
+            ("1hr", "1 hour"),
+            ("2hr+", "2+ hours"),
+        ],
+        null=True,
+        blank=True
+    )
+
     def __str__(self):
         return self.username
 

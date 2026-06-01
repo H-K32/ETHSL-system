@@ -109,13 +109,7 @@ export default function Dashboard() {
 
  
 return (
-  <div className="min-h-screen bg-bone-100 p-4 sm:p-6 md:p-12 relative overflow-hidden parchment-grid">
-
-    {/* Background glow */}
-    <div className="absolute top-[-5%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-forest-100/40 pointer-events-none blur-[120px]" />
-    <div className="absolute bottom-[-10%] right-[-5%] w-[45vw] h-[45vw] rounded-full bg-sienna-100/30 pointer-events-none blur-[100px]" />
-
-    <div className="max-w-5xl mx-auto z-10 relative dashboard-container">
+    <div className="max-w-5xl mx-auto dashboard-container">
 
       {/* HEADER */}
       <header className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-bone-300 pb-5 mb-8 gap-4">
@@ -282,5 +276,4 @@ return (
       </div>
 
     </div>
-  </div>
 )}

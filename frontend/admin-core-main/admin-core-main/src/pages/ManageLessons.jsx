@@ -11,7 +11,9 @@ const emptyForm = {
   order: "",
   duration: "",
   video: null,
+  videoUrl: "",
   thumbnail: null,
+  thumbnailUrl: "",
 };
 
 const ManageLessons = () => {
@@ -27,6 +29,25 @@ const ManageLessons = () => {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const normalizePositiveInt = (value) => {
+    if (value === "" || value === null || value === undefined) return "";
+    const numberValue = Number(value);
+    if (Number.isNaN(numberValue)) return "";
+    return numberValue < 1 ? 1 : numberValue;
+  };
+
+  const validateForm = () => {
+    if (!form.order || Number(form.order) < 1) {
+      return "Order must be a positive integer.";
+    }
+
+    if (!editingId && !form.video && !form.videoUrl) {
+      return "Lesson video is required.";
+    }
+
+    return "";
+  };
 
   // ---------------- FETCH DATA ----------------
   const fetchLessons = async () => {
@@ -60,7 +81,9 @@ const ManageLessons = () => {
       order: lesson.order,
       duration: lesson.duration || "",
       video: null,
+      videoUrl: lesson.video || "",
       thumbnail: null,
+      thumbnailUrl: lesson.thumbnail || "",
     });
 
     setEditingId(lesson.id);
@@ -97,6 +120,12 @@ const cancelDelete = () => {
 
   setError("");
   setSuccess("");
+
+  const validationError = validateForm();
+  if (validationError) {
+    setError(validationError);
+    return;
+  }
 
   const formData = new FormData();
   console.log("FORM STATE:", form);
@@ -248,10 +277,15 @@ const cancelDelete = () => {
 
             <input
               type="number"
+              min={1}
+              step={1}
               placeholder="Order"
               value={form.order}
               onChange={(e) =>
-                setForm({ ...form, order: e.target.value })
+                setForm({
+                  ...form,
+                  order: normalizePositiveInt(e.target.value),
+                })
               }
               required
             />
@@ -266,18 +300,31 @@ const cancelDelete = () => {
             />
 
             {/* VIDEO */}
-            <label>Video</label>
+            <label>Video {editingId && form.videoUrl && "(existing)"}</label>
+            {editingId && form.videoUrl && (
+              <div style={{ marginBottom: "10px", fontSize: "12px", color: "#666" }}>
+                Current: <a href={form.videoUrl} target="_blank" rel="noreferrer">{form.videoUrl.split('/').pop()}</a>
+              </div>
+            )}
             <input
               type="file"
               accept="video/*"
               onChange={(e) =>
                 setForm({ ...form, video: e.target.files[0] })
               }
-              required={!editingId}
+              required={!editingId && !form.videoUrl}
             />
+            {editingId && form.videoUrl && !form.video && (
+              <p style={{ fontSize: "12px", color: "#888" }}>Leave empty to keep existing video</p>
+            )}
 
             {/* THUMBNAIL */}
-            <label>Thumbnail</label>
+            <label>Thumbnail {editingId && form.thumbnailUrl && "(existing)"}</label>
+            {editingId && form.thumbnailUrl && (
+              <div style={{ marginBottom: "10px", fontSize: "12px", color: "#666" }}>
+                Current: <a href={form.thumbnailUrl} target="_blank" rel="noreferrer">{form.thumbnailUrl.split('/').pop()}</a>
+              </div>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -285,6 +332,9 @@ const cancelDelete = () => {
                 setForm({ ...form, thumbnail: e.target.files[0] })
               }
             />
+            {editingId && form.thumbnailUrl && !form.thumbnail && (
+              <p style={{ fontSize: "12px", color: "#888" }}>Leave empty to keep existing thumbnail</p>
+            )}
 
             <button type="submit" className="btn-add">
               {editingId ? "Update Lesson" : "Create Lesson"}

@@ -5,7 +5,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Level, Course, Lesson, Quiz, Question, Option
 from users.models import User
 from rest_framework.response import Response
-from django.db.models import Count, Avg
+from django.db import models
+from django.db.models import Count, Avg, Q
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
@@ -16,6 +17,86 @@ import re
 
  
 from progress.models import LessonProgress, QuizAttempt
+
+
+def normalize_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def has_question_content(q_data, request_files, q_index):
+    question_text = q_data.get("question_text")
+    if isinstance(question_text, str) and question_text.strip():
+        return True
+    if f"question_image_{q_index}" in request_files:
+        return True
+    if f"question_video_{q_index}" in request_files:
+        return True
+    return False
+
+
+def has_option_content(o_data, request_files, q_index, o_index):
+    option_text = o_data.get("option_text")
+    if isinstance(option_text, str) and option_text.strip():
+        return True
+    if f"option_image_{q_index}_{o_index}" in request_files:
+        return True
+    if f"option_video_{q_index}_{o_index}" in request_files:
+        return True
+    return False
+
+
+def validate_quiz_payload(data, request_files):
+    errors = {}
+
+    passing_score = normalize_int(data.get("passing_score"))
+    if passing_score is None:
+        errors["passing_score"] = "Passing score is required and must be an integer."
+    elif passing_score < 1:
+        errors["passing_score"] = "Passing score must be at least 1."
+
+    questions = data.get("questions", [])
+    if not isinstance(questions, list):
+        errors["questions"] = "Questions must be a list."
+        return errors
+
+    if len(questions) < 2:
+        errors["questions"] = "Quiz must contain at least two questions."
+
+    question_errors = {}
+    for q_index, q_data in enumerate(questions):
+        q_item_errors = {}
+
+        points = normalize_int(q_data.get("points", 1))
+        if points is None:
+            q_item_errors["points"] = "Points must be an integer."
+        elif points < 1:
+            q_item_errors["points"] = "Points must be at least 1."
+
+        if not has_question_content(q_data, request_files, q_index):
+            q_item_errors["question"] = "Question must include text, image, or video."
+
+        options = q_data.get("options", [])
+        if not isinstance(options, list):
+            q_item_errors["options"] = "Options must be a list."
+        else:
+            option_errors = {}
+            for o_index, o_data in enumerate(options):
+                if not has_option_content(o_data, request_files, q_index, o_index):
+                    option_errors[str(o_index)] = "Each option must include text, image, or video."
+            if option_errors:
+                q_item_errors["options"] = option_errors
+
+        if q_item_errors:
+            question_errors[str(q_index)] = q_item_errors
+
+    if question_errors:
+        errors["question_errors"] = question_errors
+
+    return errors
+
 
 from .serializers import (
     LevelSerializer,
@@ -231,21 +312,146 @@ class AdminLessonDetailView(APIView):
     
 class AdminStatisticsView(APIView):
     permission_classes = [IsAdminUserRole]
-    
+
     def get(self, request):
+        from progress.models import LessonProgress, QuizAttempt
+        from certificates.models import Certificate
+        from django.utils.timezone import now
+        from datetime import timedelta
+        from django.db.models import Avg
+
+        today = now()
+        thirty_days_ago = today - timedelta(days=30)
+        seven_days_ago = today - timedelta(days=7)
+
         total_levels = Level.objects.count()
         total_courses = Course.objects.count()
         total_lessons = Lesson.objects.count()
-        total_users = User.objects.count()
-        
-        data = {
-            "total_levels": total_levels,
-            "total_courses": total_courses,
-            "total_lessons": total_lessons,
-            "total_users": total_users
+        total_quizzes = Quiz.objects.count()
+        total_users = User.objects.filter(role='learner').count()
+        total_certificates = Certificate.objects.count()
+
+        active_users = User.objects.filter(
+            role='learner',
+            last_login__gte=thirty_days_ago
+        ).count()
+
+        new_registrations = User.objects.filter(
+            role='learner',
+            date_joined__gte=thirty_days_ago
+        ).count()
+
+        quiz_attempts = QuizAttempt.objects.count()
+        passed_attempts = QuizAttempt.objects.filter(passed=True).count()
+
+        avg_score_result = QuizAttempt.objects.aggregate(avg=Avg('score'))['avg']
+        avg_quiz_score = round(avg_score_result, 1) if avg_score_result else 0
+
+        total_lesson_completions = LessonProgress.objects.filter(is_completed=True).count()
+        possible_completions = total_users * total_lessons if total_lessons and total_users else 1
+        completion_rate = round((total_lesson_completions / possible_completions) * 100, 1) if possible_completions else 0
+
+        # Learner distribution by level
+        level_distribution = {
+            'beginner': User.objects.filter(role='learner', level='beginner').count(),
+            'intermediate': User.objects.filter(role='learner', level='intermediate').count(),
+            'advanced': User.objects.filter(role='learner', level='advanced').count(),
         }
-        
-        return Response(data)
+
+        # Recent registrations (last 5)
+        recent_users = list(
+            User.objects.filter(role='learner')
+            .order_by('-date_joined')[:5]
+            .values('id', 'username', 'email', 'date_joined', 'level', 'is_active')
+        )
+        for u in recent_users:
+            u['date_joined'] = u['date_joined'].strftime('%b %d, %Y')
+
+        # Recent quiz attempts (last 5)
+        recent_attempts = []
+        for attempt in QuizAttempt.objects.select_related('user', 'quiz').order_by('-taken_at')[:5]:
+            recent_attempts.append({
+                'user': attempt.user.username,
+                'quiz': attempt.quiz.description or f'Quiz #{attempt.quiz.id}',
+                'score': attempt.score,
+                'passed': attempt.passed,
+                'date': attempt.taken_at.strftime('%b %d, %Y'),
+            })
+
+        # Recent lesson completions (last 5)
+        recent_completions = []
+        for lp in LessonProgress.objects.select_related('user', 'lesson').filter(is_completed=True).order_by('-completed_at')[:5]:
+            recent_completions.append({
+                'user': lp.user.username,
+                'lesson': lp.lesson.title,
+                'date': lp.completed_at.strftime('%b %d, %Y') if lp.completed_at else '',
+            })
+
+        # User growth: registrations per day for last 7 days
+        user_growth = []
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            count = User.objects.filter(
+                role='learner',
+                date_joined__date=day.date()
+            ).count()
+            user_growth.append({'day': day.strftime('%a'), 'count': count})
+
+        # Quiz performance: pass rate per day for last 7 days
+        quiz_trend = []
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            day_attempts = QuizAttempt.objects.filter(taken_at__date=day.date())
+            total_day = day_attempts.count()
+            passed_day = day_attempts.filter(passed=True).count()
+            quiz_trend.append({
+                'day': day.strftime('%a'),
+                'attempts': total_day,
+                'passed': passed_day,
+            })
+
+        # Most popular courses by lesson completions
+        popular_courses = []
+        for course in Course.objects.annotate(
+            completions=Count('lessons__lessonprogress', filter=Q(lessons__lessonprogress__is_completed=True))
+        ).order_by('-completions')[:5]:
+            popular_courses.append({
+                'title': course.title,
+                'completions': course.completions,
+            })
+
+        # Placement test stats
+        placement_quizzes = Quiz.objects.filter(level__isnull=False, lesson__isnull=True, course__isnull=True)
+        placement_attempts = QuizAttempt.objects.filter(quiz__in=placement_quizzes)
+        placement_total = placement_attempts.count()
+        placement_passed = placement_attempts.filter(passed=True).count()
+        placement_pass_rate = round((placement_passed / placement_total) * 100, 1) if placement_total else 0
+
+        return Response({
+            'total_learners': total_users,
+            'total_levels': total_levels,
+            'total_courses': total_courses,
+            'total_lessons': total_lessons,
+            'total_quizzes': total_quizzes,
+            'total_certificates': total_certificates,
+            'active_users': active_users,
+            'new_registrations': new_registrations,
+            'quiz_attempts': quiz_attempts,
+            'avg_quiz_score': avg_quiz_score,
+            'completion_rate': completion_rate,
+            'level_distribution': level_distribution,
+            'recent_users': recent_users,
+            'recent_quiz_attempts': recent_attempts,
+            'recent_completions': recent_completions,
+            'user_growth': user_growth,
+            'quiz_trend': quiz_trend,
+            'popular_courses': popular_courses,
+            'placement_stats': {
+                'total': placement_total,
+                'passed': placement_passed,
+                'pass_rate': placement_pass_rate,
+            },
+        })
 class AdminQuizListCreateView(APIView):
     permission_classes = [IsAdminUserRole]
     parser_classes = (MultiPartParser, FormParser)
@@ -265,6 +471,10 @@ class AdminQuizListCreateView(APIView):
             return Response({"error": "Invalid JSON in 'data' field"}, status=400)
 
         request_files = request.FILES
+
+        validation_errors = validate_quiz_payload(data, request_files)
+        if validation_errors:
+            return Response({"errors": validation_errors}, status=400)
 
         quiz = Quiz.objects.create(
             lesson_id=data.get("lesson"),
@@ -343,6 +553,10 @@ class AdminQuizDetailView(APIView):
 
         request_files = request.FILES
 
+        validation_errors = validate_quiz_payload(data, request_files)
+        if validation_errors:
+            return Response({"errors": validation_errors}, status=400)
+
         quiz.lesson_id = data.get("lesson")
         quiz.course_id = data.get("course")
         quiz.level_id = data.get("level")
@@ -350,24 +564,42 @@ class AdminQuizDetailView(APIView):
         quiz.passing_score = data.get("passing_score")
         quiz.save()
 
-        quiz.questions.all().delete()
+        # Get existing questions
+        existing_questions = list(quiz.questions.all())
+        new_questions_data = data.get("questions", [])
 
-        for q_index, q_data in enumerate(data.get("questions", [])):
-            question = Question.objects.create(
-                quiz=quiz,
-                question_text=q_data.get("question_text", ""),
-                points=q_data.get("points", 1),
-            )
+        # Delete questions that are no longer in the update
+        if len(new_questions_data) < len(existing_questions):
+            for i in range(len(new_questions_data), len(existing_questions)):
+                existing_questions[i].delete()
 
+        # Update or create questions
+        for q_index, q_data in enumerate(new_questions_data):
             img_key = f"question_image_{q_index}"
             vid_key = f"question_video_{q_index}"
 
+            # Use existing question if available, otherwise create new one
+            if q_index < len(existing_questions):
+                question = existing_questions[q_index]
+                question.question_text = q_data.get("question_text", "")
+                question.points = q_data.get("points", 1)
+            else:
+                question = Question.objects.create(
+                    quiz=quiz,
+                    question_text=q_data.get("question_text", ""),
+                    points=q_data.get("points", 1),
+                )
+
+            # Only update files if new ones are provided
             if img_key in request_files:
                 question.question_image = request_files[img_key]
             if vid_key in request_files:
                 question.question_video = request_files[vid_key]
 
             question.save()
+
+            # Delete existing options and recreate them
+            question.options.all().delete()
 
             for o_index, o_data in enumerate(q_data.get("options", [])):
                 option = Option.objects.create(

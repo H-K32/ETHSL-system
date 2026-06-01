@@ -426,3 +426,106 @@
     font-size: 0.65rem;
   }
 }
+
+/* —— Additional styles for profile fields —— */
+.cp-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--deep-blue);
+  margin-bottom: 0.4rem;
+}
+
+.cp-field-required .cp-label {
+  color: var(--deep-blue);
+}
+
+.cp-field-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(10, 28, 47, 0.55);
+  margin-top: 0.3rem;
+  font-style: italic;
+}
+
+.cp-textarea {
+  width: 100%;
+  padding: 1rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(10, 74, 138, 0.25);
+  border-radius: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  resize: vertical;
+}
+
+.cp-textarea:focus {
+  border-color: var(--deep-blue);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(10, 74, 138, 0.15);
+}
+
+/* —— action buttons container —— */
+.cp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+.cp-btn-primary,
+.cp-btn-secondary {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cp-btn-primary {
+  background: var(--deep-blue);
+  color: white;
+  box-shadow: 0 10px 24px -10px rgba(6, 32, 65, 0.7);
+}
+
+.cp-btn-primary:hover:not(:disabled) {
+  background: #0c5a9e;
+  transform: translateY(-2px);
+  box-shadow: 0 18px 30px -12px rgba(6, 32, 65, 0.75);
+}
+
+.cp-btn-primary:disabled,
+.cp-btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cp-btn-secondary {
+  background: rgba(10, 74, 138, 0.1);
+  color: var(--deep-blue);
+  border: 1.5px solid rgba(10, 74, 138, 0.3);
+}
+
+.cp-btn-secondary:hover:not(:disabled) {
+  background: rgba(10, 74, 138, 0.15);
+  border-color: var(--deep-blue);
+  transform: translateY(-2px);
+}
+
+.cp-footer-hint {
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(10, 28, 47, 0.6);
+  margin-top: 1rem;
+  font-style: italic;
+}

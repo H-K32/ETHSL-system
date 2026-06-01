@@ -1,3 +1,4 @@
+/* ── Navbar ──────────────────────────────────────────────── */
 .navbar {
   position: fixed;
   top: 0;
@@ -9,28 +10,42 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 24px;
   z-index: 99;
+  transition: left 0.25s ease;
+  gap: 12px;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
 .navbar-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .navbar-user {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-light);
+  white-space: nowrap;
 }
 
 .btn-logout {
-  padding: 8px 18px;
+  padding: 7px 16px;
   background: var(--danger);
   color: white;
   border: none;
@@ -38,8 +53,52 @@
   font-size: 13px;
   font-weight: 500;
   transition: background 0.15s;
+  white-space: nowrap;
 }
 
-.btn-logout:hover {
-  background: #dc2626;
+.btn-logout:hover { background: #dc2626; }
+
+/* ── Hamburger ───────────────────────────────────────────── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.hamburger:hover { background: var(--primary-light); }
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+/* ── Tablet ──────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .navbar { left: 64px; }
+  .navbar-user { display: none; }
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar { left: 0; padding: 0 16px; }
+  .hamburger { display: flex; }
+  .navbar-title { font-size: 15px; }
+}
+
+@media (max-width: 480px) {
+  .navbar-user { display: none; }
+  .btn-logout { padding: 6px 12px; font-size: 12px; }
 }

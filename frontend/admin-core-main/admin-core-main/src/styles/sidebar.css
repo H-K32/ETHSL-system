@@ -1,3 +1,4 @@
+/* ── Sidebar ─────────────────────────────────────────────── */
 .sidebar {
   position: fixed;
   left: 0;
@@ -8,44 +9,49 @@
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  z-index: 200;
+  transition: transform 0.25s ease;
 }
 
 .sidebar-logo {
   height: var(--navbar-height);
   display: flex;
   align-items: center;
-  padding: 0 24px;
-  font-size: 20px;
+  padding: 0 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--primary);
   border-bottom: 1px solid var(--border);
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .sidebar-logo svg {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 12px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  overflow-y: auto;
 }
 
 .sidebar-link {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 10px 14px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-light);
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .sidebar-link:hover {
@@ -59,7 +65,77 @@
 }
 
 .sidebar-link svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
+}
+
+/* ── Overlay (mobile) ────────────────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 199;
+}
+
+/* ── Admin shell layout ──────────────────────────────────── */
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.25s ease;
+}
+
+.admin-content {
+  margin-top: var(--navbar-height);
+  padding: 28px 32px;
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ── Tablet: icon-only sidebar ───────────────────────────── */
+@media (max-width: 1024px) {
+  :root { --sidebar-width: 64px; }
+
+  .sidebar-link span,
+  .sidebar-logo span { display: none; }
+
+  .sidebar-link { justify-content: center; padding: 12px; }
+  .sidebar-logo { justify-content: center; padding: 0; }
+
+  .admin-content { padding: 24px 20px; }
+}
+
+/* ── Mobile: hidden drawer ───────────────────────────────── */
+@media (max-width: 768px) {
+  :root { --sidebar-width: 240px; }
+
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+  }
+
+  .sidebar--open ~ .sidebar-overlay,
+  .sidebar-overlay { display: block; }
+
+  /* show labels again inside open drawer */
+  .sidebar-link { justify-content: flex-start; padding: 10px 14px; }
+  .sidebar-link span,
+  .sidebar-logo span { display: inline; }
+  .sidebar-logo { justify-content: flex-start; padding: 0 20px; }
+
+  .admin-main { margin-left: 0; }
+  .admin-content { padding: 20px 16px; }
 }

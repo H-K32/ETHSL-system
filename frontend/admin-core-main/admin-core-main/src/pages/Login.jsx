@@ -20,7 +20,7 @@ const Login = () => {
       });
 
       localStorage.setItem("access", res.data.access);
-      console.log("Login success:", res.data);
+      localStorage.setItem("refresh", res.data.refresh);
       navigate("/dashboard");
 
     } catch (err) {

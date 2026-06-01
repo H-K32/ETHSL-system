@@ -1,68 +1,51 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../api/client.js'
 
 export default function VerifyEmail() {
   const { uidb64, token } = useParams()
   const nav = useNavigate()
-
-  const [status, setStatus] = useState('loading') 
-  // loading | success | error
+  const [status, setStatus] = useState('loading')
 
   useEffect(() => {
-    const verifyEmail = async () => {
-      try {
-        await axios.get(
-          `https://ethsl-system.onrender.com/api/users/verify-email/${uidb64}/${token}/`
-          //"https://ethsl-system-production.up.railway.app/api" + `/users/verify-email/${uidb64}/${token}/`
-        )
-
+    api.get(`/users/verify-email/${uidb64}/${token}/`)
+      .then(() => {
         setStatus('success')
-
-        // redirect after success
-        setTimeout(() => {
-          nav('/login')
-        }, 2000)
-
-      } catch (err) {
-        setStatus('error')
-      }
-    }
-
-    verifyEmail()
+        // Redirect to complete profile after email verification
+        setTimeout(() => nav('/complete-profile', { replace: true }), 2000)
+      })
+      .catch(() => setStatus('error'))
   }, [uidb64, token, nav])
 
   return (
-    <div className="max-w-md mx-auto text-center mt-20">
-      
+    <div className="max-w-md mx-auto text-center mt-20 px-4">
       {status === 'loading' && (
         <>
-          <h1 className="text-xl font-bold">Verifying...</h1>
-          <p className="text-gray-600 mt-2">
-            Please wait while we verify your email.
-          </p>
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-slate-800">Verifying your email…</h1>
+          <p className="text-gray-500 mt-2 text-sm">This should only take a moment.</p>
         </>
       )}
 
       {status === 'success' && (
         <>
-          <h1 className="text-xl font-bold text-green-600">
-            Email Verified ✅
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Redirecting you to login...
-          </p>
+          <div className="text-5xl mb-4">✅</div>
+          <h1 className="text-xl font-bold text-green-600">Email Verified!</h1>
+          <p className="text-gray-500 mt-2 text-sm">Redirecting you to complete your profile…</p>
         </>
       )}
 
       {status === 'error' && (
         <>
-          <h1 className="text-xl font-bold text-red-600">
-            Verification Failed ❌
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Link is invalid or expired.
-          </p>
+          <div className="text-5xl mb-4">❌</div>
+          <h1 className="text-xl font-bold text-red-600">Verification Failed</h1>
+          <p className="text-gray-500 mt-2 text-sm">The link is invalid or has expired.</p>
+          <button
+            onClick={() => nav('/register')}
+            className="mt-6 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          >
+            Back to Register
+          </button>
         </>
       )}
     </div>

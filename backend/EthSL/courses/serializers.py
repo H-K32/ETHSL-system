@@ -21,6 +21,8 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 class LessonWriteSerializer(serializers.ModelSerializer):
+    order = serializers.IntegerField(min_value=1)
+    video = serializers.FileField(required=False, allow_null=True)
 
     class Meta:
         model = Lesson
@@ -33,7 +35,15 @@ class LessonWriteSerializer(serializers.ModelSerializer):
             "order",
             "duration",
             "thumbnail",
-        ]  
+        ]
+
+    def validate(self, attrs):
+        # Only require video on creation, not on updates
+        if self.instance is None and not attrs.get("video"):
+            raise serializers.ValidationError({
+                "video": "Video is required for a new lesson.",
+            })
+        return attrs
         
 class LessonReadSerializer(serializers.ModelSerializer):
     is_completed = serializers.SerializerMethodField()

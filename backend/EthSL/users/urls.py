@@ -1,23 +1,20 @@
 from django.urls import path
 from .views import (
+    LogoutView,
     RegisterView,
     VerifyEmailView,
     EmailVerificationStatusView,
-    
- 
-
     PasswordResetRequestView,
     PasswordResetConfirmView,
-
     AdminPasswordResetRequestView,
     AdminPasswordResetConfirmView,
-
     AdminUserListView,
     AdminProfileView,
-
     ChangePasswordView,
     UserProfileView,
-
+    CompleteProfileView,
+    PlacementTestView,
+    PlacementSubmitView,
     ReportUserView,
     WarnUserView,
     ActivateUserView,
@@ -35,7 +32,7 @@ urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", TokenObtainPairView.as_view(), name="login"),
     path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("logout/", TokenBlacklistView.as_view(), name="logout"),
+    path("logout/", LogoutView.as_view(), name="logout"),
 
     # Password Reset
     path(
@@ -51,6 +48,9 @@ urlpatterns = [
     ),
     # User Profile
     path("profile/", UserProfileView.as_view(), name="profile"),
+    path("complete-profile/", CompleteProfileView.as_view(), name="complete_profile"),
+    path("placement/", PlacementTestView.as_view(), name="placement_test"),
+    path("placement/submit/", PlacementSubmitView.as_view(), name="placement_submit"),
     path(
         "change-password/",
         ChangePasswordView.as_view(),

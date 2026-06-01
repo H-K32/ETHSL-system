@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 
 
 class Level(models.Model):
@@ -88,7 +89,7 @@ class Quiz(models.Model):
     )
 
     description = models.TextField()
-    passing_score = models.IntegerField()
+    passing_score = models.IntegerField(validators=[MinValueValidator(1)])
 
     def __str__(self):
         if self.lesson:
@@ -108,7 +109,7 @@ class Question(models.Model):
     question_text = models.TextField(blank=True, null=True)
     question_image = models.ImageField(upload_to="images/question/", blank=True, null=True)
     question_video = models.FileField(upload_to="videos/question/", blank=True, null=True)
-    points = models.IntegerField(default=1)
+    points = models.IntegerField(default=1, validators=[MinValueValidator(1)])
 
 class Option(models.Model):
     question = models.ForeignKey(

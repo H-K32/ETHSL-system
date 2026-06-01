@@ -35,9 +35,15 @@ export const getCertificatePdf = (certificateId) =>
 export const completeLesson = (lessonId) =>
   api.post(`/progress/complete-lesson/${lessonId}/`).then(r => r.data)
 
-export const getPlacementQuiz = async () => ([])
+export const getPlacementQuiz = () =>
+  api.get('/users/placement/').then((r) => r.data)
 
-export const submitPlacement = async () => ({ success: true })
+export const submitPlacement = (quizId, answers, desiredLevel) =>
+  api.post('/users/placement/submit/', {
+    quiz_id: quizId,
+    answers: answers,
+    desired_level: desiredLevel
+  }).then((r) => r.data)
 
 export const submitQuiz = (quizId, answers) =>
   api.post('/progress/submit-quiz/', {
