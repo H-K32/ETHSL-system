@@ -4,10 +4,10 @@
    ======================================== */
 
 .dashboard-parchment {
-  background-color: #f5f0e8;
+  background-color: #e8f0fe;
   background-image:
-    radial-gradient(#ddd5bb 1.2px, transparent 1.2px),
-    linear-gradient(rgba(27, 56, 31, 0.02) 1px, transparent 1px);
+    radial-gradient(#c7d9f8 1.2px, transparent 1.2px),
+    linear-gradient(rgba(10, 74, 138, 0.02) 1px, transparent 1px);
   background-size: 20px 20px, 40px 40px;
 }
 

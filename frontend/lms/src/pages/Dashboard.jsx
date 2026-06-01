@@ -111,30 +111,26 @@ export default function Dashboard() {
 return (
     <div className="min-h-screen dashboard-parchment p-4 sm:p-6 md:p-12 relative overflow-hidden">
       {/* Atmospheric background spots matching Levels.jsx */}
-      <div className="absolute top-[-5%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-forest-100/40 pointer-events-none filter blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[45vw] h-[45vw] rounded-full bg-sienna-100/30 pointer-events-none filter blur-[100px]" />
+      <div className="absolute top-[-5%] left-[-10%] w-[50vw] h-[50vw] rounded-full pointer-events-none filter blur-[120px]" style={{ background: 'rgba(10,74,138,0.06)' }} />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[45vw] h-[45vw] rounded-full pointer-events-none filter blur-[100px]" style={{ background: 'rgba(30,108,181,0.05)' }} />
 
       <div className="max-w-5xl mx-auto z-10 relative">
 
         {/* HEADER */}
-        <header className="flex items-center justify-between border-b border-bone-300 pb-5 mb-8">
+        <header className="flex items-center justify-between border-b pb-5 mb-8" style={{ borderColor: 'var(--mist-2)' }}>
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-sienna-50 text-sienna-600 rounded-xl flex items-center justify-center border border-sienna-200">
-              <FeatherIcon className="w-5 h-5 text-sienna-500 transform -rotate-12" />
-            </div>
-            <div>
-              <span className="font-serif font-black text-2xl text-forest-900 block">Sienna & Spruce</span>
-              <span className="font-mono text-[9px] uppercase text-forest-600 font-extrabold">Scribe Scriptorium</span>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
+              <FeatherIcon className="w-5 h-5 transform -rotate-12" style={{ color: 'var(--deep-blue)' }} />
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
-            <Link to="/curriculum" className="flex items-center gap-2 font-black uppercase text-sienna-600">
+            <Link to="/curriculum" className="flex items-center gap-2 font-black uppercase" style={{ color: 'var(--deep-blue)' }}>
               <SyllabusIcon className="w-4 h-4" />
               Curriculum Flow
             </Link>
-            <span className="text-xs font-bold text-forest-900 bg-white/80 py-1.5 px-3 rounded-lg border border-bone-300">
-              Writer: <strong className="text-sienna-600">{user?.username || 'Guest'}</strong>
+            <span className="text-xs font-bold py-1.5 px-3 rounded-lg border" style={{ color: 'var(--navy-deep)', background: 'white', borderColor: 'var(--mist-2)' }}>
+              Learner: <strong style={{ color: 'var(--deep-blue)' }}>{user?.username || 'Guest'}</strong>
             </span>
             <button
               onClick={() => { logout(); navigate('/register', { replace: true }) }}
@@ -146,32 +142,36 @@ return (
           </div>
         </header>
 
-        {/* WELCOME — styled like Levels.jsx hero */}
+        {/* WELCOME */}
         <div className="mb-10 text-center md:text-left">
-          <div className="inline-flex items-center gap-1.5 bg-sienna-100 text-sienna-800 rounded-full font-mono text-[10px] tracking-widest uppercase font-black px-4 py-1.5 mb-4 border border-sienna-200/50 shadow-sm">
-            <SparklesIcon className="w-3.5 h-3.5 text-sienna-600" />
+          <div className="inline-flex items-center gap-1.5 rounded-full font-mono text-[10px] tracking-widest uppercase font-black px-4 py-1.5 mb-4 border shadow-sm" style={{ background: 'var(--mist)', color: 'var(--deep-blue)', borderColor: 'var(--mist-2)' }}>
+            <SparklesIcon className="w-3.5 h-3.5" />
             <span>Progress Tracker</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-serif font-black text-forest-900 tracking-tight leading-none mb-4">
-            Welcome back, <span className="text-sienna-600">{user?.username || 'Student'}</span>!
+          <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight leading-none mb-4" style={{ color: 'var(--navy-deep)' }}>
+            Welcome back, <span style={{ color: 'var(--deep-blue)' }}>
+              {(user?.first_name && user?.last_name)
+                ? `${user.first_name} ${user.last_name}`
+                : user?.first_name || user?.username || 'Student'}
+            </span>!
           </h1>
-          <p className="text-sm font-sans text-forest-600 max-w-2xl">
+          <p className="text-sm font-sans max-w-2xl" style={{ color: 'var(--ink)', opacity: 0.75 }}>
             Continue your learning journey. Keep improving step by step.
           </p>
         </div>
 
-        {/* STATS — styled like Levels.jsx progress card */}
-        <div className="bg-bone-50 rounded-2xl border border-bone-300 p-6 mb-10 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-forest-100/20 rounded-full filter blur-xl pointer-events-none" />
+        {/* STATS */}
+        <div className="rounded-2xl border p-6 mb-10 shadow-sm relative overflow-hidden" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full filter blur-xl pointer-events-none" style={{ background: 'rgba(10,74,138,0.04)' }} />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {(stats || []).map((stat, i) => (
-              <div key={i} className="bg-white rounded-xl border border-bone-300 p-4">
+              <div key={i} className="rounded-xl border p-4" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
                 <div className="flex justify-between mb-3">
                   <span className="text-2xl">{stat.icon}</span>
                   <span className="w-2.5 h-2.5 rounded-full" style={{ background: stat.color }} />
                 </div>
-                <p className="text-2xl font-serif font-black text-forest-900">{stat.value ?? 0}</p>
-                <p className="text-[10px] font-mono uppercase font-extrabold tracking-wide text-forest-600 mt-1">{stat.label}</p>
+                <p className="text-2xl font-serif font-black" style={{ color: 'var(--navy-deep)' }}>{stat.value ?? 0}</p>
+                <p className="text-[10px] font-mono uppercase font-extrabold tracking-wide mt-1" style={{ color: 'var(--deep-blue)' }}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -181,45 +181,45 @@ return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
 
           {/* Recent Activity */}
-          <div className="bg-bone-50 border border-bone-300 rounded-2xl p-6 shadow-sm">
-            <div className="flex justify-between border-b border-bone-300 pb-4 mb-5">
-              <h3 className="font-serif font-black text-forest-900">Recent Activities</h3>
-              <Link to="/levels" className="text-[10px] font-mono font-black uppercase tracking-wider text-sienna-600 hover:text-sienna-700">
+          <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
+            <div className="flex justify-between border-b pb-4 mb-5" style={{ borderColor: 'var(--mist-2)' }}>
+              <h3 className="font-serif font-black" style={{ color: 'var(--navy-deep)' }}>Recent Activities</h3>
+              <Link to="/levels" className="text-[10px] font-mono font-black uppercase tracking-wider" style={{ color: 'var(--deep-blue)' }}>
                 View All →
               </Link>
             </div>
             {recentActivities.length === 0 ? (
-              <p className="text-xs font-mono text-forest-600 italic">No recent activity yet. Start learning!</p>
+              <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>No recent activity yet. Start learning!</p>
             ) : recentActivities.map((a, i) => (
-              <div key={i} className="flex gap-3 p-3 bg-white rounded-xl mb-3 border border-bone-200">
-                <div className="w-2 h-2 bg-sienna-500 rounded-full mt-2 shrink-0" />
+              <div key={i} className="flex gap-3 p-3 rounded-xl mb-3 border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
+                <div className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ background: 'var(--aqua-bright)' }} />
                 <div>
-                  <p className="text-xs font-bold text-forest-900">{a.title}</p>
-                  <p className="text-[10px] font-mono text-forest-600">{a.date}</p>
+                  <p className="text-xs font-bold" style={{ color: 'var(--navy-deep)' }}>{a.title}</p>
+                  <p className="text-[10px] font-mono" style={{ color: 'var(--ink)', opacity: 0.6 }}>{a.date}</p>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Recommended */}
-          <div className="bg-bone-50 border border-bone-300 rounded-2xl p-6 shadow-sm">
-            <div className="flex justify-between border-b border-bone-300 pb-4 mb-5">
-              <h3 className="font-serif font-black text-forest-900">Recommended</h3>
-              <Link to="/levels" className="text-[10px] font-mono font-black uppercase tracking-wider text-sienna-600 hover:text-sienna-700">
+          <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
+            <div className="flex justify-between border-b pb-4 mb-5" style={{ borderColor: 'var(--mist-2)' }}>
+              <h3 className="font-serif font-black" style={{ color: 'var(--navy-deep)' }}>Recommended</h3>
+              <Link to="/levels" className="text-[10px] font-mono font-black uppercase tracking-wider" style={{ color: 'var(--deep-blue)' }}>
                 View All →
               </Link>
             </div>
             {recommendedLevels.length === 0 ? (
-              <p className="text-xs font-mono text-forest-600 italic">Complete lessons to get recommendations.</p>
+              <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>Complete lessons to get recommendations.</p>
             ) : recommendedLevels.map((l, i) => (
-              <div key={i} className="p-4 bg-white rounded-xl mb-4 border border-bone-200">
+              <div key={i} className="p-4 rounded-xl mb-4 border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
                 <div className="flex justify-between mb-1">
-                  <p className="font-serif font-bold text-sm text-forest-900">{l.name}</p>
-                  <span className="text-[10px] font-mono font-black text-sienna-600">{l.progress}%</span>
+                  <p className="font-serif font-bold text-sm" style={{ color: 'var(--navy-deep)' }}>{l.name}</p>
+                  <span className="text-[10px] font-mono font-black" style={{ color: 'var(--deep-blue)' }}>{l.progress}%</span>
                 </div>
-                <p className="text-xs font-sans text-forest-600 mb-3">{l.description}</p>
-                <div className="h-2 bg-bone-200 rounded-full border border-bone-300">
-                  <div className="h-full bg-sienna-500 rounded-full transition-all duration-700" style={{ width: `${l.progress}%` }} />
+                <p className="text-xs font-sans mb-3" style={{ color: 'var(--ink)', opacity: 0.7 }}>{l.description}</p>
+                <div className="h-2 rounded-full" style={{ background: 'var(--mist-2)' }}>
+                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${l.progress}%`, background: 'var(--aqua-bright)' }} />
                 </div>
               </div>
             ))}
@@ -228,27 +228,30 @@ return (
         </div>
 
         {/* QUICK ACTIONS */}
-        <div className="bg-bone-50 border border-bone-300 rounded-2xl p-6 shadow-sm">
-          <h3 className="font-serif font-black text-forest-900 mb-5 flex items-center gap-2">
-            <RefreshIcon className="w-4 h-4 text-sienna-500" />
+        <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
+          <h3 className="font-serif font-black mb-5 flex items-center gap-2" style={{ color: 'var(--navy-deep)' }}>
+            <RefreshIcon className="w-4 h-4" style={{ color: 'var(--aqua-bright)' }} />
             Quick Actions
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Link
               to="/levels"
-              className="bg-white border border-bone-300 rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider text-forest-800 hover:border-sienna-500 hover:text-sienna-600 transition-colors"
+              className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors"
+              style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}
             >
               📖 Continue Learning
             </Link>
             <Link
               to="/levels"
-              className="bg-white border border-bone-300 rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider text-forest-800 hover:border-sienna-500 hover:text-sienna-600 transition-colors"
+              className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors"
+              style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}
             >
               📊 View Progress
             </Link>
             <button
               onClick={handleRetake}
-              className="bg-sienna-100 border border-sienna-200 rounded-xl p-4 font-mono font-black text-xs uppercase tracking-wider text-sienna-700 hover:bg-sienna-200 transition-colors"
+              className="rounded-xl p-4 font-mono font-black text-xs uppercase tracking-wider border transition-colors"
+              style={{ background: 'var(--mist-2)', borderColor: 'var(--aqua-bright)', color: 'var(--deep-blue)' }}
             >
               🔄 Retake Level
             </button>
