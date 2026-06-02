@@ -402,12 +402,16 @@ const handleSubmit = async (e) => {
       ...(q.id ? { id: q.id } : {}),
       question_type: q.question_type || "text",
       question_text: q.question_text || "",
+      question_image_url: q.question_image_url || "",
+      question_video_url: q.question_video_url || "",
       points: q.points || 1,
 
       options: q.options.map((o) => ({
         ...(o.id ? { id: o.id } : {}),
         option_type: o.option_type || "text",
         option_text: o.option_text || "",
+        option_image_url: o.option_image_url || "",
+        option_video_url: o.option_video_url || "",
         is_correct: o.is_correct,
       })),
     })),
