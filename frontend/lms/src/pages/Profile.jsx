@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAsync from '../utils/useAsync.js'
 import { getProfile } from '../api/lms.js'
@@ -47,6 +47,8 @@ export default function Profile() {
   const [newEmail, setNewEmail] = useState('')
   const [emailChangeLoading, setEmailChangeLoading] = useState(false)
   const [emailChangeMsg, setEmailChangeMsg] = useState({ type: '', text: '' })
+  const [emailChangePending, setEmailChangePending] = useState(false)
+  const emailPollRef = useRef(null)
 
   const [passwordData, setPasswordData] = useState({
     current_password: '',
@@ -55,6 +57,21 @@ export default function Profile() {
   })
   const [message, setMessage] = useState({ type: '', text: '' })
   const [avatarPreview, setAvatarPreview] = useState(null)
+
+  // Poll for email change confirmation — when the other device verifies,
+  // all tokens are blacklisted and the next poll returns 401,
+  // which the axios interceptor catches and redirects to /login.
+  useEffect(() => {
+    if (!emailChangePending) return
+    emailPollRef.current = setInterval(async () => {
+      try {
+        await api.get('/users/profile/')
+      } catch {
+        // 401 handled by axios interceptor in client.js → redirect to /login
+      }
+    }, 3000)
+    return () => clearInterval(emailPollRef.current)
+  }, [emailChangePending])
 
   if (loading) return (
     <div className="profile-loading">

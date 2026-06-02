@@ -47,8 +47,51 @@ def has_option_content(o_data, request_files, q_index, o_index):
     return False
 
 
-def validate_quiz_payload(data, request_files):
+def validate_quiz_payload(data, request_files, existing_quiz_id=None):
     errors = {}
+
+    passing_score = normalize_int(data.get("passing_score"))
+    if passing_score is None:
+        errors["passing_score"] = "Passing score is required and must be an integer."
+    elif passing_score < 1:
+        errors["passing_score"] = "Passing score must be at least 1."
+
+    # ---- Duplicate quiz check ----
+    lesson_id = normalize_int(data.get("lesson"))
+    course_id = normalize_int(data.get("course"))
+    level_id  = normalize_int(data.get("level"))
+    quiz_type = data.get("quiz_type", "lesson")
+
+    if lesson_id:
+        qs = Quiz.objects.filter(lesson_id=lesson_id)
+        if existing_quiz_id:
+            qs = qs.exclude(pk=existing_quiz_id)
+        if qs.exists():
+            errors["duplicate"] = "This lesson already has a quiz."
+
+    elif course_id and quiz_type in ("final", "course"):
+        qs = Quiz.objects.filter(course_id=course_id, lesson__isnull=True)
+        if existing_quiz_id:
+            qs = qs.exclude(pk=existing_quiz_id)
+        if qs.exists():
+            errors["duplicate"] = "This course already has a quiz."
+
+    elif level_id and quiz_type == "placement":
+        qs = Quiz.objects.filter(level_id=level_id, quiz_type="placement", lesson__isnull=True, course__isnull=True)
+        if existing_quiz_id:
+            qs = qs.exclude(pk=existing_quiz_id)
+        if qs.exists():
+            errors["duplicate"] = "This level already has a placement test."
+
+    elif level_id and quiz_type == "final":
+        qs = Quiz.objects.filter(level_id=level_id, quiz_type="final", lesson__isnull=True, course__isnull=True)
+        if existing_quiz_id:
+            qs = qs.exclude(pk=existing_quiz_id)
+        if qs.exists():
+            errors["duplicate"] = "This level already has a quiz."
+
+    if "duplicate" in errors:
+        return errors
 
     passing_score = normalize_int(data.get("passing_score"))
     if passing_score is None:
@@ -564,7 +607,7 @@ class AdminQuizDetailView(APIView):
 
         request_files = request.FILES
 
-        validation_errors = validate_quiz_payload(data, request_files)
+        validation_errors = validate_quiz_payload(data, request_files, existing_quiz_id=quiz.id)
         if validation_errors:
             return Response({"errors": validation_errors}, status=400)
 

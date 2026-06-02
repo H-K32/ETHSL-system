@@ -97,6 +97,9 @@ class ReportUserView(APIView):
         if serializer.is_valid():
             reported_user = serializer.validated_data["reported_user"]
 
+            if reported_user == request.user:
+                return Response({"detail": "You cannot report yourself."}, status=400)
+
             Report.objects.create(
                 reporter=request.user,
                 reported_user=reported_user,

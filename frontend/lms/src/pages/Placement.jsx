@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import useAsync from '../utils/useAsync.js'
 import { getPlacementQuiz, submitPlacement } from '../api/lms.js'
+import { useAuth } from '../context/AuthContext.jsx'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 
 export default function Placement() {
   const { state } = useLocation()
-  const desiredLevel = state?.level || 'intermediate' // Get level from previous page or default
+  const { refresh } = useAuth()
+  const desiredLevel = state?.level || 'intermediate'
   
   const { data: quiz, loading, error, reload } = useAsync(() => getPlacementQuiz(desiredLevel), [desiredLevel])
   const [answers, setAnswers] = useState({})
@@ -30,6 +32,7 @@ export default function Placement() {
       }))
       
       const r = await submitPlacement(quiz.quiz_id, answersArray, desiredLevel)
+      await refresh()
       setResult(r)
     } catch (e) {
       alert(e?.response?.data?.detail || 'Submission failed')

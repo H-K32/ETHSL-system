@@ -91,6 +91,36 @@ class Quiz(models.Model):
     description = models.TextField()
     passing_score = models.IntegerField(validators=[MinValueValidator(1)])
 
+    class Meta:
+        constraints = [
+            # One quiz per course (course-level, not lesson-level)
+            models.UniqueConstraint(
+                fields=["course"],
+                condition=models.Q(lesson__isnull=True),
+                name="unique_quiz_per_course"
+            ),
+            # One final quiz per level
+            models.UniqueConstraint(
+                fields=["level", "quiz_type"],
+                condition=models.Q(
+                    lesson__isnull=True,
+                    course__isnull=True,
+                    quiz_type="final"
+                ),
+                name="unique_final_quiz_per_level"
+            ),
+            # One placement test per level
+            models.UniqueConstraint(
+                fields=["level", "quiz_type"],
+                condition=models.Q(
+                    lesson__isnull=True,
+                    course__isnull=True,
+                    quiz_type="placement"
+                ),
+                name="unique_placement_quiz_per_level"
+            ),
+        ]
+
     def __str__(self):
         if self.lesson:
             return f"Lesson Quiz - {self.lesson.title}"

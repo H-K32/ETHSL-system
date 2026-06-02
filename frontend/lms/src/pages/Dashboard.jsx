@@ -54,7 +54,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user) {
       navigate('/register', { replace: true })
-    } else if (user.placement_required) {
+    } else if (user.placement_required && !user.placement_passed) {
       navigate('/placement', { replace: true })
     }
   }, [user, navigate])

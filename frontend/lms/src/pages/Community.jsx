@@ -248,7 +248,7 @@ export default function Community() {
           <div className="no-posts"><p>No posts yet. Be the first to start a discussion!</p></div>
         ) : (
           posts.map((post) => {
-            const isOwner = user && user.id === post.user
+            const isOwner = user && Number(user.id) === Number(post.user)
             const editable = canEdit(post.created_at)
             return (
               <div key={post.id} className="post-card" onClick={() => openPostDetail(post)}>
@@ -398,7 +398,7 @@ export default function Community() {
                         <span className="author-name">{comment.username || 'Anonymous'}</span>
                         <span className="comment-date">{formatDate(comment.created_at)}</span>
                       </div>
-                      {user && user.id !== comment.user && (
+                      {user && Number(user.id) !== Number(comment.user) && (
                         <button className="report-small-btn" onClick={() => { setReportingUserId(comment.user); setReportingUsername(comment.username || 'this user'); setShowReportModal(true) }}>Report</button>
                       )}
                     </div>

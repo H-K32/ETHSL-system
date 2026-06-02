@@ -377,6 +377,30 @@ const handleSubmit = async (e) => {
     return;
   }
 
+  // ================= DUPLICATE CHECK =================
+  if (!editingId) {
+    const lessonId  = form.quiz_type === "lesson"     ? Number(form.lesson)  : null;
+    const courseId  = form.quiz_type === "course"     ? Number(form.course)  : null;
+    const levelId   = (form.quiz_type === "level" || form.quiz_type === "placement") ? Number(form.level) : null;
+
+    if (lessonId && quizzes.some(q => q.lesson === lessonId)) {
+      setFormErrors({ duplicate: "This lesson already has a quiz." });
+      return;
+    }
+    if (courseId && quizzes.some(q => q.course === courseId && !q.lesson)) {
+      setFormErrors({ duplicate: "This course already has a quiz." });
+      return;
+    }
+    if (levelId && form.quiz_type === "placement" && quizzes.some(q => q.level === levelId && q.quiz_type === "placement" && !q.lesson && !q.course)) {
+      setFormErrors({ duplicate: "This level already has a placement test." });
+      return;
+    }
+    if (levelId && form.quiz_type === "level" && quizzes.some(q => q.level === levelId && q.quiz_type === "final" && !q.lesson && !q.course)) {
+      setFormErrors({ duplicate: "This level already has a quiz." });
+      return;
+    }
+  }
+
   setFormErrors({});
 
   const payload = {
@@ -447,8 +471,13 @@ const handleSubmit = async (e) => {
     fetchQuizzes();
 
   } catch (err) {
-    console.error(err.response?.data);
-    alert("Error saving quiz");
+    const backendErrors = err.response?.data?.errors;
+    if (backendErrors?.duplicate) {
+      setFormErrors({ duplicate: backendErrors.duplicate });
+    } else {
+      console.error(err.response?.data);
+      alert("Error saving quiz");
+    }
   }
 };
 
@@ -621,6 +650,9 @@ const handleSubmit = async (e) => {
           />
           {formErrors.passing_score && (
             <p style={{ color: "red" }}>{formErrors.passing_score}</p>
+          )}
+          {formErrors.duplicate && (
+            <p style={{ color: "red", fontWeight: 600 }}>{formErrors.duplicate}</p>
           )}
           {formErrors.questions && (
             <p style={{ color: "red" }}>{formErrors.questions}</p>

@@ -243,18 +243,51 @@ export default function Levels() {
                   </div>
 
                   {/* Call to action card footer */}
-                  <div className="mt-6 pt-4 border-t border-dashed border-bone-300 flex items-center justify-between z-10 relative">
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-mono font-black uppercase text-bone-400 leading-none">
-                        Level Compass
-                      </span>
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-forest-800 mt-0.5">
-                        {locked ? 'Locked Content' : 'Begin Journey'}
-                      </span>
+                  <div className="mt-6 pt-4 border-t border-dashed border-bone-300 flex flex-col gap-3 z-10 relative">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-mono font-black uppercase text-bone-400 leading-none">
+                          Level Compass
+                        </span>
+                        <span className="text-xs font-mono font-bold uppercase tracking-wider text-forest-800 mt-0.5">
+                          {locked ? 'Locked Content' : 'Begin Journey'}
+                        </span>
+                      </div>
+                      {!locked && (
+                        <Link
+                          to={`/courses/${l.id}`}
+                          className="w-9 h-9 rounded-full bg-bone-200 flex items-center justify-center transition-colors duration-200 level-arrow-circle border border-bone-300"
+                        >
+                          <ChevronRight className="w-5 h-5 text-forest-800" />
+                        </Link>
+                      )}
+                      {locked && (
+                        <span className="w-9 h-9 rounded-full bg-bone-200 flex items-center justify-center border border-bone-300">
+                          <ChevronRight className="w-5 h-5 text-forest-800" />
+                        </span>
+                      )}
                     </div>
-                    <span className="w-9 h-9 rounded-full bg-bone-200 flex items-center justify-center transition-colors duration-200 level-arrow-circle border border-bone-300">
-                      <ChevronRight className="w-5 h-5 text-forest-800 transform transition-transform duration-200 group-hover:translate-x-0.5" />
-                    </span>
+
+                    {/* Take Level Quiz button — only shown when level has a quiz */}
+                    {!locked && l.has_quiz && l.quiz_id && (
+                      l.can_take_quiz ? (
+                        <Link
+                          to={`/quiz/${l.quiz_id}`}
+                          className="w-full text-center py-2 px-3 rounded-lg font-mono text-[11px] font-black uppercase tracking-wider border transition-colors"
+                          style={{ background: 'var(--color-forest-900)', color: 'var(--color-bone-50)', borderColor: 'var(--color-forest-900)' }}
+                        >
+                          Take Level Quiz
+                        </Link>
+                      ) : (
+                        <div
+                          title="Complete all lessons and quizzes in this level first"
+                          className="w-full text-center py-2 px-3 rounded-lg font-mono text-[11px] font-black uppercase tracking-wider border cursor-not-allowed"
+                          style={{ opacity: 0.45, background: 'var(--color-bone-200)', color: 'var(--color-forest-600)', borderColor: 'var(--color-bone-300)' }}
+                        >
+                          Take Level Quiz
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               )
@@ -275,9 +308,9 @@ export default function Levels() {
                   {Card}
                 </div>
               ) : (
-                <Link key={l.id} to={`/courses/${l.id}`} className="block h-full group">
+                <div key={l.id} className="h-full group">
                   {Card}
-                </Link>
+                </div>
               )
             })}
           </div>
