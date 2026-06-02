@@ -20,8 +20,8 @@ export default function Register() {
   const [fieldErrors, setFieldErrors] = useState({ full_name: '', username: '' })
   const [loading, setLoading] = useState(false)
 
-  // 👀 toggle password visibility
   const [showPassword, setShowPassword] = useState(false)
+  const [passwordFocused, setPasswordFocused] = useState(false)
 
   // ---------------- PASSWORD LOGIC ----------------
   const validatePassword = (password) => {
@@ -188,6 +188,7 @@ export default function Register() {
               onChange={(e) =>
                 setForm({ ...form, password: e.target.value })
               }
+              onFocus={() => setPasswordFocused(true)}
               required
             />
 
@@ -201,40 +202,44 @@ export default function Register() {
           </div>
 
           <div className="mt-2 space-y-1 text-xs">
-            <p className={passwordChecks.minLength ? "text-green-600" : "text-red-500"}>
-              {passwordChecks.minLength ? "✔" : "✖"} At least 8 characters
-            </p>
-
-            <p className={passwordChecks.hasUpper ? "text-green-600" : "text-red-500"}>
-              {passwordChecks.hasUpper ? "✔" : "✖"} At least 1 uppercase letter
-            </p>
-
-            <p className={passwordChecks.hasLower ? "text-green-600" : "text-red-500"}>
-              {passwordChecks.hasLower ? "✔" : "✖"} At least 1 lowercase letter
-            </p>
-
-            <p className={passwordChecks.hasNumber ? "text-green-600" : "text-red-500"}>
-              {passwordChecks.hasNumber ? "✔" : "✖"} At least 1 number
-            </p>
+            {passwordFocused && (
+              <>
+                <p className={passwordChecks.minLength ? "text-green-600" : "text-red-500"}>
+                  {passwordChecks.minLength ? "✔" : "✖"} At least 8 characters
+                </p>
+                <p className={passwordChecks.hasUpper ? "text-green-600" : "text-red-500"}>
+                  {passwordChecks.hasUpper ? "✔" : "✖"} At least 1 uppercase letter
+                </p>
+                <p className={passwordChecks.hasLower ? "text-green-600" : "text-red-500"}>
+                  {passwordChecks.hasLower ? "✔" : "✖"} At least 1 lowercase letter
+                </p>
+                <p className={passwordChecks.hasNumber ? "text-green-600" : "text-red-500"}>
+                  {passwordChecks.hasNumber ? "✔" : "✖"} At least 1 number
+                </p>
+              </>
+            )}
           </div>
 
-          <div className="h-2 bg-gray-200 rounded mt-2">
-            <div
-              className={`h-2 rounded transition-all ${
-                strengthScore <= 1
-                  ? 'bg-red-500 w-1/4'
-                  : strengthScore === 2
-                  ? 'bg-yellow-500 w-2/4'
-                  : strengthScore === 3
-                  ? 'bg-blue-500 w-3/4'
-                  : 'bg-green-500 w-full'
-              }`}
-            />
-          </div>
-
-          <p className="text-xs mt-1 text-gray-500">
-            Strength: {strengthLabel}
-          </p>
+          {passwordFocused && (
+            <>
+              <div className="h-2 bg-gray-200 rounded mt-2">
+                <div
+                  className={`h-2 rounded transition-all ${
+                    strengthScore <= 1
+                      ? 'bg-red-500 w-1/4'
+                      : strengthScore === 2
+                      ? 'bg-yellow-500 w-2/4'
+                      : strengthScore === 3
+                      ? 'bg-blue-500 w-3/4'
+                      : 'bg-green-500 w-full'
+                  }`}
+                />
+              </div>
+              <p className="text-xs mt-1 text-gray-500">
+                Strength: {strengthLabel}
+              </p>
+            </>
+          )}
         </Field>
 
         {/* Confirm password */}

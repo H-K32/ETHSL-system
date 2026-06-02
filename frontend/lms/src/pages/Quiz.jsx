@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import useAsync from '../utils/useAsync.js'
 import { getQuiz, submitQuiz } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
@@ -8,6 +8,9 @@ import ErrorState from '../components/ErrorState.jsx'
 export default function Quiz() {
   const { id } = useParams()
   const nav = useNavigate()
+  const location = useLocation()
+  const courseId = location.state?.courseId
+  const levelId = location.state?.levelId
   const { data: quiz, loading, error, reload } = useAsync(() => getQuiz(id), [id])
   const [answers, setAnswers] = useState({})
   const [submitting, setSubmitting] = useState(false)
@@ -67,7 +70,14 @@ export default function Quiz() {
           >
             Retake
           </button>
-          <button onClick={() => nav(-1)} className="px-4 py-2 rounded-lg bg-brand-600 text-white">
+          <button
+            onClick={() => {
+              if (courseId) nav(`/lessons/${courseId}`, { state: { levelId } })
+              else if (levelId) nav(`/courses/${levelId}`)
+              else nav('/levels')
+            }}
+            className="px-4 py-2 rounded-lg bg-brand-600 text-white"
+          >
             Go Back
           </button>
         </div>

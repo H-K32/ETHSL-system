@@ -227,6 +227,7 @@ export default function Levels() {
                       l.can_take_quiz ? (
                         <Link
                           to={`/quiz/${l.quiz_id}`}
+                          state={{ levelId: l.id }}
                           className="w-full text-center py-2 px-3 rounded-lg font-mono text-[11px] font-black uppercase tracking-wider border transition-colors"
                           style={{ background: 'var(--color-forest-900)', color: 'var(--color-bone-50)', borderColor: 'var(--color-forest-900)' }}
                         >

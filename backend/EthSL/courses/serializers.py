@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Course, Lesson, Quiz, Question, Option, Level
-from progress.models import LessonProgress
+from progress.models import LessonProgress, QuizAttempt
 import json
 
 class LevelSerializer(serializers.ModelSerializer):
@@ -75,17 +75,17 @@ class LessonReadSerializer(serializers.ModelSerializer):
         if not user or user.is_anonymous:
             return True
 
-        previous_lessons = obj.course.lessons.filter(
-            order__lt=obj.order
-        )
-
-        for prev in previous_lessons:
+        for prev in obj.course.lessons.filter(order__lt=obj.order):
             if not LessonProgress.objects.filter(
-                user=user,
-                lesson=prev,
-                is_completed=True
+                user=user, lesson=prev, is_completed=True
             ).exists():
                 return False
+            prev_quiz = getattr(prev, 'quiz', None)
+            if prev_quiz:
+                if not QuizAttempt.objects.filter(
+                    user=user, quiz=prev_quiz, passed=True
+                ).exists():
+                    return False
 
         return True
     

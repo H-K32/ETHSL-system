@@ -86,15 +86,13 @@ export default function LessonDetail() {
   return (
     <div className="lesson-detail-page">
       <div className="lesson-detail-shell">
-        {courseId ? (
-          <Link to={`/lessons/${courseId}`} className="lesson-back">
-            ← Back to module
-          </Link>
-        ) : (
-          <button type="button" onClick={() => nav(-1)} className="lesson-back lesson-back-button">
-            ← Back to lessons
-          </button>
-        )}
+        <Link
+          to={courseId ? `/lessons/${courseId}` : '/levels'}
+          state={{ levelId: location.state?.levelId }}
+          className="lesson-back"
+        >
+          ← Back to module
+        </Link>
 
         <span className="lesson-detail-eyebrow">Lesson</span>
 
@@ -117,7 +115,7 @@ export default function LessonDetail() {
 
           {quizId && (
             <button
-              onClick={() => nav(`/quiz/${quizId}`)}
+              onClick={() => nav(`/quiz/${quizId}`, { state: { courseId, levelId: location.state?.levelId } })}
               className="lesson-btn lesson-btn-ghost"
             >
               Take quiz →

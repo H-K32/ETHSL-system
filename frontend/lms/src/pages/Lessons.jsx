@@ -97,7 +97,7 @@ export default function Lessons() {
                   ) : (
                     <Link
                       to={`/lesson/${l.id}`}
-                      state={{ courseId }}
+                      state={{ courseId, levelId }}
                       style={{ textDecoration: 'none' }}
                     >
                       {Row}
