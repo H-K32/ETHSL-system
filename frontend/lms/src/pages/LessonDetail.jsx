@@ -88,7 +88,7 @@ export default function LessonDetail() {
       <div className="lesson-detail-shell">
         {courseId ? (
           <Link to={`/lessons/${courseId}`} className="lesson-back">
-            ← Back to course
+            ← Back to module
           </Link>
         ) : (
           <button type="button" onClick={() => nav(-1)} className="lesson-back lesson-back-button">

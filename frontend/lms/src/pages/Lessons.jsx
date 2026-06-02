@@ -36,7 +36,7 @@ export default function Lessons() {
   return (
     <div className="lessons-page">
       <div className="lessons-shell">
-        <span className="lessons-eyebrow">Course · Lessons</span>
+        <span className="lessons-eyebrow">Module · Lessons</span>
         <h1 className="lessons-title">Your Learning Path</h1>
         <p className="lessons-subtitle">
           Work through each lesson in order — unlock the next as you complete them.
@@ -47,13 +47,13 @@ export default function Lessons() {
           onClick={() => levelId ? nav(`/courses/${levelId}`) : nav(-1)}
           className="lessons-back"
         >
-          ← Back to Courses
+          ← Back to Modules
         </button>
 
         <div className="lessons-divider" />
 
         {lessons.length === 0 ? (
-          <EmptyState title="No lessons in this course yet" />
+          <EmptyState title="No lessons in this module yet" />
         ) : (
           <ul className="lessons-list">
             {lessons.map((l, i) => {

@@ -69,7 +69,7 @@ export default function Curriculum() {
         <div>
           <span className="rp-eyebrow">🗺️ Learning Roadmap</span>
           <h1 className="rp-title">Your Full Learning Path</h1>
-          <p className="rp-sub">Every level, course, and lesson — your complete journey from start to certificate.</p>
+          <p className="rp-sub">Every level, module, and lesson — your complete journey from start to certificate.</p>
         </div>
         <div className="rp-progress-box">
           <div className="rp-progress-row">
@@ -171,7 +171,7 @@ export default function Curriculum() {
                               <div className={`rp-course-card rp-course-card--${cSt}`}>
                                 <div className="rp-course-card-top">
                                   <div>
-                                    <div className="rp-course-label">Course</div>
+                                    <div className="rp-course-label">Module</div>
                                     <div className="rp-course-name">{course.title}</div>
                                     {course.description && (
                                       <div className="rp-course-desc">{course.description}</div>

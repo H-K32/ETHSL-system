@@ -47,7 +47,7 @@ export default function Login() {
       <div className="lp-card">
         <div className="lp-tag">
           <span className="lp-dot" />
-          <span>secure entry</span>
+          <span>ETHSL</span>
         </div>
 
         <h1 className="lp-title">

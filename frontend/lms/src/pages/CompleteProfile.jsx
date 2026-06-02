@@ -109,7 +109,7 @@ export default function CompleteProfile() {
         <div className="cp-header">
           <div className="cp-tag">
             <span className="cp-dot" />
-            <span>setup</span>
+            <span>ETHSL</span>
           </div>
           <h1 className="cp-title">Complete Your Profile</h1>
           <p className="cp-sub">Personalize your learning experience</p>
