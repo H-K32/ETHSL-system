@@ -399,11 +399,13 @@ const handleSubmit = async (e) => {
     passing_score: Number(form.passing_score),
 
     questions: form.questions.map((q) => ({
+      ...(q.id ? { id: q.id } : {}),
       question_type: q.question_type || "text",
       question_text: q.question_text || "",
       points: q.points || 1,
 
       options: q.options.map((o) => ({
+        ...(o.id ? { id: o.id } : {}),
         option_type: o.option_type || "text",
         option_text: o.option_text || "",
         is_correct: o.is_correct,
