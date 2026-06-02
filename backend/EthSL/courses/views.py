@@ -375,7 +375,10 @@ class AdminStatisticsView(APIView):
 
         active_users = User.objects.filter(
             role='learner',
-            last_login__gte=thirty_days_ago
+            is_active=True,
+        ).filter(
+            models.Q(last_login__gte=thirty_days_ago) |
+            models.Q(date_joined__gte=thirty_days_ago)
         ).count()
 
         new_registrations = User.objects.filter(
@@ -414,7 +417,7 @@ class AdminStatisticsView(APIView):
         for attempt in QuizAttempt.objects.select_related('user', 'quiz').order_by('-taken_at')[:5]:
             recent_attempts.append({
                 'user': attempt.user.username,
-                'quiz': attempt.quiz.description or f'Quiz #{attempt.quiz.id}',
+                'quiz': attempt.quiz.description if attempt.quiz.description and attempt.quiz.description.strip() else f'Quiz #{attempt.quiz.id}',
                 'score': attempt.score,
                 'passed': attempt.passed,
                 'date': attempt.taken_at.strftime('%b %d, %Y'),

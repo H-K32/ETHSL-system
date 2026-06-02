@@ -25,11 +25,11 @@ const ManageUsers = () => {
 
   // ---------------- WARN USER ----------------
   const warnUser = async (id) => {
+    const reason = window.prompt("Enter the reason for warning this user:");
+    if (!reason || !reason.trim()) return;
     try {
-      await API.post(`/users/warn/${id}/`, {
-        message: "Please follow community guidelines. Repeated violations may lead to removal."
-      });
-      alert("User warned");
+      await API.post(`/users/warn/${id}/`, { message: reason.trim() });
+      alert("User warned successfully");
     } catch (err) {
       console.error(err);
       alert("Failed to warn user");

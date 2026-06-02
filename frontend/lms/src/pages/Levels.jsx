@@ -25,12 +25,6 @@ const BookOpen = ({ className }) => (
   </svg>
 )
 
-const Clock = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-)
-
 const Lock = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
@@ -67,30 +61,7 @@ export default function Levels() {
   const totalCount = levels.length
   const progressPercent = totalCount > 0 ? (unlockedCount / totalCount) * 100 : 0
 
-  // Curated additional metadata mapped dynamically to levels
-  const premiumMetaMap = {
-    "lvl-1": {
-      roman: "I",
-      difficulty: "Foundational Scribe",
-      time: "4 Hours of Study",
-      focus: "Grammar & Etiquette",
-      quote: "Style is the signature of the human spirit."
-    },
-    "lvl-2": {
-      roman: "II",
-      difficulty: "Advanced Speaker",
-      time: "6 Hours of Study",
-      focus: "Clarity & Emotional States",
-      quote: "The pen is the ruler of kingdoms."
-    },
-    "lvl-3": {
-      roman: "III",
-      difficulty: "Master Editor",
-      time: "10 Hours of Preparation",
-      focus: "Classical Collection",
-      quote: "Write without fear, edit without mercy."
-    }
-  }
+
 
   return (
     <div className="min-h-screen parchment-grid p-4 sm:p-6 md:p-12 relative overflow-hidden">
@@ -157,9 +128,7 @@ export default function Levels() {
             <Award className="w-5 h-5 text-sienna-500" />
             <span>Curriculum Flow</span>
           </h2>
-          <span className="font-mono text-[10px] text-rose-700 font-extrabold tracking-widest uppercase">
-            Map Connection Lines Active
-          </span>
+
         </div>
 
         {/* Levels Grid with premium visual updates */}
@@ -171,13 +140,7 @@ export default function Levels() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 levels-grid">
             {levels.map((l, index) => {
               const locked = !Boolean(l.unlocked)
-              const customMeta = premiumMetaMap[l.id] || {
-                roman: String(index + 1),
-                difficulty: "Classic Learner",
-                time: "Variable Study Time",
-                focus: "Editorial Collection",
-                quote: "Writing is thinking made visible."
-              }
+              const customMeta = { roman: String(index + 1) }
 
               const Card = (
                 <div 
@@ -222,16 +185,7 @@ export default function Levels() {
                         {l.display_name || l.name}
                       </h3>
                       
-                      {/* Difficulty Level Tag */}
-                      <div className="flex items-center gap-1.5 mt-1.5 mb-3">
-                        <span className="text-[10px] font-mono uppercase tracking-widest font-black text-sienna-600">
-                          {customMeta.difficulty}
-                        </span>
-                        <span className="text-bone-400 text-xs">•</span>
-                        <span className="text-[10px] font-mono text-forest-600 font-bold flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {customMeta.time}
-                        </span>
-                      </div>
+  
                     </div>
                     
                     {/* Description */}

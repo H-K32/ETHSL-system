@@ -625,9 +625,13 @@ class WarnUserView(APIView):
         try:
             user = User.objects.get(id=user_id)
 
-            message = request.data.get("message", "You have been warned by admin.")
+            message = request.data.get("message", "").strip()
+            if not message:
+                return Response({"detail": "Warning reason is required."}, status=400)
 
+            from django.utils.timezone import now
             user.warning_message = message
+            user.warning_date = now()
             user.save()
 
             return Response({

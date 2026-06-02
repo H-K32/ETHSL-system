@@ -4,9 +4,9 @@ from django.core.validators import MinValueValidator
 
 class Level(models.Model):
     LEVEL_CHOICES = (
-        ("beginner", "ጀማሪ"),
-        ("intermediate", "መካከለኛ"),
-        ("advanced", "ከፍተኛ"),
+        ("beginner", "Beginner"),
+        ("intermediate", "Intermediate"),
+        ("advanced", "Advanced"),
     )
 
     name = models.CharField(max_length=20, choices=LEVEL_CHOICES)

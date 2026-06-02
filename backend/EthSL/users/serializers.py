@@ -197,6 +197,7 @@ class UserSerializer(serializers.ModelSerializer):
             "avatar_upload",
             "full_name",
             "warning_message",
+            "warning_date",
             "level",
             "placement_required",
             "placement_passed",
@@ -208,7 +209,7 @@ class UserSerializer(serializers.ModelSerializer):
             "learning_style",
             "daily_study_time",
         ]
-        read_only_fields = ["username", "role", "streak_count"]
+        read_only_fields = ["username", "role", "streak_count", "warning_message", "warning_date"]
 
     def get_avatar(self, obj):
         if obj.avatar:

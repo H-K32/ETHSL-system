@@ -15,9 +15,9 @@ class User(AbstractUser):
     )
 
     LEVEL_CHOICES = (
-        ('beginner', 'ጀማሪ'),
-        ('intermediate', 'መካከለኛ'),
-        ('advanced', 'ከፍተኛ'),
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
     )
 
     email_verified = models.BooleanField(default=False)
@@ -44,6 +44,11 @@ class User(AbstractUser):
     streak_count = models.IntegerField(default=0)
 
     warning_message = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    warning_date = models.DateTimeField(
         null=True,
         blank=True
     )
