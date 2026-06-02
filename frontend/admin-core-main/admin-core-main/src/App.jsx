@@ -16,6 +16,7 @@ import AdminForgotPassword from "./pages/AdminForgotPassword";
 import AdminResetPassword from "./pages/AdminResetPassword";
 import ReportedUsers from "./pages/ReportedUsers";
 import ReportDetails from "./pages/ReportDetails";
+import AdminVerifyEmailChange from "./pages/AdminVerifyEmailChange";
 
 // Shared layout for all protected admin pages
 function AdminLayout({ children }) {
@@ -41,6 +42,7 @@ const App = () => (
       <Route path="/login" element={<Login />} />
       <Route path="/admin-forgot-password" element={<AdminForgotPassword />} />
       <Route path="/admin-reset-password/:uidb64/:token" element={<AdminResetPassword />} />
+      <Route path="/verify-email-change/:uidb64/:token" element={<AdminVerifyEmailChange />} />
 
       {/* Protected — all wrapped in AdminLayout */}
       <Route path="/dashboard" element={<PrivateRoute><AdminLayout><Dashboard /></AdminLayout></PrivateRoute>} />

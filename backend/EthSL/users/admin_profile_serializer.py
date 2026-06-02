@@ -10,30 +10,19 @@ class AdminProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "full_name"]
+        fields = ["id", "username", "first_name", "last_name", "full_name"]
 
     def validate_username(self, value):
         value = value.strip()
         if not value:
             raise serializers.ValidationError("Username is required.")
-        # Only letters, numbers, underscores, hyphens — no special chars like @
         if not re.match(r'^[\w.-]+$', value):
             raise serializers.ValidationError(
                 "Username can only contain letters, numbers, underscores, hyphens, and dots."
             )
-        # Check uniqueness excluding current user
         qs = User.objects.filter(username__iexact=value).exclude(pk=self.instance.pk)
         if qs.exists():
             raise serializers.ValidationError("This username is already taken.")
-        return value
-
-    def validate_email(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError("Email is required.")
-        qs = User.objects.filter(email__iexact=value).exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError("Email already exists.")
         return value
 
     def validate_full_name(self, value):
@@ -62,4 +51,5 @@ class AdminProfileSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["full_name"] = f"{instance.first_name} {instance.last_name}".strip()
+        data["email"] = instance.email
         return data

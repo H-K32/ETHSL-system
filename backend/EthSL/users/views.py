@@ -306,7 +306,13 @@ class EmailChangeRequestView(APIView):
         uid = urlsafe_base64_encode(force_bytes(record.pk))
         token = default_token_generator.make_token(request.user)
 
-        verify_link = f"https://ethsl-system-jl5a.vercel.app/verify-email-change/{uid}/{token}/"
+        # Route to the correct frontend based on role
+        if request.user.role == 'admin':
+            frontend_base = "https://ethsl-system.vercel.app"
+        else:
+            frontend_base = "https://ethsl-system-jl5a.vercel.app"
+
+        verify_link = f"{frontend_base}/verify-email-change/{uid}/{token}/"
 
         resend.Emails.send({
             "from": "ETHSL <onboarding@resend.dev>",
