@@ -6,12 +6,6 @@ import useAsync from '../utils/useAsync'
 import { getUserDashboard } from '../api/lms'
 
 // Icons (unchanged)
-const FeatherIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-1.5-1.5M12 21h-3M18 10.5a6 6 0 00-12 0v3.31a6 6 0 00.354 2.028L8.25 21l3.5-.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-)
-
 const SyllabusIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -124,12 +118,6 @@ return (
 
         {/* HEADER */}
         <header className="flex items-center justify-between border-b pb-5 mb-8" style={{ borderColor: 'var(--mist-2)' }}>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
-              <FeatherIcon className="w-5 h-5 transform -rotate-12" style={{ color: 'var(--deep-blue)' }} />
-            </div>
-          </div>
-
           <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
             <Link to="/curriculum" className="flex items-center gap-2 font-black uppercase" style={{ color: 'var(--deep-blue)' }}>
               <SyllabusIcon className="w-4 h-4" />
