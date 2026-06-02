@@ -16,7 +16,9 @@ API.interceptors.request.use((config) => {
 
     url.includes("/users/admin/password-reset/") ||
 
-    url.includes("/users/admin/password-reset-confirm/");
+    url.includes("/users/admin/password-reset-confirm/") ||
+
+    url.includes("/users/email-change-confirm/");
 
   if (token && !excluded) {
 
@@ -39,7 +41,8 @@ API.interceptors.response.use(
     const excluded =
       url.includes("/users/login/") ||
       url.includes("/users/admin/password-reset/") ||
-      url.includes("/users/admin/password-reset-confirm/");
+      url.includes("/users/admin/password-reset-confirm/") ||
+      url.includes("/users/email-change-confirm/");
 
     if (
       error.response?.status === 401 &&

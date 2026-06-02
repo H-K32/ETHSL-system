@@ -33,7 +33,17 @@ export default function AdminVerifyEmailChange() {
 
   if (status === "loading") return (
     <div style={containerStyle}>
-      <p style={{ color: "#555" }}>Verifying your new email…</p>
+      <div style={{
+        width: 40, height: 40,
+        border: "4px solid #3b82f6",
+        borderTopColor: "transparent",
+        borderRadius: "50%",
+        animation: "spin 0.8s linear infinite",
+        margin: "0 auto 1rem",
+      }} />
+      <style>{"@keyframes spin { to { transform: rotate(360deg); } }"}</style>
+      <h2 style={{ color: "#1e293b" }}>Verifying your new email…</h2>
+      <p style={{ color: "#555", marginTop: "0.5rem", fontSize: "0.9rem" }}>This should only take a moment.</p>
     </div>
   );
 
