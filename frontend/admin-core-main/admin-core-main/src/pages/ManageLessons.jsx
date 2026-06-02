@@ -183,7 +183,7 @@ const cancelDelete = () => {
               <thead>
                 <tr>
                   <th>Title</th>
-                  <th>Course</th>
+                  <th>Module</th>
                   <th>Order</th>
                   <th>Duration</th>
                   <th>Actions</th>
@@ -259,7 +259,7 @@ const cancelDelete = () => {
               required
             />
 
-            {/* COURSE DROPDOWN */}
+            {/* MODULE DROPDOWN */}
             <select
               value={form.course}
               onChange={(e) =>
@@ -267,7 +267,7 @@ const cancelDelete = () => {
               }
               required
             >
-              <option value="">Select Course</option>
+              <option value="">Select Module</option>
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.title}

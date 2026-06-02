@@ -95,8 +95,8 @@ const cancelDelete = () => {
   return (
     <>
       <div className="page-header">
-        <h1>Manage Courses</h1>
-        <p>Create, edit, and manage courses</p>
+        <h1>Manage Modules</h1>
+        <p>Create, edit, and manage modules</p>
       </div>
 
       {/* LIST VIEW */}
@@ -104,7 +104,7 @@ const cancelDelete = () => {
         <>
           <div className="table-toolbar">
             <button className="btn-add" onClick={handleAdd}>
-              + Add Course
+              + Add Module
             </button>
           </div>
 
@@ -152,7 +152,7 @@ const cancelDelete = () => {
       {/* FORM VIEW */}
       {mode === "form" && (
         <div className="form-container">
-          <h2>{editingId ? "Edit Course" : "Add Course"}</h2>
+          <h2>{editingId ? "Edit Module" : "Add Module"}</h2>
 
           <form onSubmit={handleSubmit} className="form-column">
             <input
@@ -190,7 +190,7 @@ const cancelDelete = () => {
             </select>
 
             <button type="submit" className="btn-add">
-              {editingId ? "Update Course" : "Create Course"}
+              {editingId ? "Update Module" : "Create Module"}
             </button>
 
             <button
@@ -232,10 +232,10 @@ const cancelDelete = () => {
         textAlign: "center",
       }}
     >
-      <h3 style={{ marginBottom: "12px" }}>Delete Course</h3>
+      <h3 style={{ marginBottom: "12px" }}>Delete Module</h3>
 
       <p style={{ marginBottom: "20px", color: "#555" }}>
-  Are you sure you want to delete the course {" "}
+  Are you sure you want to delete the module {" "}
   <strong style={{ color: "red" }}> "{courseToDelete?.title}"</strong>?
 </p>
 
