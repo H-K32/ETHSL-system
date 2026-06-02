@@ -380,7 +380,7 @@ export default function Dashboard() {
 
           <div className="db-panel">
             <div className="db-panel-head">
-              <h3>Top Courses</h3>
+              <h3>Top Modules</h3>
               <span>by completions</span>
             </div>
             {popularCourses.length === 0 ? <Empty text="No data yet" /> :

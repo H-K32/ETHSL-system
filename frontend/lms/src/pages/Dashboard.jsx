@@ -103,7 +103,7 @@ export default function Dashboard() {
         },
         {
           label: 'Streak',
-          value: `${data.streak_count ?? user?.streak_count ?? 0} day${(data.streak_count ?? user?.streak_count ?? 0) === 1 ? '' : 's'}`,
+          value: `${data.streak_count ?? 0} day${(data.streak_count ?? 0) === 1 ? '' : 's'}`,
           icon: '🔥',
           color: '#ef4444'
         }

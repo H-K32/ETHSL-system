@@ -60,13 +60,14 @@ class SubmitQuizView(APIView):
         )
 
         score = 0
+        review = []
 
         for ans in answers_data:
             question = Question.objects.get(id=ans["question"])
             selected_option = Option.objects.get(id=ans["selected_option"])
+            correct_option = question.options.filter(is_correct=True).first()
 
             is_correct = selected_option.is_correct
-
             if is_correct:
                 score += question.points
 
@@ -76,6 +77,16 @@ class SubmitQuizView(APIView):
                 selected_option=selected_option,
                 is_correct=is_correct
             )
+
+            review.append({
+                "question_id": question.id,
+                "question_text": question.question_text,
+                "selected_option_id": selected_option.id,
+                "selected_option_text": selected_option.option_text,
+                "correct_option_id": correct_option.id if correct_option else None,
+                "correct_option_text": correct_option.option_text if correct_option else None,
+                "is_correct": is_correct,
+            })
 
         attempt.score = score
         attempt.passed = score >= quiz.passing_score
@@ -91,14 +102,24 @@ class SubmitQuizView(APIView):
                     lesson=quiz.lesson,
                     defaults={"is_completed": True, "completed_at": now()}
                 )
-                issue_certificate_if_all_quizzes_passed(
+                certificate = issue_certificate_if_all_quizzes_passed(
                     user,
                     quiz.lesson.course.level
                 )
+                if certificate:
+                    return Response({
+                        "score": score,
+                        "passed": attempt.passed,
+                        "certificate_earned": True,
+                        "level_name": quiz.lesson.course.level.get_name_display(),
+                        "review": review,
+                    })
 
         return Response({
             "score": score,
-            "passed": attempt.passed
+            "passed": attempt.passed,
+            "certificate_earned": False,
+            "review": review,
         })    
         
 class CompleteLessonView(APIView):

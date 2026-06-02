@@ -54,33 +54,121 @@ export default function Quiz() {
 
   if (result) {
     const passed = result.passed ?? (result.score >= (quiz?.passing_score ?? 0))
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-12 text-center">
-        <div className={`inline-block px-4 py-1 rounded-full text-sm font-medium ${passed ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-          {passed ? 'Passed' : 'Did not pass'}
+    const review = result.review || []
+    const correctCount = review.filter(r => r.is_correct).length
+
+    if (passed && result.certificate_earned) {
+      return (
+        <div className="max-w-2xl mx-auto px-4 py-16 text-center">
+          <div className="text-6xl mb-4">🎉</div>
+          <div className="inline-block px-4 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700 mb-4">
+            Level Complete!
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 mb-3">Congratulations!</h1>
+          <p className="text-slate-600 mb-2 text-lg">
+            You have successfully completed the <strong>{result.level_name}</strong> level and earned a certificate.
+          </p>
+          <p className="text-slate-500 text-sm mb-8">
+            Your score: <strong>{result.score}</strong> &nbsp;·&nbsp; Passing score: <strong>{quiz?.passing_score}</strong>
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <button onClick={() => nav('/certificates')} className="px-6 py-3 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors">
+              🏅 View My Certificate
+            </button>
+            <button onClick={() => nav('/levels')} className="px-6 py-3 rounded-lg border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-colors">
+              Back to Levels
+            </button>
+          </div>
         </div>
-        <h1 className="mt-4 text-2xl font-bold text-slate-900">Your score: {result.score ?? '—'}</h1>
-        {quiz?.passing_score != null && (
-          <p className="mt-1 text-sm text-slate-500">Passing score: {quiz.passing_score}</p>
-        )}
-        <div className="mt-6 flex justify-center gap-3">
-          <button
-            onClick={() => { setResult(null); setAnswers({}); setUnanswered([]) }}
-            className="px-4 py-2 rounded-lg border border-slate-200"
-          >
-            Retake
-          </button>
+      )
+    }
+
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10">
+
+        {/* ── Result header ── */}
+        <div className={`rounded-2xl p-6 mb-8 text-center border ${
+          passed ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'
+        }`}>
+          <div className={`text-4xl mb-2`}>{passed ? '🎉' : '📚'}</div>
+          <div className={`inline-block px-4 py-1 rounded-full text-sm font-semibold mb-3 ${
+            passed ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+          }`}>
+            {passed ? 'Passed' : 'Did not pass'}
+          </div>
+          <p className="text-2xl font-bold text-slate-900">
+            {correctCount} / {review.length} correct
+          </p>
+          <p className="text-slate-500 text-sm mt-1">
+            Score: <strong>{result.score}</strong> &nbsp;·&nbsp; Passing score: <strong>{quiz?.passing_score}</strong>
+          </p>
+        </div>
+
+        {/* ── Per-question review ── */}
+        <h2 className="text-lg font-bold text-slate-800 mb-4">Review</h2>
+        <div className="space-y-4 mb-8">
+          {review.map((r, idx) => (
+            <div key={r.question_id} className={`rounded-xl border p-5 ${
+              r.is_correct ? 'border-emerald-300 bg-emerald-50' : 'border-red-300 bg-red-50'
+            }`}>
+              <div className="flex items-start gap-2 mb-3">
+                <span className={`shrink-0 text-xs font-mono px-1.5 py-0.5 rounded mt-0.5 ${
+                  r.is_correct ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                }`}>{idx + 1}</span>
+                <span className="font-medium text-slate-900">{r.question_text}</span>
+                <span className="ml-auto shrink-0">{r.is_correct ? '✅' : '❌'}</span>
+              </div>
+              <div className="space-y-1.5 text-sm pl-6">
+                <p className={`flex items-center gap-2 ${
+                  r.is_correct ? 'text-emerald-700' : 'text-red-600'
+                }`}>
+                  <span className="font-semibold">Your answer:</span>
+                  <span>{r.selected_option_text || '—'}</span>
+                </p>
+                {!r.is_correct && (
+                  <p className="flex items-center gap-2 text-emerald-700">
+                    <span className="font-semibold">Correct answer:</span>
+                    <span>{r.correct_option_text || '—'}</span>
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Actions ── */}
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          {passed ? (
+            <button
+              onClick={() => {
+                if (courseId) nav(`/lessons/${courseId}`, { state: { levelId } })
+                else if (levelId) nav(`/courses/${levelId}`)
+                else nav('/levels')
+              }}
+              className="px-6 py-3 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
+            >
+              Go to Next Lesson →
+            </button>
+          ) : (
+            <button
+              onClick={() => { setResult(null); setAnswers({}); setUnanswered([]) }}
+              className="px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors"
+            >
+              Retake Quiz
+            </button>
+          )}
           <button
             onClick={() => {
               if (courseId) nav(`/lessons/${courseId}`, { state: { levelId } })
               else if (levelId) nav(`/courses/${levelId}`)
               else nav('/levels')
             }}
-            className="px-4 py-2 rounded-lg bg-brand-600 text-white"
+            className="px-6 py-3 rounded-lg border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
           >
-            Go Back
+            Back to Module
           </button>
         </div>
+
       </div>
     )
   }
