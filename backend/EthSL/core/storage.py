@@ -38,8 +38,5 @@ class CustomMediaCloudinaryStorage(MediaCloudinaryStorage):
             "public_id": public_id,
             "overwrite": True,
         }
-        if is_video:
-            upload_options["audio_codec"] = "copy"
-            upload_options["video_codec"] = "auto"
 
         return cloudinary.uploader.upload(content, **upload_options)
