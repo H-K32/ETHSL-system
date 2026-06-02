@@ -15,9 +15,9 @@ class User(AbstractUser):
     )
 
     LEVEL_CHOICES = (
-        ('beginner', 'ጀማሪ'),
-        ('intermediate', 'መካከለኛ'),
-        ('advanced', 'ከፍተኛ'),
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
     )
 
     email_verified = models.BooleanField(default=False)

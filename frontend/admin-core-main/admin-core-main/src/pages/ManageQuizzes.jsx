@@ -610,7 +610,7 @@ const handleSubmit = async (e) => {
               {levels
                 .filter((l) =>
                   form.quiz_type === "placement"
-                    ? ["intermediate", "advanced", "መካከለኛ", "ከፍተኛ"].includes(l.name)
+                    ? ["intermediate", "advanced", "Intermediate", "Advanced"].includes(l.name)
                     : true
                 )
                 .map((l) => (

@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
             name='Level',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(choices=[('beginner', 'ጀማሪ'), ('intermediate', 'መካከለኛ'), ('advanced', 'ከፍተኛ')], max_length=20)),
+                ('name', models.CharField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], max_length=20)),
                 ('order', models.IntegerField()),
             ],
             options={
