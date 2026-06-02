@@ -40,7 +40,6 @@ const emptyForm = {
   quiz_type: "lesson",
 
   lesson: "",
-  course: "",
   level: "",
 
   description: "",
@@ -59,7 +58,6 @@ const ManageQuizzes = () => {
   const [quizzes, setQuizzes] = useState([]);
 
   const [lessons, setLessons] = useState([]);
-  const [courses, setCourses] = useState([]);
   const [levels, setLevels] = useState([]);
 
   const [mode, setMode] = useState("list");
@@ -157,11 +155,6 @@ const ManageQuizzes = () => {
     setLessons(res.data);
   };
 
-  const fetchCourses = async () => {
-    const res = await API.get("/courses/course/");
-    setCourses(res.data);
-  };
-
   const fetchLevels = async () => {
     try {
       const res = await API.get("/courses/level/");
@@ -174,7 +167,6 @@ const ManageQuizzes = () => {
   useEffect(() => {
     fetchQuizzes();
     fetchLessons();
-    fetchCourses();
     fetchLevels();
   }, []);
 
@@ -190,8 +182,6 @@ const handleEdit = (quiz) => {
   let quizType = "lesson";
   if (quiz.quiz_type === "placement") {
     quizType = "placement";
-  } else if (quiz.course) {
-    quizType = "course";
   } else if (quiz.level) {
     quizType = "level";
   }
@@ -200,7 +190,6 @@ const handleEdit = (quiz) => {
     quiz_type: quizType,
 
     lesson: quiz.lesson || "",
-    course: quiz.course || "",
     level: quiz.level || "",
 
     description: quiz.description,
@@ -379,16 +368,11 @@ const handleSubmit = async (e) => {
 
   // ================= DUPLICATE CHECK =================
   if (!editingId) {
-    const lessonId  = form.quiz_type === "lesson"     ? Number(form.lesson)  : null;
-    const courseId  = form.quiz_type === "course"     ? Number(form.course)  : null;
+    const lessonId  = form.quiz_type === "lesson" ? Number(form.lesson) : null;
     const levelId   = (form.quiz_type === "level" || form.quiz_type === "placement") ? Number(form.level) : null;
 
     if (lessonId && quizzes.some(q => q.lesson === lessonId)) {
       setFormErrors({ duplicate: "This lesson already has a quiz." });
-      return;
-    }
-    if (courseId && quizzes.some(q => q.course === courseId && !q.lesson)) {
-      setFormErrors({ duplicate: "This course already has a quiz." });
       return;
     }
     if (levelId && form.quiz_type === "placement" && quizzes.some(q => q.level === levelId && q.quiz_type === "placement" && !q.lesson && !q.course)) {
@@ -406,10 +390,9 @@ const handleSubmit = async (e) => {
   const payload = {
     quiz_type: form.quiz_type === 'placement' ? 'placement'
              : form.quiz_type === 'level' ? 'final'
-             : form.quiz_type === 'course' ? 'final'
              : 'lesson',
     lesson: form.quiz_type === "lesson" ? Number(form.lesson) : null,
-    course: form.quiz_type === "course" ? Number(form.course) : null,
+    course: null,
     level: (form.quiz_type === "level" || form.quiz_type === "placement") ? Number(form.level) : null,
 
     description: form.description,
@@ -514,14 +497,12 @@ const handleSubmit = async (e) => {
                 <tr key={q.id}>
                   <td>
                     {q.lesson && "Lesson Quiz"}
-                    {q.course && !q.lesson && "Course Final Quiz"}
-                    {q.level && !q.lesson && !q.course && (q.quiz_type === "placement" || q.quiz_type === "lesson") && "Placement Test"}
-                    {q.level && !q.lesson && !q.course && q.quiz_type === "final" && "Level Final Quiz"}
+                    {q.level && !q.lesson && (q.quiz_type === "placement" || q.quiz_type === "lesson") && "Placement Test"}
+                    {q.level && !q.lesson && q.quiz_type === "final" && "Level Final Quiz"}
                   </td>
 
                   <td>
                     {q.lesson && `Lesson #${q.lesson}`}
-                    {q.course && `Course #${q.course}`}
                     {q.level && `Level #${q.level}`}
                   </td>
 
@@ -560,13 +541,11 @@ const handleSubmit = async (e) => {
                 ...form,
                 quiz_type: e.target.value,
                 lesson: "",
-                course: "",
                 level: "",
               })
             }
           >
             <option value="lesson">Lesson Quiz</option>
-            <option value="course">Course Final Quiz</option>
             <option value="level">Level Final Quiz</option>
             <option value="placement">Placement Test</option>
           </select>
@@ -581,20 +560,6 @@ const handleSubmit = async (e) => {
               <option value="">Select Lesson</option>
               {lessons.map((l) => (
                 <option key={l.id} value={l.id}>{l.title}</option>
-              ))}
-            </select>
-          )}
-
-          {/* COURSE SELECT */}
-          {form.quiz_type === "course" && (
-            <select
-              value={form.course}
-              onChange={(e) => setForm({ ...form, course: e.target.value })}
-              required
-            >
-              <option value="">Select Course</option>
-              {courses.map((c) => (
-                <option key={c.id} value={c.id}>{c.title}</option>
               ))}
             </select>
           )}
@@ -1014,7 +979,6 @@ const handleSubmit = async (e) => {
   Are you sure you want to delete this{" "}
   <strong>
     {quizToDelete?.lesson && "Lesson Quiz"}
-    {quizToDelete?.course && "Course Final Quiz"}
     {quizToDelete?.level && "Level Final Quiz"}
   </strong>
   ?

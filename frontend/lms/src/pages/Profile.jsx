@@ -407,7 +407,7 @@ export default function Profile() {
         </div>
         <div className="stat-card">
           <div className="stat-label">Current Level</div>
-          <div className="stat-value">{stats.current_level || '—'}</div>
+          <div className="stat-value stat-value--text">{stats.current_level || '—'}</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">🔥 Streak</div>
