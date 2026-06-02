@@ -66,6 +66,7 @@ export default function Courses() {
 
               const hasQuiz = course.has_quiz === true
               const quizId = course.quiz_id
+              const canTakeQuiz = course.can_take_course_quiz === true
 
               const Card = (
                 <article
@@ -100,6 +101,7 @@ export default function Courses() {
                   <div className="course-buttons">
                     <Link
                       to={locked ? '#' : `/lessons/${course.id}`}
+                      state={{ levelId }}
                       className="course-btn lessons-btn"
                       onClick={(e) => locked && e.preventDefault()}
                     >
@@ -108,9 +110,10 @@ export default function Courses() {
 
                     {hasQuiz && quizId && (
                       <Link
-                        to={locked ? '#' : `/quiz/${quizId}`}
-                        className="course-btn quiz-btn"
-                        onClick={(e) => locked && e.preventDefault()}
+                        to={canTakeQuiz ? `/quiz/${quizId}` : '#'}
+                        className={`course-btn quiz-btn${canTakeQuiz ? '' : ' disabled'}`}
+                        onClick={(e) => !canTakeQuiz && e.preventDefault()}
+                        title={canTakeQuiz ? '' : 'Complete all lessons and quizzes first'}
                       >
                         Take Course Quiz
                       </Link>

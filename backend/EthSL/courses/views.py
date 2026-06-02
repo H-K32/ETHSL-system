@@ -13,7 +13,6 @@ from rest_framework.exceptions import ValidationError
 import cloudinary
 import traceback
 import json
-import re
 
  
 from progress.models import LessonProgress, QuizAttempt
@@ -646,31 +645,40 @@ class LearnerLevelListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-
-        user = request.user
-
-        levels = Level.objects.all().order_by("order")
-
-        data = []
-
         from courses.access import (
             can_access_level,
-            can_take_level_quiz
+            can_take_level_quiz,
+            _all_lessons_completed_in_level,
+            _passed_level_final_quiz,
         )
 
-        for level in levels:
+        user = request.user
+        levels = Level.objects.all().order_by("order")
+        data = []
 
-            level_quiz = Quiz.objects.filter(level=level).first()
+        for level in levels:
+            level_quiz = Quiz.objects.filter(
+                level=level,
+                lesson__isnull=True,
+                course__isnull=True,
+            ).exclude(quiz_type='placement').first()
+
+            unlocked       = can_access_level(user, level)
+            content_done   = _all_lessons_completed_in_level(user, level)
+            quiz_passed    = _passed_level_final_quiz(user, level)
+            can_take_quiz  = can_take_level_quiz(user, level)
 
             data.append({
-                "id": level.id,
-                "name": level.name,
-                "display_name": level.get_name_display(),
-                "order": level.order,
-                "unlocked": can_access_level(user, level),
-                "has_quiz": level_quiz is not None,
-                "quiz_id": level_quiz.id if level_quiz else None,
-                "can_take_quiz": can_take_level_quiz(user, level),
+                "id":            level.id,
+                "name":          level.name,
+                "display_name":  level.get_name_display(),
+                "order":         level.order,
+                "unlocked":      unlocked,
+                "has_quiz":      level_quiz is not None,
+                "quiz_id":       level_quiz.id if level_quiz else None,
+                "can_take_quiz": can_take_quiz,
+                "content_done":  content_done,
+                "quiz_passed":   quiz_passed,
             })
 
         return Response(data)
@@ -685,15 +693,25 @@ class LearnerCourseListView(APIView):
         for course in courses:
             course_quiz = Quiz.objects.filter(course=course).first()
 
+            # Compute progress for this course
+            from progress.models import LessonProgress
+            total_lessons = course.lessons.count()
+            completed_lessons = LessonProgress.objects.filter(
+                user=request.user,
+                lesson__course=course,
+                is_completed=True
+            ).count()
+            progress = round((completed_lessons / total_lessons) * 100) if total_lessons else 0
+
             data.append({
                 "id": course.id,
                 "title": course.title,
                 "description": course.description,
-
                 "unlocked": can_access_course(request.user, course),
-
+                "progress": progress,
                 "has_quiz": course_quiz is not None,
                 "quiz_id": course_quiz.id if course_quiz else None,
+                "can_take_course_quiz": can_take_course_quiz(request.user, course) if course_quiz else False,
             })
 
         return Response(data)
@@ -788,43 +806,22 @@ class LearnerLessonDetailView(APIView):
             lesson = Lesson.objects.get(id=lesson_id)
         except Lesson.DoesNotExist:
             return Response({"detail": "Not found"}, status=404)
-        
-        print("VIDEO FIELD:", lesson.video)
 
         if not can_access_lesson(request.user, lesson):
             return Response({"detail": "This lesson is locked"}, status=403)
 
-        # 🔥 SAFE VIDEO HANDLING
+        # cloudinary_storage resolves .url but uses 'image/upload' resource type
+        # for all files including videos. Replace it with 'video/upload'.
         video_url = None
-         
-
         if lesson.video:
             try:
-                path = lesson.video.name
-
-                match = re.search(
-                    r'v(\d+)/(.*)$',
-                    path
-                )
-
-                if match:
-                    version = match.group(1)
-                    filename = match.group(2)
-
-                    video_url = (
-                        f"https://res.cloudinary.com/"
-                        f"dn5rumfy7/video/upload/"
-                        f"v{version}/{filename}"
-                    )
-
-                print("FINAL VIDEO URL:", video_url)
-
+                raw_url = lesson.video.url
+                video_url = raw_url.replace('/image/upload/', '/video/upload/')
             except Exception as e:
-                print("VIDEO ERROR:", e)
+                print("VIDEO URL ERROR:", e)
                 video_url = None
 
         quiz_data = None
-
         if hasattr(lesson, "quiz"):
             quiz = lesson.quiz
             quiz_data = {
@@ -846,8 +843,7 @@ class LearnerLessonDetailView(APIView):
                     for q in quiz.questions.all()
                 ]
             }
-            print("VIDEO FIELD:", lesson.video)
-            print("VIDEO URL:", lesson.video.url)
+
         return Response({
             "id": lesson.id,
             "title": lesson.title,
@@ -897,8 +893,15 @@ class LearnerQuizDetailView(APIView):
         if not quiz:
             return Response({"detail": "Not found"}, status=404)
 
-        serializer = QuizSerializer(quiz)
+        # Block access to course quiz if learner hasn't completed all lessons
+        # and lesson quizzes in that course
+        if quiz.course and not can_take_course_quiz(request.user, quiz.course):
+            return Response(
+                {"detail": "Complete all lessons and lesson quizzes in this course first."},
+                status=403
+            )
 
+        serializer = QuizSerializer(quiz)
         return Response(serializer.data)
 
 

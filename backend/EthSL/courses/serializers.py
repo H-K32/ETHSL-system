@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import Course, Lesson, Quiz, Question, Option, Level
 from progress.models import LessonProgress
-import re
 import json
 
 class LevelSerializer(serializers.ModelSerializer):
@@ -92,6 +91,7 @@ class LessonReadSerializer(serializers.ModelSerializer):
     
 class OptionSerializer(serializers.ModelSerializer):
     option_video = serializers.SerializerMethodField()
+    option_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Option
@@ -103,36 +103,44 @@ class OptionSerializer(serializers.ModelSerializer):
             "is_correct",
         ]
 
-    def get_option_video(self, obj):
-        if not obj.option_video:
+    def _resolve_video_url(self, field):
+        if not field:
+            return None
+        try:
+            name = field.name
+            # Already a full URL stored directly
+            if name.startswith('http'):
+                return name.replace('/image/upload/', '/video/upload/')
+            # Cloudinary storage — .url returns full URL but wrong resource type
+            raw = field.url
+            return raw.replace('/image/upload/', '/video/upload/')
+        except Exception as e:
+            print("VIDEO RESOLVE ERROR:", e)
             return None
 
+    def _resolve_image_url(self, field):
+        if not field:
+            return None
         try:
-            path = obj.option_video.name
-
-            match = re.search(
-                r"videos/option/(.*)$",
-                path
-            )
-
-            if match:
-                filename = match.group(1)
-
-                return (
-                    "https://res.cloudinary.com/"
-                    "dn5rumfy7/video/upload/"
-                    f"videos/option/{filename}"
-                )
-
+            name = field.name
+            if name.startswith('http'):
+                return name
+            return field.url
         except Exception as e:
-            print("OPTION VIDEO ERROR:", e)
+            print("IMAGE RESOLVE ERROR:", e)
+            return None
 
-        return None
+    def get_option_video(self, obj):
+        return self._resolve_video_url(obj.option_video)
+
+    def get_option_image(self, obj):
+        return self._resolve_image_url(obj.option_image)
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True, required=False)
     question_video = serializers.SerializerMethodField()
+    question_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -145,31 +153,36 @@ class QuestionSerializer(serializers.ModelSerializer):
             "options",
         ]
 
-    def get_question_video(self, obj):
-        if not obj.question_video:
+    def _resolve_video_url(self, field):
+        if not field:
+            return None
+        try:
+            name = field.name
+            if name.startswith('http'):
+                return name.replace('/image/upload/', '/video/upload/')
+            raw = field.url
+            return raw.replace('/image/upload/', '/video/upload/')
+        except Exception as e:
+            print("VIDEO RESOLVE ERROR:", e)
             return None
 
+    def _resolve_image_url(self, field):
+        if not field:
+            return None
         try:
-            path = obj.question_video.name
-
-            match = re.search(
-                r"videos/question/(.*)$",
-                path
-            )
-
-            if match:
-                filename = match.group(1)
-
-                return (
-                    "https://res.cloudinary.com/"
-                    "dn5rumfy7/video/upload/"
-                    f"videos/question/{filename}"
-                )
-
+            name = field.name
+            if name.startswith('http'):
+                return name
+            return field.url
         except Exception as e:
-            print("QUESTION VIDEO ERROR:", e)
+            print("IMAGE RESOLVE ERROR:", e)
+            return None
 
-        return None
+    def get_question_video(self, obj):
+        return self._resolve_video_url(obj.question_video)
+
+    def get_question_image(self, obj):
+        return self._resolve_image_url(obj.question_image)
 
 
 class QuizSerializer(serializers.ModelSerializer):

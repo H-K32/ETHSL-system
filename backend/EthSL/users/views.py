@@ -43,6 +43,14 @@ from .admin_password_serializer import (
 )
 resend.api_key = settings.RESEND_API_KEY
 
+
+def _blacklist_all_tokens(user):
+    """Blacklist all outstanding refresh tokens for a user."""
+    from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+    tokens = OutstandingToken.objects.filter(user=user)
+    for token in tokens:
+        BlacklistedToken.objects.get_or_create(token=token)
+
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -219,8 +227,8 @@ class AdminProfileView(APIView):
     permission_classes = [IsAuthenticated, IsAdminUserRole]
 
     def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user)
+        from .admin_profile_serializer import AdminProfileSerializer
+        serializer = AdminProfileSerializer(request.user)
         return Response(serializer.data)
 
     def put(self, request):
@@ -262,6 +270,7 @@ class ChangePasswordView(APIView):
 
         user.set_password(new_password)
         user.save()
+        _blacklist_all_tokens(user)
         return Response({"detail": "Password updated successfully."})
 
 
@@ -341,6 +350,7 @@ class EmailChangeConfirmView(APIView):
         record.user.save(update_fields=["email"])
         record.used = True
         record.save(update_fields=["used"])
+        _blacklist_all_tokens(record.user)
 
         return Response({"message": "Email updated successfully."})
     

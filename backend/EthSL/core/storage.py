@@ -28,10 +28,18 @@ class CustomMediaCloudinaryStorage(MediaCloudinaryStorage):
 
         public_id = f"{folder}_{uuid4().hex}"
 
-        return cloudinary.uploader.upload(
-            content,
-            resource_type="auto",
-            folder=folder,
-            public_id=public_id,
-            overwrite=True,
-        )
+        # For video files, preserve the original audio track by explicitly
+        # setting audio_codec="copy". Without this Cloudinary may strip audio
+        # during transcoding when resource_type="auto" is used.
+        is_video = ext in ["mp4", "mov", "avi", "mkv", "webm"]
+        upload_options = {
+            "resource_type": "video" if is_video else "auto",
+            "folder": folder,
+            "public_id": public_id,
+            "overwrite": True,
+        }
+        if is_video:
+            upload_options["audio_codec"] = "copy"
+            upload_options["video_codec"] = "auto"
+
+        return cloudinary.uploader.upload(content, **upload_options)

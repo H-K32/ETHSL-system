@@ -96,8 +96,6 @@ class SubmitQuizView(APIView):
                     quiz.lesson.course.level
                 )
 
-            user.save()
-
         return Response({
             "score": score,
             "passed": attempt.passed
@@ -105,18 +103,53 @@ class SubmitQuizView(APIView):
         
 class CompleteLessonView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request, lesson_id):
+        from django.utils.timezone import now as tz_now
+        from datetime import timedelta
+
+        user = request.user
+        completion_time = tz_now()
+
         obj, created = LessonProgress.objects.get_or_create(
-            user=request.user,
+            user=user,
             lesson_id=lesson_id
         )
-        
+
+        already_completed = obj.is_completed
         obj.is_completed = True
-        obj.completed_at = now()
+        obj.completed_at = completion_time
         obj.save()
-        
-        return Response({"message": "Lesson completed"})
+
+        # Only update streak when this is a new completion
+        if not already_completed:
+            today = completion_time.date()
+            # Find the most recent other completed lesson before this one
+            last = (
+                LessonProgress.objects
+                .filter(user=user, is_completed=True)
+                .exclude(lesson_id=lesson_id)
+                .order_by("-completed_at")
+                .values_list("completed_at", flat=True)
+                .first()
+            )
+            if last is None:
+                # First ever lesson completed
+                user.streak_count = 1
+            else:
+                last_date = last.date()
+                if last_date == today:
+                    # Already completed a lesson today — streak unchanged
+                    pass
+                elif last_date == today - timedelta(days=1):
+                    # Consecutive day — extend streak
+                    user.streak_count += 1
+                else:
+                    # Gap of more than one day — reset
+                    user.streak_count = 1
+            user.save(update_fields=["streak_count"])
+
+        return Response({"message": "Lesson completed", "streak_count": user.streak_count})
             
     
 
@@ -136,6 +169,10 @@ class UserProgressDashboardView(APIView):
 
         quizzes_passed = QuizAttempt.objects.filter(
             user=user, passed=True
+        ).count()
+
+        quizzes_failed = QuizAttempt.objects.filter(
+            user=user, passed=False
         ).count()
 
         total_attempts = QuizAttempt.objects.filter(user=user).count()
@@ -191,6 +228,7 @@ class UserProgressDashboardView(APIView):
         return Response({
             "completed_lessons": lessons_completed,
             "quizzes_passed": quizzes_passed,
+            "quizzes_failed": quizzes_failed,
             "total_quiz_attempts": total_attempts,
             "quiz_average": round(quiz_avg, 1) if quiz_avg is not None else None,
             "streak_count": user.streak_count,

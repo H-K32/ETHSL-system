@@ -90,6 +90,12 @@ export default function Dashboard() {
           color: '#10b981'
         },
         {
+          label: 'Failed Quizzes',
+          value: data.quizzes_failed ?? 0,
+          icon: '❌',
+          color: '#ef4444'
+        },
+        {
           label: 'Avg Quiz Score',
           value: data.quiz_average != null ? `${Math.round(data.quiz_average)}%` : '—',
           icon: '📊',
@@ -97,7 +103,7 @@ export default function Dashboard() {
         },
         {
           label: 'Streak',
-          value: data.streak_count ?? user?.streak_count ?? 0,
+          value: `${data.streak_count ?? user?.streak_count ?? 0} day${(data.streak_count ?? user?.streak_count ?? 0) === 1 ? '' : 's'}`,
           icon: '🔥',
           color: '#ef4444'
         }
@@ -163,7 +169,7 @@ return (
         {/* STATS */}
         <div className="rounded-2xl border p-6 mb-10 shadow-sm relative overflow-hidden" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full filter blur-xl pointer-events-none" style={{ background: 'rgba(10,74,138,0.04)' }} />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {(stats || []).map((stat, i) => (
               <div key={i} className="rounded-xl border p-4" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
                 <div className="flex justify-between mb-3">

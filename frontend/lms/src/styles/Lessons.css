@@ -217,3 +217,29 @@
   color: var(--color-bone-400);
   border: 1px solid var(--color-bone-300);
 }
+
+/* Back to Course button */
+.lessons-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-forest-600);
+  background-color: var(--color-bone-50);
+  border: 1px solid var(--color-bone-300);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 700;
+}
+
+.lessons-back:hover {
+  color: var(--color-sienna-600);
+  border-color: var(--color-sienna-500);
+  background-color: #fff;
+}

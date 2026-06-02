@@ -68,6 +68,7 @@ class AdminPasswordResetConfirmSerializer(
 
             user.set_password(new_password)
             user.save()
+            _blacklist_all_tokens(user)
 
         except serializers.ValidationError:
             raise
@@ -78,3 +79,11 @@ class AdminPasswordResetConfirmSerializer(
             )
 
         return attrs
+
+
+def _blacklist_all_tokens(user):
+    """Blacklist all outstanding refresh tokens for a user."""
+    from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+    tokens = OutstandingToken.objects.filter(user=user)
+    for token in tokens:
+        BlacklistedToken.objects.get_or_create(token=token)

@@ -17,6 +17,7 @@ export default function Register() {
   })
 
   const [err, setErr] = useState(null)
+  const [fieldErrors, setFieldErrors] = useState({ full_name: '', username: '' })
   const [loading, setLoading] = useState(false)
 
   // 👀 toggle password visibility
@@ -48,6 +49,9 @@ export default function Register() {
   const isPasswordValid =
     strengthScore === 4
 
+  const FULL_NAME_REGEX = /^[a-zA-Z ]+$/
+  const USERNAME_REGEX = /^[a-zA-Z0-9]+$/
+
   const canSubmit =
     form.email &&
     form.gender &&
@@ -61,6 +65,16 @@ export default function Register() {
     setErr(null)
 
     // ✅ validation FIRST
+    setFieldErrors({ full_name: '', username: '' })
+
+    if (form.full_name && !FULL_NAME_REGEX.test(form.full_name)) {
+      return setFieldErrors(f => ({ ...f, full_name: 'Full name can only contain letters and spaces.' }))
+    }
+
+    if (form.username && !USERNAME_REGEX.test(form.username)) {
+      return setFieldErrors(f => ({ ...f, username: 'Username can only contain letters and numbers.' }))
+    }
+
     if (!isPasswordValid) {
       return setErr(
         'Password must be 8+ chars with uppercase, lowercase, and number'
@@ -113,20 +127,30 @@ export default function Register() {
           <input
             className="input"
             value={form.full_name}
-            onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, full_name: e.target.value })
+              setFieldErrors(f => ({ ...f, full_name: '' }))
+            }}
             required
           />
+          {fieldErrors.full_name && (
+            <p className="text-xs text-red-600 mt-1">{fieldErrors.full_name}</p>
+          )}
         </Field>
 
         <Field label="Username">
           <input
             className="input"
             value={form.username}
-            onChange={(e) =>
+            onChange={(e) => {
               setForm({ ...form, username: e.target.value })
-            }
+              setFieldErrors(f => ({ ...f, username: '' }))
+            }}
             required
           />
+          {fieldErrors.username && (
+            <p className="text-xs text-red-600 mt-1">{fieldErrors.username}</p>
+          )}
         </Field>
 
         {/* Email */}

@@ -176,8 +176,12 @@ const AdminProfile = () => {
 
     try {
       await API.post("/users/change-password/", { current_password, new_password });
-      setPasswordMsg({ type: "success", text: "Password changed successfully!" });
+      setPasswordMsg({ type: "success", text: "Password changed. Signing you out from all devices…" });
       setPasswords({ current_password: "", new_password: "", confirm: "" });
+      setTimeout(() => {
+        localStorage.removeItem("access");
+        window.location.href = "/login";
+      }, 1500);
     } catch (err) {
       const d = err.response?.data;
       setPasswordMsg({ type: "error", text: d?.detail || "Failed to change password." });

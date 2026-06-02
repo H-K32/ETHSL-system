@@ -111,8 +111,8 @@ export default function Profile() {
   }
 
   // Validation regexes — LMS user only
-  const USERNAME_REGEX = /^[a-zA-Z0-9_.\-]+$/
-  const FULL_NAME_REGEX = /^[a-zA-Z'\s]+$/
+  const USERNAME_REGEX = /^[a-zA-Z0-9]+$/
+  const FULL_NAME_REGEX = /^[a-zA-Z ]+$/
 
   const showMessage = (type, text) => {
     setMessage({ type, text })
@@ -163,14 +163,14 @@ export default function Profile() {
     // --- Username validation ---
     const trimmedUsername = formData.username.trim()
     if (trimmedUsername && !USERNAME_REGEX.test(trimmedUsername)) {
-      setFieldErrors(f => ({ ...f, username: 'Username can only contain letters, numbers, underscores, hyphens, and dots.' }))
+      setFieldErrors(f => ({ ...f, username: 'Username can only contain letters and numbers.' }))
       return
     }
 
     // --- Full name validation ---
     const fullName = `${formData.first_name} ${formData.last_name}`.trim()
     if (fullName && !FULL_NAME_REGEX.test(fullName)) {
-      setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and apostrophes.' }))
+      setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and spaces.' }))
       return
     }
 
@@ -255,9 +255,14 @@ export default function Profile() {
         current_password,
         new_password
       })
-      setMessage({ type: 'success', text: res.data?.detail || 'Password updated successfully!' })
+      setMessage({ type: 'success', text: res.data?.detail || 'Password updated. Signing you out from all devices…' })
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' })
       setIsChangingPassword(false)
+      setTimeout(() => {
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+        window.location.href = '/login'
+      }, 1500)
     } catch (err) {
       const d = err.response?.data
       setMessage({ type: 'error', text: d?.detail || 'Failed to change password.' })
@@ -387,6 +392,12 @@ export default function Profile() {
           <div className="stat-label">Current Level</div>
           <div className="stat-value">{stats.current_level || '—'}</div>
         </div>
+        <div className="stat-card">
+          <div className="stat-label">🔥 Streak</div>
+          <div className="stat-value">
+            {p.streak_count ?? 0} {(p.streak_count ?? 0) === 1 ? 'day' : 'days'}
+          </div>
+        </div>
       </div>
 
       {/* Edit Profile Modal */}
@@ -409,7 +420,7 @@ export default function Profile() {
                   onBlur={() => {
                     const v = formData.username.trim()
                     if (v && !USERNAME_REGEX.test(v))
-                      setFieldErrors(f => ({ ...f, username: 'Username can only contain letters, numbers, underscores, hyphens, and dots.' }))
+                      setFieldErrors(f => ({ ...f, username: 'Username can only contain letters and numbers.' }))
                   }}
                   placeholder="Username"
                   minLength={3}
@@ -429,7 +440,7 @@ export default function Profile() {
                     onBlur={() => {
                       const full = `${formData.first_name} ${formData.last_name}`.trim()
                       if (full && !FULL_NAME_REGEX.test(full))
-                        setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and apostrophes.' }))
+                        setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and spaces.' }))
                     }}
                     placeholder="First name"
                     style={fieldErrors.fullName ? { borderColor: '#c62828' } : {}}
@@ -445,7 +456,7 @@ export default function Profile() {
                     onBlur={() => {
                       const full = `${formData.first_name} ${formData.last_name}`.trim()
                       if (full && !FULL_NAME_REGEX.test(full))
-                        setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and apostrophes.' }))
+                        setFieldErrors(f => ({ ...f, fullName: 'Full name can only contain letters and spaces.' }))
                     }}
                     placeholder="Last name"
                     style={fieldErrors.fullName ? { borderColor: '#c62828' } : {}}

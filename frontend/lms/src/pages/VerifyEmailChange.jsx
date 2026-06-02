@@ -12,7 +12,7 @@ export default function VerifyEmailChange() {
     axios.get(`https://ethsl-system.onrender.com/api/users/email-change-confirm/${uidb64}/${token}/`)
       .then(() => {
         setStatus('success')
-        setTimeout(() => nav('/profile', { replace: true }), 2500)
+        setTimeout(() => nav('/login', { replace: true }), 2500)
       })
       .catch((err) => {
         setErrorMsg(err.response?.data?.error || 'The link is invalid or has expired.')
@@ -34,7 +34,7 @@ export default function VerifyEmailChange() {
         <>
           <div className="text-5xl mb-4">✅</div>
           <h1 className="text-xl font-bold text-green-600">Email Updated Successfully!</h1>
-          <p className="text-gray-500 mt-2 text-sm">Your email address has been updated. Redirecting to your profile…</p>
+          <p className="text-gray-500 mt-2 text-sm">Your email address has been updated. You have been signed out from all devices. Redirecting to login…</p>
         </>
       )}
 

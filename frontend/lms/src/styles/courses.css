@@ -266,3 +266,16 @@
   }
   .courses-grid { grid-template-columns: 1fr; }
 }
+
+.quiz-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: var(--color-bone-300);
+  color: var(--color-forest-500);
+}
+
+.quiz-btn.disabled:hover {
+  background: transparent;
+  border-color: var(--color-bone-300);
+  color: var(--color-forest-500);
+}

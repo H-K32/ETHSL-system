@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import useAsync from '../utils/useAsync.js'
 import { getLessons } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
@@ -8,6 +8,9 @@ import '../styles/Lessons.css'
 
 export default function Lessons() {
   const { courseId } = useParams()
+  const nav = useNavigate()
+  const { state } = useLocation()
+  const levelId = state?.levelId
 
   const { data, loading, error, reload } = useAsync(
     () => getLessons(courseId),
@@ -38,6 +41,14 @@ export default function Lessons() {
         <p className="lessons-subtitle">
           Work through each lesson in order — unlock the next as you complete them.
         </p>
+
+        <button
+          type="button"
+          onClick={() => levelId ? nav(`/courses/${levelId}`) : nav(-1)}
+          className="lessons-back"
+        >
+          ← Back to Courses
+        </button>
 
         <div className="lessons-divider" />
 

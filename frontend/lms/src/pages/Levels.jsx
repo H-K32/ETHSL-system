@@ -261,11 +261,16 @@ export default function Levels() {
               
               return locked ? (
                 <div key={l.id} className="relative select-none cursor-not-allowed group animate-fade-in">
-                  {/* Floating informative tooltip overlay on locked levels */}
                   <div className="absolute inset-0 bg-bone-900/5 backdrop-blur-[0.5px] rounded-3xl z-20 pointer-events-none transition-all duration-300 group-hover:bg-bone-900/10" />
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 bg-forest-950 text-bone-100 px-4 py-2 rounded-xl border border-sienna-600 shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 flex items-center gap-2 pointer-events-none whitespace-nowrap">
                     <Lock className="w-3.5 h-3.5 text-sienna-450 animate-bounce" />
-                    <span className="font-mono text-[10px] font-extrabold uppercase">Unlocks when you complete the previous section</span>
+                    <span className="font-mono text-[10px] font-extrabold uppercase">
+                      {!l.content_done
+                        ? 'Complete all lessons & quizzes in the previous level first'
+                        : !l.quiz_passed
+                        ? 'Pass the previous level\'s final quiz to unlock'
+                        : 'Pass the previous level\'s final quiz to unlock'}
+                    </span>
                   </div>
                   {Card}
                 </div>

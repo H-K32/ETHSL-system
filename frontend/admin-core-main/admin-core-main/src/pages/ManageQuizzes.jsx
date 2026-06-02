@@ -314,6 +314,18 @@ const updateQuestion = (index, field, value) => {
   });
 };
 
+const deleteOption = (qIndex, oIndex) => {
+  setForm((prev) => {
+    const updatedQuestions = [...prev.questions];
+    const q = updatedQuestions[qIndex];
+    updatedQuestions[qIndex] = {
+      ...q,
+      options: q.options.filter((_, i) => i !== oIndex),
+    };
+    return { ...prev, questions: updatedQuestions };
+  });
+};
+
 const updateOption = (qIndex, oIndex, field, value) => {
   setForm((prev) => {
     const updatedQuestions = [...prev.questions];
@@ -863,6 +875,18 @@ const handleSubmit = async (e) => {
           />
           Correct
         </label>
+
+        {/* ================= DELETE OPTION ================= */}
+        {q.options.length > 2 && (
+          <button
+            type="button"
+            onClick={() => deleteOption(qIndex, oIndex)}
+            style={{ color: "red", marginLeft: 4 }}
+          >
+            ✕
+          </button>
+        )}
+
             {formErrors.question_errors?.[qIndex]?.option_errors?.[oIndex] && (
               <p style={{ color: "red", marginTop: 4 }}>
                 {formErrors.question_errors[qIndex].option_errors[oIndex]}

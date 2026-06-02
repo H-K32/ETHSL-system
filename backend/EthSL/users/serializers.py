@@ -40,6 +40,18 @@ class RegisterSerializer(serializers.ModelSerializer):
             "gender",
         ]
 
+    def validate_username(self, value):
+        import re
+        if value and not re.match(r'^[a-zA-Z0-9]+$', value):
+            raise serializers.ValidationError("Username can only contain letters and numbers.")
+        return value
+
+    def validate_full_name(self, value):
+        import re
+        if value and not re.match(r'^[a-zA-Z ]+$', value):
+            raise serializers.ValidationError("Full name can only contain letters and spaces.")
+        return value
+
     # ---------------- PASSWORD VALIDATION ----------------
     def validate_password(self, value):
         validate_password(value)
@@ -131,7 +143,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
     
 class UserSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(required=False)
+    full_name = serializers.CharField(required=False, allow_blank=True)
     warning_message = serializers.CharField(read_only=True)
     avatar = serializers.SerializerMethodField()
     avatar_upload = serializers.ImageField(write_only=True, required=False, allow_null=True, source='avatar')
@@ -159,6 +171,12 @@ class UserSerializer(serializers.ModelSerializer):
         "Turkmenistan","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States",
         "Uruguay","Uzbekistan","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe",
     }
+
+    def validate_full_name(self, value):
+        import re
+        if value and not re.match(r'^[a-zA-Z ]+$', value):
+            raise serializers.ValidationError("Full name can only contain letters and spaces.")
+        return value
 
     def validate_country(self, value):
         if value and value.strip() and value.strip().title() not in self.VALID_COUNTRIES:
