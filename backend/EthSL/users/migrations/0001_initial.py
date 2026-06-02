@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('role', models.CharField(choices=[('learner', 'Learner'), ('admin', 'Admin')], default='learner', max_length=20)),
                 ('streak_count', models.IntegerField(default=0)),
                 ('warning_message', models.TextField(blank=True, null=True)),
-                ('level', models.CharField(choices=[('beginner', 'ጀማሪ'), ('intermediate', 'መካከለኛ'), ('advanced', 'ከፍተኛ')], default='beginner', max_length=20)),
+                ('level', models.CharField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], default='beginner', max_length=20)),
                 ('placement_required', models.BooleanField(default=False)),
                 ('placement_passed', models.BooleanField(default=False)),
                 ('avatar', models.ImageField(blank=True, default='avatars/default.png', null=True, upload_to='avatars/')),

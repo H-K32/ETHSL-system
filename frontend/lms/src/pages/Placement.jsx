@@ -6,6 +6,36 @@ import { useAuth } from '../context/AuthContext.jsx'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 
+// Same VideoPlayer logic as LessonDetail.jsx
+function VideoPlayer({ url }) {
+  if (!url) return null
+
+  const ytMatch = url.match(
+    /(?:youtube\.com\/.*[?&]v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/
+  )
+  if (ytMatch?.[1]) {
+    return (
+      <div className="mt-3 w-full aspect-video">
+        <iframe
+          className="w-full h-full rounded"
+          src={`https://www.youtube.com/embed/${ytMatch[1]}`}
+          allowFullScreen
+          title="question video"
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-3">
+      <video controls className="rounded max-h-60 w-full" preload="metadata">
+        <source src={url} type="video/mp4" />
+        Your browser does not support this video.
+      </video>
+    </div>
+  )
+}
+
 export default function Placement() {
   const { state } = useLocation()
   const { refresh } = useAuth()
@@ -95,6 +125,12 @@ export default function Placement() {
                 <div className="font-semibold text-slate-900 mb-4">
                   {idx + 1}. {q.question_text || q.text}
                 </div>
+
+                {q.question_image && (
+                  <img src={q.question_image} alt="question" className="mt-3 rounded max-h-60" />
+                )}
+                <VideoPlayer url={q.question_video} />
+
                 <div className="space-y-3">
                   {(q.options || []).map((o) => (
                     <label

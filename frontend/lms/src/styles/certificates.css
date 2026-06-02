@@ -225,11 +225,14 @@
 }
 
 .certificate-card-visual strong {
-  max-width: 12rem;
+  max-width: 16rem;
   font-family: var(--font-serif);
   font-size: 1.4rem;
   line-height: 1.15;
   letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .certificate-card-meta {
