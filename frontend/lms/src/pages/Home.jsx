@@ -1,11 +1,26 @@
 import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import '../styles/home.css'
 
 export default function Home() {
   const { user } = useAuth()
-  const { t, toggleLanguage, lang } = useLanguage()
+  const { t, lang, toggleLanguage } = useLanguage()
+  const [langOpen, setLangOpen] = useState(false)
+  const dropRef = useRef(null)
+
+  // close dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => { if (dropRef.current && !dropRef.current.contains(e.target)) setLangOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const selectLang = (selected) => {
+    setLangOpen(false)
+    if (selected !== lang) toggleLanguage()
+  }
 
   return (
     <div className="home">
@@ -27,22 +42,29 @@ export default function Home() {
         </nav>
 
         <div className="navActions">
-          <button
-            onClick={toggleLanguage}
-            className="language-toggle"
-            style={{
-              padding: '8px 12px',
-              background: 'rgba(255, 255, 255, 0.9)',
-              border: '1px solid #e0e0e0',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '14px',
-              marginRight: '16px'
-            }}
-          >
-            {t('homeLangToggle')}
-          </button>
+          <div className="lang-switcher" ref={dropRef}>
+            <button className="lang-btn" onClick={() => setLangOpen(o => !o)} aria-label="Select language">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              <span>{lang === 'am' ? 'አማ' : 'EN'}</span>
+              <svg className={`lang-chevron${langOpen ? ' open' : ''}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            {langOpen && (
+              <div className="lang-dropdown">
+                <button className={`lang-option${lang === 'en' ? ' active' : ''}`} onClick={() => selectLang('en')}>
+                  <span>🇬🇧</span> English
+                </button>
+                <button className={`lang-option${lang === 'am' ? ' active' : ''}`} onClick={() => selectLang('am')}>
+                  <span>🇪🇹</span> አማርኛ
+                </button>
+              </div>
+            )}
+          </div>
 
           {user ? (
             <Link to="/levels" className="btn primary">

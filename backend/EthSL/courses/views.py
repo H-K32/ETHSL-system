@@ -793,9 +793,8 @@ class LearnerLessonListView(APIView):
                     lesson=lesson,
                     is_completed=True
                 ).exists(),
-
-                "has_quiz": hasattr(lesson, "quiz"),
-                "quiz_id": getattr(getattr(lesson, "quiz", None), "id", None),
+                "has_quiz": Quiz.objects.filter(lesson=lesson).exists(),
+                "quiz_id": Quiz.objects.filter(lesson=lesson).values_list('id', flat=True).first(),
             })
 
         return Response(data)
@@ -826,8 +825,8 @@ class LearnerCurriculumView(APIView):
                             lesson=lesson,
                             is_completed=True
                         ).exists(),
-                        "has_quiz": hasattr(lesson, "quiz"),
-                        "quiz_id": getattr(getattr(lesson, "quiz", None), "id", None),
+                        "has_quiz": Quiz.objects.filter(lesson=lesson).exists(),
+                        "quiz_id": Quiz.objects.filter(lesson=lesson).values_list('id', flat=True).first(),
                     })
 
                 course_items.append({
@@ -866,8 +865,6 @@ class LearnerLessonDetailView(APIView):
         if not can_access_lesson(request.user, lesson):
             return Response({"detail": "This lesson is locked"}, status=403)
 
-        # cloudinary_storage resolves .url but uses 'image/upload' resource type
-        # for all files including videos. Replace it with 'video/upload'.
         video_url = None
         if lesson.video:
             try:
@@ -878,7 +875,7 @@ class LearnerLessonDetailView(APIView):
                 video_url = None
 
         quiz_data = None
-        if hasattr(lesson, "quiz"):
+        try:
             quiz = lesson.quiz
             quiz_data = {
                 "id": quiz.id,
@@ -899,6 +896,14 @@ class LearnerLessonDetailView(APIView):
                     for q in quiz.questions.all()
                 ]
             }
+        except Exception:
+            quiz_data = None
+
+        completed = LessonProgress.objects.filter(
+            user=request.user,
+            lesson=lesson,
+            is_completed=True
+        ).exists()
 
         return Response({
             "id": lesson.id,
@@ -906,11 +911,7 @@ class LearnerLessonDetailView(APIView):
             "description": lesson.description,
             "video": video_url,
             "quiz": quiz_data,
-            "completed": LessonProgress.objects.filter(
-                user=request.user,
-                lesson=lesson,
-                is_completed=True
-            ).exists(),
+            "completed": completed,
         })
                               
 class LearnerCourseDetailView(APIView):
