@@ -5,6 +5,7 @@ import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { useTranslations, tx } from '../utils/useTranslations.js'
 import '../styles/Lessons.css'
 
 export default function Lessons() {
@@ -12,7 +13,7 @@ export default function Lessons() {
   const nav = useNavigate()
   const { state } = useLocation()
   const levelId = state?.levelId
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
 
   const { data, loading, error, reload } = useAsync(
     () => getLessons(courseId),
@@ -34,6 +35,8 @@ export default function Lessons() {
   const lessons = (data?.results || data || [])
     .slice()
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+
+  const lessonTranslations = useTranslations(lang, 'lesson', lessons, ['title', 'description'])
 
   return (
     <div className="lessons-page">
@@ -71,10 +74,10 @@ export default function Lessons() {
                     </div>
 
                     <div className="lesson-meta">
-                      <div className="lesson-name">{l.title}</div>
+                      <div className="lesson-name">{tx(lessonTranslations, lang, l.id, 'title', l.title)}</div>
 
                       {l.description && (
-                        <div className="lesson-blurb">{l.description}</div>
+                        <div className="lesson-blurb">{tx(lessonTranslations, lang, l.id, 'description', l.description)}</div>
                       )}
                     </div>
                   </div>

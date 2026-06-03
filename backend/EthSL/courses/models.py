@@ -11,6 +11,7 @@ class Level(models.Model):
 
     name = models.CharField(max_length=20, choices=LEVEL_CHOICES)
     order = models.IntegerField()
+    am_display_name = models.CharField(max_length=200, null=True, blank=True)
 
     class Meta:
         ordering = ['order']
@@ -94,6 +95,7 @@ class Quiz(models.Model):
 
     description = models.TextField()
     passing_score = models.IntegerField(validators=[MinValueValidator(1)])
+    am_description = models.TextField(null=True, blank=True)
 
     class Meta:
         constraints = [
@@ -144,6 +146,7 @@ class Question(models.Model):
     question_image = models.ImageField(upload_to="images/question/", blank=True, null=True)
     question_video = models.FileField(upload_to="videos/question/", blank=True, null=True)
     points = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+    am_question_text = models.TextField(null=True, blank=True)
 
 class Option(models.Model):
     question = models.ForeignKey(
