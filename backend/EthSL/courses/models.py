@@ -26,6 +26,8 @@ class Course(models.Model):
     )
     title = models.CharField(max_length=200)
     description = models.TextField()
+    am_title = models.CharField(max_length=200, null=True, blank=True)
+    am_description = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -43,6 +45,8 @@ class Lesson(models.Model):
     order = models.PositiveIntegerField()
     duration = models.CharField(max_length=50, null=True, blank=True)
     thumbnail = models.ImageField(upload_to="images/lesson_thumbnails/", null=True, blank=True)
+    am_title = models.CharField(max_length=200, null=True, blank=True)
+    am_description = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ['order']

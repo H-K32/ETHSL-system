@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import api from '../api/client.js'
 import '../styles/layout.css'
 
 export default function Layout() {
   const { user, logout } = useAuth()
+  const { lang, t, toggleLanguage } = useLanguage()
   const [unreadCount, setUnreadCount] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
@@ -60,50 +62,59 @@ export default function Layout() {
             <nav className="nav-menu">
               <NavLink to="/dashboard"     className={navLinkClass} onClick={() => setSidebarOpen(false)}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                <span>Dashboard</span>
+                <span>{t('dashboard')}</span>
               </NavLink>
 
               <NavLink to="/levels"        className={navLinkClass} onClick={() => setSidebarOpen(false)}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                <span>Levels</span>
+                <span>{t('levels')}</span>
               </NavLink>
 
               <NavLink to="/curriculum"    className={navLinkClass} onClick={() => setSidebarOpen(false)}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                <span>Curriculum</span>
+                <span>{t('curriculum')}</span>
               </NavLink>
 
               <NavLink to="/progress"      className={navLinkClass} onClick={() => setSidebarOpen(false)}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                <span>Progress</span>
+                <span>{t('progress')}</span>
               </NavLink>
 
               <NavLink to="/certificates"  className={navLinkClass} onClick={() => setSidebarOpen(false)}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m1-5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2z" /></svg>
-                <span>Certificates</span>
+                <span>{t('certificates')}</span>
               </NavLink>
 
               <NavLink to="/community"     className={navLinkClass} onClick={() => setSidebarOpen(false)}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                <span>Community</span>
+                <span>{t('community')}</span>
               </NavLink>
 
               <NavLink to="/notifications" className={navLinkClass} onClick={() => setSidebarOpen(false)}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                <span>Notifications</span>
+                <span>{t('notifications')}</span>
                 {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
               </NavLink>
 
               <NavLink to="/profile"       className={navLinkClass} onClick={() => setSidebarOpen(false)}>
                 <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                <span>Profile</span>
+                <span>{t('profile')}</span>
               </NavLink>
             </nav>
 
             <div className="user-section">
+              <button
+                onClick={toggleLanguage}
+                className="logout-btn"
+                style={{ marginBottom: '0.5rem', background: 'rgba(255,255,255,0.08)' }}
+                title={lang === 'en' ? 'Switch to Amharic' : 'Switch to English'}
+              >
+                <span style={{ fontSize: '1rem' }}>🌐</span>
+                <span>{lang === 'en' ? 'አማርኛ' : 'English'}</span>
+              </button>
               <button onClick={logout} className="logout-btn">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                <span>Logout</span>
+                <span>{t('logout')}</span>
               </button>
             </div>
           </div>

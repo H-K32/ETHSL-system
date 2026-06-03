@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import useAsync from '../utils/useAsync';
 import { getUserDashboard } from '../api/lms';
 import Spinner from '../components/Spinner';
+import { useLanguage } from '../context/LanguageContext.jsx';
 
 const ArrowLeft = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}>
@@ -53,6 +54,7 @@ const Compass = ({ className }) => (
 
 export default function Progress() {
   const { data, loading } = useAsync(getUserDashboard, []);
+  const { t } = useLanguage();
 
   if (loading) return <Spinner />;
 
@@ -76,7 +78,7 @@ export default function Progress() {
         <header className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-bone-300 pb-5 mb-8 gap-4">
           <Link to="/dashboard" className="group flex items-center space-x-2.5 font-mono text-xs font-black uppercase tracking-wider text-sienna-600 hover:text-sienna-700 transition">
             <ArrowLeft className="w-4 h-4 text-sienna-500 group-hover:-translate-x-1 transition-transform" />
-            <span>Return to Dashboard</span>
+            <span>{t('returnToDashboard')}</span>
           </Link>
           <div className="flex items-center space-x-2 text-forest-800 font-mono text-[10px] tracking-widest uppercase font-bold">
             <span className="w-1.5 h-1.5 bg-forest-550 rounded-full animate-ping" />
@@ -90,10 +92,10 @@ export default function Progress() {
             <span>Skill Plan</span>
           </div>
           <h1 className="progress-title text-4xl md:text-5xl font-serif font-black text-forest-900 tracking-tight leading-none mb-3">
-            Your Learning Progress
+            {t('yourLearningProgress')}
           </h1>
           <p className="text-sm md:text-base font-sans font-medium text-forest-700 max-w-2xl leading-relaxed">
-            Track your journey, monitor your habits, and record your achievements.
+            {t('trackYourJourney')}
           </p>
         </div>
 
@@ -104,12 +106,12 @@ export default function Progress() {
               <GraduationCap className="w-7 h-7 text-sienna-400" />
             </div>
             <div>
-              <p className="font-mono text-[9px] font-black uppercase tracking-widest text-sienna-600">Your Current Level</p>
+              <p className="font-mono text-[9px] font-black uppercase tracking-widest text-sienna-600">{t('yourCurrentLevel')}</p>
               <h3 className="font-serif text-lg md:text-xl font-bold text-forest-950 mt-1">{current_level}</h3>
             </div>
           </div>
           <Link to="/levels" className="shrink-0 inline-flex items-center gap-2 px-5 py-3 font-serif font-bold text-sm bg-forest-900 hover:bg-forest-850 text-bone-50 rounded-xl border border-forest-950 shadow-xs transition-all">
-            <span>Continue Learning</span>
+            <span>{t('continueLearning')}</span>
             <span className="text-xs">→</span>
           </Link>
         </div>
@@ -119,22 +121,22 @@ export default function Progress() {
           <div className="stat-large bg-white rounded-2xl border border-bone-300 p-5 shadow-xs">
             <div className="flex items-center justify-between mb-3"><span className="text-2xl">📚</span><BookOpen className="w-4 h-4 text-forest-500" /></div>
             <p className="text-2xl md:text-3xl font-serif font-black text-forest-950 leading-none mb-1">{completed_lessons}</p>
-            <p className="font-mono text-[10px] font-extrabold text-forest-650 uppercase tracking-widest">Completed Lessons</p>
+            <p className="font-mono text-[10px] font-extrabold text-forest-650 uppercase tracking-widest">{t('completedLessons')}</p>
           </div>
           <div className="stat-large bg-white rounded-2xl border border-bone-300 p-5 shadow-xs">
             <div className="flex items-center justify-between mb-3"><span className="text-2xl">🏆</span><Award className="w-4 h-4 text-sienna-500" /></div>
             <p className="text-2xl md:text-3xl font-serif font-black text-forest-950 leading-none mb-1">{quizzes_passed}</p>
-            <p className="font-mono text-[10px] font-extrabold text-forest-650 uppercase tracking-widest">Passed Quizzes</p>
+            <p className="font-mono text-[10px] font-extrabold text-forest-650 uppercase tracking-widest">{t('passedQuizzes')}</p>
           </div>
           <div className="stat-large bg-white rounded-2xl border border-bone-300 p-5 shadow-xs">
             <div className="flex items-center justify-between mb-3"><span className="text-2xl">📊</span><TrendingUp className="w-4 h-4 text-blue-500" /></div>
             <p className="text-2xl md:text-3xl font-serif font-black text-forest-950 leading-none mb-1">{successRate}%</p>
-            <p className="font-mono text-[10px] font-extrabold text-forest-650 uppercase tracking-widest">Success Rate</p>
+            <p className="font-mono text-[10px] font-extrabold text-forest-650 uppercase tracking-widest">{t('successRate')}</p>
           </div>
           <div className="stat-large bg-white rounded-2xl border border-bone-300 p-5 shadow-xs">
             <div className="flex items-center justify-between mb-3"><span className="text-2xl">🔥</span><Flame className="w-4 h-4 text-red-500 animate-pulse" /></div>
             <p className="text-2xl md:text-3xl font-serif font-black text-forest-950 leading-none mb-1">{streak_count}</p>
-            <p className="font-mono text-[10px] font-extrabold text-forest-650 uppercase tracking-widest">Streak Days</p>
+            <p className="font-mono text-[10px] font-extrabold text-forest-650 uppercase tracking-widest">{t('streakDays')}</p>
           </div>
         </div>
 
@@ -144,27 +146,27 @@ export default function Progress() {
             <div className="pb-3 mb-4 border-b border-dashed border-bone-250 flex justify-between items-center">
               <h3 className="font-serif font-bold text-forest-950 text-base flex items-center gap-2">
                 <Activity className="w-4 h-4 text-sienna-500" />
-                <span>Quiz Performance</span>
+                <span>{t('quizPerformance')}</span>
               </h3>
               <span className="font-mono text-[9px] px-2 py-0.5 bg-sienna-100 text-sienna-800 rounded font-black uppercase">Exams</span>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
-                <span className="font-sans text-xs font-semibold text-forest-750">Total Quiz Attempts</span>
+                <span className="font-sans text-xs font-semibold text-forest-750">{t('totalQuizAttempts')}</span>
                 <span className="font-mono text-xs font-bold text-forest-950">{total_quiz_attempts} times</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
-                <span className="font-sans text-xs font-semibold text-forest-750">Passed Quizzes</span>
+                <span className="font-sans text-xs font-semibold text-forest-750">{t('passedQuizzes')}</span>
                 <span className="font-mono text-xs font-bold text-emerald-700">{quizzes_passed} quizzes</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
-                <span className="font-sans text-xs font-semibold text-forest-750">Quiz Success Rate</span>
+                <span className="font-sans text-xs font-semibold text-forest-750">{t('quizSuccessRate')}</span>
                 <span className="font-mono text-xs font-bold text-sienna-600">{successRate}%</span>
               </div>
             </div>
             <div className="mt-6">
               <Link to="/levels" className="w-full py-2 bg-bone-100 hover:bg-bone-200 border border-bone-300 text-center font-mono text-[10px] font-black uppercase text-forest-900 rounded-lg block transition">
-                Take More Quizzes
+                {t('takeMoreQuizzes')}
               </Link>
             </div>
           </div>
@@ -174,21 +176,21 @@ export default function Progress() {
               <div className="pb-3 mb-4 border-b border-dashed border-bone-250 flex justify-between items-center">
                 <h3 className="font-serif font-bold text-forest-950 text-base flex items-center gap-2">
                   <Compass className="w-4 h-4 text-sienna-500" />
-                  <span>Learning Summary</span>
+                  <span>{t('learningSummary')}</span>
                 </h3>
                 <span className="font-mono text-[9px] px-2 py-0.5 bg-forest-100 text-forest-800 rounded font-black uppercase">Overview</span>
               </div>
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
-                  <span className="font-sans text-xs font-semibold text-forest-750">Current Level</span>
+                  <span className="font-sans text-xs font-semibold text-forest-750">{t('currentLevel')}</span>
                   <span className="font-mono text-xs font-bold text-forest-950">{current_level}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
-                  <span className="font-sans text-xs font-semibold text-forest-750">Lessons Completed</span>
+                  <span className="font-sans text-xs font-semibold text-forest-750">{t('lessonsCompleted')}</span>
                   <span className="font-mono text-xs font-bold text-emerald-700">{completed_lessons}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
-                  <span className="font-sans text-xs font-semibold text-forest-750">Study Streak</span>
+                  <span className="font-sans text-xs font-semibold text-forest-750">{t('studyStreak')}</span>
                   <span className="font-mono text-xs font-bold text-sienna-600">{streak_count} days 🔥</span>
                 </div>
               </div>
@@ -209,12 +211,12 @@ export default function Progress() {
               <span className="text-xl">🎯</span>
             </div>
             <div>
-              <h4 className="font-serif text-lg font-bold text-bone-100">Ready to start new lessons?</h4>
+              <h4 className="font-serif text-lg font-bold text-bone-100">{t('readyForNewLessons')}</h4>
               <p className="text-xs font-sans text-bone-300 font-medium mt-0.5">Explore chapter courses and interactive tests now.</p>
             </div>
           </div>
           <Link to="/levels" className="px-5 py-2.5 bg-sienna-600 hover:bg-sienna-700 text-bone-50 border border-sienna-700 rounded-lg text-xs font-mono font-black uppercase shrink-0 tracking-wider shadow-sm transition">
-            Start Now →
+            {t('exploreNow')}
           </Link>
         </div>
 

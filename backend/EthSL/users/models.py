@@ -62,6 +62,12 @@ class User(AbstractUser):
     placement_required = models.BooleanField(default=False)
     placement_passed = models.BooleanField(default=False)
 
+    language = models.CharField(
+        max_length=2,
+        choices=[('en', 'English'), ('am', 'Amharic')],
+        default='en'
+    )
+
     avatar = models.ImageField(
         upload_to="image/avatar/",
         null=True,

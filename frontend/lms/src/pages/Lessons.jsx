@@ -4,6 +4,7 @@ import { getLessons } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import '../styles/Lessons.css'
 
 export default function Lessons() {
@@ -11,6 +12,7 @@ export default function Lessons() {
   const nav = useNavigate()
   const { state } = useLocation()
   const levelId = state?.levelId
+  const { t } = useLanguage()
 
   const { data, loading, error, reload } = useAsync(
     () => getLessons(courseId),
@@ -37,17 +39,11 @@ export default function Lessons() {
     <div className="lessons-page">
       <div className="lessons-shell">
         <span className="lessons-eyebrow">Module · Lessons</span>
-        <h1 className="lessons-title">Your Learning Path</h1>
-        <p className="lessons-subtitle">
-          Work through each lesson in order — unlock the next as you complete them.
-        </p>
+        <h1 className="lessons-title">{t('yourLearningPath')}</h1>
+        <p className="lessons-subtitle">{t('workThroughLessons')}</p>
 
-        <button
-          type="button"
-          onClick={() => levelId ? nav(`/courses/${levelId}`) : nav(-1)}
-          className="lessons-back"
-        >
-          ← Back to Modules
+        <button type="button" onClick={() => levelId ? nav(`/courses/${levelId}`) : nav(-1)} className="lessons-back">
+          {t('backToModules')}
         </button>
 
         <div className="lessons-divider" />
@@ -84,7 +80,7 @@ export default function Lessons() {
                   </div>
 
                   <span className={`lesson-status ${stateClass}`}>
-                    {locked ? 'Locked' : completed ? 'Completed' : 'Open'}
+                    {locked ? t('locked') : completed ? t('completed') : t('open')}
                   </span>
                 </div>
               )

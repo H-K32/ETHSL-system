@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import '../styles/dashboard.css'
 import useAsync from '../utils/useAsync'
 import { getUserDashboard } from '../api/lms'
@@ -41,6 +42,7 @@ const ErrorState = ({ error, onRetry }) => (
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const { data, loading, error, reload } = useAsync(getUserDashboard, [])
 
@@ -71,36 +73,11 @@ export default function Dashboard() {
   // ✅ FIXED: safe fallback values
   const stats = data
     ? [
-        {
-          label: 'Completed Lessons',
-          value: data.completed_lessons ?? 0,
-          icon: '📚',
-          color: '#8c52ff'
-        },
-        {
-          label: 'Successful Quizzes',
-          value: data.quizzes_passed ?? 0,
-          icon: '✅',
-          color: '#10b981'
-        },
-        {
-          label: 'Failed Quizzes',
-          value: data.quizzes_failed ?? 0,
-          icon: '❌',
-          color: '#ef4444'
-        },
-        {
-          label: 'Avg Quiz Score',
-          value: data.quiz_average != null ? `${Math.round(data.quiz_average)}%` : '—',
-          icon: '📊',
-          color: '#f59e0b'
-        },
-        {
-          label: 'Streak',
-          value: `${data.streak_count ?? 0} day${(data.streak_count ?? 0) === 1 ? '' : 's'}`,
-          icon: '🔥',
-          color: '#ef4444'
-        }
+        { label: t('completedLessons'), value: data.completed_lessons ?? 0, icon: '📚', color: '#8c52ff' },
+        { label: t('successfulQuizzes'), value: data.quizzes_passed ?? 0, icon: '✅', color: '#10b981' },
+        { label: t('failedQuizzes'), value: data.quizzes_failed ?? 0, icon: '❌', color: '#ef4444' },
+        { label: t('avgQuizScore'), value: data.quiz_average != null ? `${Math.round(data.quiz_average)}%` : '—', icon: '📊', color: '#f59e0b' },
+        { label: t('streak'), value: `${data.streak_count ?? 0} ${(data.streak_count ?? 0) === 1 ? t('day') : t('days')}`, icon: '🔥', color: '#ef4444' },
       ]
     : []
 
@@ -121,10 +98,10 @@ return (
           <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
             <Link to="/curriculum" className="flex items-center gap-2 font-black uppercase" style={{ color: 'var(--deep-blue)' }}>
               <SyllabusIcon className="w-4 h-4" />
-              Curriculum Flow
+              {t('curriculumFlow')}
             </Link>
             <span className="text-xs font-bold py-1.5 px-3 rounded-lg border" style={{ color: 'var(--navy-deep)', background: 'white', borderColor: 'var(--mist-2)' }}>
-              Learner: <strong style={{ color: 'var(--deep-blue)' }}>{user?.username || 'Guest'}</strong>
+              {t('learner')}: <strong style={{ color: 'var(--deep-blue)' }}>{user?.username || 'Guest'}</strong>
             </span>
             <button
               onClick={() => { logout(); navigate('/register', { replace: true }) }}
@@ -140,17 +117,15 @@ return (
         <div className="mb-10 text-center md:text-left">
           <div className="inline-flex items-center gap-1.5 rounded-full font-mono text-[10px] tracking-widest uppercase font-black px-4 py-1.5 mb-4 border shadow-sm" style={{ background: 'var(--mist)', color: 'var(--deep-blue)', borderColor: 'var(--mist-2)' }}>
             <SparklesIcon className="w-3.5 h-3.5" />
-            <span>Progress Tracker</span>
+            <span>{t('progressTracker')}</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight leading-none mb-4" style={{ color: 'var(--navy-deep)' }}>
-            Welcome back, <span style={{ color: 'var(--deep-blue)' }}>
-              {(user?.first_name && user?.last_name)
-                ? `${user.first_name} ${user.last_name}`
-                : user?.first_name || user?.username || 'Student'}
+            {t('welcomeBack')}, <span style={{ color: 'var(--deep-blue)' }}>
+              {(user?.first_name && user?.last_name) ? `${user.first_name} ${user.last_name}` : user?.first_name || user?.username || 'Student'}
             </span>!
           </h1>
           <p className="text-sm font-sans max-w-2xl" style={{ color: 'var(--ink)', opacity: 0.75 }}>
-            Continue your learning journey. Keep improving step by step.
+            {t('continueJourney')}
           </p>
         </div>
 
@@ -177,13 +152,13 @@ return (
           {/* Recent Activity */}
           <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
             <div className="flex justify-between border-b pb-4 mb-5" style={{ borderColor: 'var(--mist-2)' }}>
-              <h3 className="font-serif font-black" style={{ color: 'var(--navy-deep)' }}>Recent Activities</h3>
+              <h3 className="font-serif font-black" style={{ color: 'var(--navy-deep)' }}>{t('recentActivities')}</h3>
               <Link to="/levels" className="text-[10px] font-mono font-black uppercase tracking-wider" style={{ color: 'var(--deep-blue)' }}>
-                View All →
+                {t('viewAll')}
               </Link>
             </div>
             {recentActivities.length === 0 ? (
-              <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>No recent activity yet. Start learning!</p>
+              <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('noRecentActivity')}</p>
             ) : recentActivities.map((a, i) => (
               <div key={i} className="flex gap-3 p-3 rounded-xl mb-3 border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
                 <div className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ background: 'var(--aqua-bright)' }} />
@@ -198,13 +173,13 @@ return (
           {/* Recommended */}
           <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
             <div className="flex justify-between border-b pb-4 mb-5" style={{ borderColor: 'var(--mist-2)' }}>
-              <h3 className="font-serif font-black" style={{ color: 'var(--navy-deep)' }}>Recommended</h3>
+              <h3 className="font-serif font-black" style={{ color: 'var(--navy-deep)' }}>{t('recommended')}</h3>
               <Link to="/levels" className="text-[10px] font-mono font-black uppercase tracking-wider" style={{ color: 'var(--deep-blue)' }}>
-                View All →
+                {t('viewAll')}
               </Link>
             </div>
             {recommendedLevels.length === 0 ? (
-              <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>Complete lessons to get recommendations.</p>
+              <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('completeForRecommendations')}</p>
             ) : recommendedLevels.map((l, i) => (
               <div key={i} className="p-4 rounded-xl mb-4 border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
                 <div className="flex justify-between mb-1">
@@ -228,26 +203,14 @@ return (
             Quick Actions
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Link
-              to="/levels"
-              className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors"
-              style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}
-            >
-              📖 Continue Learning
+            <Link to="/levels" className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}>
+              {t('continueLearning')}
             </Link>
-            <Link
-              to="/levels"
-              className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors"
-              style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}
-            >
-              📊 View Progress
+            <Link to="/levels" className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}>
+              {t('viewProgress')}
             </Link>
-            <button
-              onClick={handleRetake}
-              className="rounded-xl p-4 font-mono font-black text-xs uppercase tracking-wider border transition-colors"
-              style={{ background: 'var(--mist-2)', borderColor: 'var(--aqua-bright)', color: 'var(--deep-blue)' }}
-            >
-              🔄 Retake Level
+            <button onClick={handleRetake} className="rounded-xl p-4 font-mono font-black text-xs uppercase tracking-wider border transition-colors" style={{ background: 'var(--mist-2)', borderColor: 'var(--aqua-bright)', color: 'var(--deep-blue)' }}>
+              {t('retakeLevel')}
             </button>
           </div>
         </div>

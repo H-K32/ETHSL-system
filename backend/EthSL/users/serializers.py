@@ -208,6 +208,7 @@ class UserSerializer(serializers.ModelSerializer):
             "learning_goal",
             "learning_style",
             "daily_study_time",
+            "language",
         ]
         read_only_fields = ["username", "role", "streak_count", "warning_message", "warning_date"]
 

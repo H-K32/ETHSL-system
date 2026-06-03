@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import api from '../api/client.js'
+import { moderateContent } from '../api/lms.js'
 import '../styles/community.css'
 
 const HOURS_48 = 48 * 60 * 60 * 1000
@@ -87,6 +88,11 @@ export default function Community() {
     if (!newPost.title.trim() || !newPost.content.trim()) return
     try {
       setSubmitting(true)
+      const { flagged } = await moderateContent(`${newPost.title} ${newPost.content}`)
+      if (flagged) {
+        notify('Your post was flagged for inappropriate content and cannot be published.')
+        return
+      }
       const res = await api.post('/community/posts/', newPost)
       setPosts([res.data, ...posts])
       setNewPost({ title: '', content: '' })

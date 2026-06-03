@@ -56,3 +56,12 @@ export const getUserDashboard = () =>
 
 export const getCurriculum = () =>
   api.get('/courses/learner/curriculum/').then((r) => r.data)
+
+export const askTutor = (lessonId, message) =>
+  api.post('/ai/ask/', { lesson_id: lessonId, message }).then((r) => r.data)
+
+export const moderateContent = (text) =>
+  api.post('/ai/moderate/', { text }).then((r) => r.data)
+
+export const translateContent = (type, id, field) =>
+  api.post('/ai/translate/', { type, id, field }).then((r) => r.data)
