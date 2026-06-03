@@ -33,6 +33,11 @@ def has_question_content(q_data, request_files, q_index):
         return True
     if f"question_video_{q_index}" in request_files:
         return True
+    # Accept existing media URLs when editing
+    if q_data.get("question_image_url"):
+        return True
+    if q_data.get("question_video_url"):
+        return True
     return False
 
 
@@ -43,6 +48,11 @@ def has_option_content(o_data, request_files, q_index, o_index):
     if f"option_image_{q_index}_{o_index}" in request_files:
         return True
     if f"option_video_{q_index}_{o_index}" in request_files:
+        return True
+    # Accept existing media URLs when editing
+    if o_data.get("option_image_url"):
+        return True
+    if o_data.get("option_video_url"):
         return True
     return False
 
