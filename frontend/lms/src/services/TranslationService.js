@@ -3,7 +3,7 @@
  * Handles all translation operations: API calls, caching, state management, error logging
  */
 
-import api from './client.js'
+import api from '../api/client.js'
 
 /**
  * Debug logger for translation service

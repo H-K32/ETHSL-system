@@ -136,6 +136,9 @@ const translations = {
     retry: 'Try Again',
     save: 'Save Changes',
     returnToDashboard: 'Return to Dashboard',
+    completedLesson: 'Completed',
+    passedQuizScore: 'Passed quiz · Score',
+    lessonsCompletedOf: 'lessons completed',
   },
 
   am: {
@@ -271,6 +274,9 @@ const translations = {
     retry: 'እንደገና ሞክር',
     save: 'ለውጦችን አስቀምጥ',
     returnToDashboard: 'ወደ ዳሽቦርድ ተመለስ',
+    completedLesson: 'ተጠናቅቋል',
+    passedQuizScore: 'ፈተና ተሳክቷል · ነጥብ',
+    lessonsCompletedOf: 'ትምህርቶች ተጠናቅቀዋል',
   },
 }
 

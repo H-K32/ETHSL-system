@@ -213,19 +213,23 @@ class UserProgressDashboardView(APIView):
         recent_activities = []
         for lp in recent_lessons:
             recent_activities.append({
-                "title": f"Completed: {lp.lesson.title}",
+                "type": "lesson",
+                "lesson_title": lp.lesson.title,
                 "date": lp.completed_at.strftime("%b %d, %Y") if lp.completed_at else "",
-                "type": "lesson"
+                "_sort": lp.completed_at,
             })
         for qa in recent_quizzes:
             recent_activities.append({
-                "title": f"Passed quiz with score {qa.score}",
+                "type": "quiz",
+                "score": qa.score,
                 "date": qa.taken_at.strftime("%b %d, %Y") if qa.taken_at else "",
-                "type": "quiz"
+                "_sort": qa.taken_at,
             })
         recent_activities = sorted(
-            recent_activities, key=lambda x: x["date"], reverse=True
+            recent_activities, key=lambda x: x["_sort"] or now(), reverse=True
         )[:5]
+        for a in recent_activities:
+            a.pop("_sort", None)
 
         # Recommended levels
         recommended_levels = []
@@ -243,7 +247,8 @@ class UserProgressDashboardView(APIView):
                 recommended_levels.append({
                     "name": level.get_name_display(),
                     "progress": progress,
-                    "description": f"{done}/{total_lessons} lessons completed"
+                    "done": done,
+                    "total": total_lessons,
                 })
 
         return Response({

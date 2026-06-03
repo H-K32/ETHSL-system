@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from rest_framework import generics
 from .serializers import RegisterSerializer, UserSerializer, UserReportSerializer
-from .models import User 
+from .models import User, UserReport
 from users.permissions import IsAdminUserRole
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated

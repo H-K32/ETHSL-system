@@ -159,15 +159,20 @@ return (
             </div>
             {recentActivities.length === 0 ? (
               <p className="text-xs font-mono italic" style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('noRecentActivity')}</p>
-            ) : recentActivities.map((a, i) => (
-              <div key={i} className="flex gap-3 p-3 rounded-xl mb-3 border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
-                <div className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ background: 'var(--aqua-bright)' }} />
-                <div>
-                  <p className="text-xs font-bold" style={{ color: 'var(--navy-deep)' }}>{a.title}</p>
-                  <p className="text-[10px] font-mono" style={{ color: 'var(--ink)', opacity: 0.6 }}>{a.date}</p>
+            ) : recentActivities.map((a, i) => {
+              const title = a.type === 'lesson'
+                ? `${t('completedLesson')}: ${a.lesson_title}`
+                : `${t('passedQuizScore')}: ${a.score}`
+              return (
+                <div key={i} className="flex gap-3 p-3 rounded-xl mb-3 border" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)' }}>
+                  <div className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ background: 'var(--aqua-bright)' }} />
+                  <div>
+                    <p className="text-xs font-bold" style={{ color: 'var(--navy-deep)' }}>{title}</p>
+                    <p className="text-[10px] font-mono" style={{ color: 'var(--ink)', opacity: 0.6 }}>{a.date}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {/* Recommended */}
@@ -186,7 +191,7 @@ return (
                   <p className="font-serif font-bold text-sm" style={{ color: 'var(--navy-deep)' }}>{l.name}</p>
                   <span className="text-[10px] font-mono font-black" style={{ color: 'var(--deep-blue)' }}>{l.progress}%</span>
                 </div>
-                <p className="text-xs font-sans mb-3" style={{ color: 'var(--ink)', opacity: 0.7 }}>{l.description}</p>
+                <p className="text-xs font-sans mb-3" style={{ color: 'var(--ink)', opacity: 0.7 }}>{l.done}/{l.total} {t('lessonsCompletedOf')}</p>
                 <div className="h-2 rounded-full" style={{ background: 'var(--mist-2)' }}>
                   <div className="h-full rounded-full transition-all duration-700" style={{ width: `${l.progress}%`, background: 'var(--aqua-bright)' }} />
                 </div>

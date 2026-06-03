@@ -7,10 +7,9 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = ["question", "selected_option"]
 
 class QuizAttemptSerializer(serializers.ModelSerializer):
-    quiz = serializer.IntegerField()
+    quiz = serializers.IntegerField()
     answers = AnswerSerializer(many=True)
-    
-class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = User
-        fields = ["id", "username", "email", "full_name", "role"]
+        model = QuizAttempt
+        fields = ["quiz", "answers"]

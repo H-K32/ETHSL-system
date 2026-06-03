@@ -88,10 +88,14 @@ export default function Community() {
     if (!newPost.title.trim() || !newPost.content.trim()) return
     try {
       setSubmitting(true)
-      const { flagged } = await moderateContent(`${newPost.title} ${newPost.content}`)
-      if (flagged) {
-        notify('Your post was flagged for inappropriate content and cannot be published.')
-        return
+      try {
+        const result = await moderateContent(`${newPost.title} ${newPost.content}`)
+        if (result.flagged) {
+          notify('Your post was flagged for inappropriate content and cannot be published.')
+          return
+        }
+      } catch {
+        // moderation unavailable — allow post through
       }
       const res = await api.post('/community/posts/', newPost)
       setPosts([res.data, ...posts])
@@ -156,6 +160,15 @@ export default function Community() {
     }
     setCommentError('')
     try {
+      try {
+        const result = await moderateContent(newComment)
+        if (result.flagged) {
+          setCommentError('Your reply was flagged for inappropriate content and cannot be posted.')
+          return
+        }
+      } catch {
+        // moderation unavailable — allow comment through
+      }
       const res = await api.post('/community/comments/', { post: postId, content: newComment })
       setComments([...comments, res.data])
       setNewComment('')

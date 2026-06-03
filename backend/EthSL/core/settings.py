@@ -280,7 +280,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL")
  
