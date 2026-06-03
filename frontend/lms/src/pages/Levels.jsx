@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import useAsync from '../utils/useAsync'
-import { getLevels } from '../api/lms'
+import { getLevels, translateContent } from '../api/lms'
 import Spinner from '../components/Spinner'
 import ErrorState from '../components/ErrorState'
 import EmptyState from '../components/EmptyState'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import '../styles/levels.css'
+import { useState, useEffect } from 'react'
 
 // Custom pure SVG icon components (No lucide-react used)
 const ArrowLeft = ({ className }) => (
@@ -52,7 +53,36 @@ const ChevronRight = ({ className }) => (
 
 export default function Levels() {
   const { data, loading, error, reload } = useAsync(getLevels, [])
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
+  const [amTranslations, setAmTranslations] = useState({})
+
+  const levels = Array.isArray(data) ? data : []
+
+  // Function to translate level names
+  const translateLevelName = (levelName) => {
+    if (!levelName || lang !== 'am') return levelName
+    
+    const levelTranslations = {
+      'Beginner': 'ጀማሪ',
+      'Intermediate': 'መካከለኛ',
+      'Advanced': 'ከፍተኛ'
+    }
+    
+    return levelTranslations[levelName] || levelName
+  }
+
+  // Load Amharic translations for level descriptions
+  useEffect(() => {
+    if (lang !== 'am' || levels.length === 0) return
+    levels.forEach(level => {
+      if (amTranslations[`${level.id}_description`]) return
+      if (level.description) {
+        translateContent('level', level.id, 'description')
+          .then(r => setAmTranslations(prev => ({ ...prev, [`${level.id}_description`]: r.translated })))
+          .catch(() => {})
+      }
+    })
+  }, [lang, levels.length])
 
   if (loading) return <Spinner />
   if (error) return <div className="max-w-5xl mx-auto px-4 py-10"><ErrorState error={error} onRetry={reload} /></div>
@@ -184,7 +214,7 @@ export default function Levels() {
                     {/* Level Title */}
                     <div className="z-10 relative">
                       <h3 className="level-title mb-2 text-xl md:text-2xl font-serif font-black leading-tight text-forest-950">
-                        {l.display_name || l.name}
+                        {translateLevelName(l.display_name || l.name)}
                       </h3>
                       
   
@@ -193,7 +223,7 @@ export default function Levels() {
                     {/* Description */}
                     {l.description && (
                       <p className="level-desc leading-relaxed text-sm text-forest-800 font-sans font-medium mb-5 z-10 relative">
-                        {l.description}
+                        {lang === 'am' && amTranslations[`${l.id}_description`] ? amTranslations[`${l.id}_description`] : l.description}
                       </p>
                     )}
                   </div>

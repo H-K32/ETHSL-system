@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import '../styles/register.css'
 
 export default function Register() {
   const { register } = useAuth()
+  const { t, toggleLanguage, lang } = useLanguage()
   const nav = useNavigate()
 
   const [form, setForm] = useState({
@@ -68,25 +70,23 @@ export default function Register() {
     setFieldErrors({ full_name: '', username: '' })
 
     if (form.full_name && !FULL_NAME_REGEX.test(form.full_name)) {
-      return setFieldErrors(f => ({ ...f, full_name: 'Full name can only contain letters and spaces.' }))
+      return setFieldErrors(f => ({ ...f, full_name: t('invalidFullName') }))
     }
 
     if (form.username && !USERNAME_REGEX.test(form.username)) {
-      return setFieldErrors(f => ({ ...f, username: 'Username can only contain letters and numbers.' }))
+      return setFieldErrors(f => ({ ...f, username: t('invalidUsername') }))
     }
 
     if (!isPasswordValid) {
-      return setErr(
-        'Password must be 8+ chars with uppercase, lowercase, and number'
-      )
+      return setErr(t('passwordRequirements'))
     }
 
     if (form.password !== form.password2) {
-      return setErr('Passwords do not match')
+      return setErr(t('passwordsMustMatch'))
     }
 
     if (!form.gender) {
-      return setErr('Please select gender')
+      return setErr(t('selectGenderError'))
     }
 
     setLoading(true)
@@ -98,12 +98,12 @@ export default function Register() {
       const data = e?.response?.data
 
       setErr(
-        data?.username?.[0] ? 'Use a different username' : null ||
+        data?.username?.[0] ? t('useAnotherUsername') : null ||
         data?.email?.[0] ||
         data?.password?.[0] ||
         data?.detail ||
         (typeof data === 'string' ? data : null) ||
-        'Could not register'
+        t('registerError')
       )
     } finally {
       setLoading(false)
@@ -112,9 +112,30 @@ export default function Register() {
 
   return (
     <div className="max-w-md mx-auto px-4 py-12">
-      <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
+      {/* Language Toggle */}
+      <button 
+        onClick={toggleLanguage}
+        className="language-toggle"
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          padding: '8px 16px',
+          background: 'rgba(255, 255, 255, 0.9)',
+          border: '1px solid #e0e0e0',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          fontSize: '14px',
+          zIndex: 100
+        }}
+      >
+        {lang === 'en' ? 'አማርኛ' : 'English'}
+      </button>
+
+      <h1 className="text-2xl font-bold text-slate-900">{t('createYourAccount')}</h1>
       <p className="text-sm text-slate-500 mt-1">
-        Start with a quick placement test.
+        {t('startWithPlacementTest')}
       </p>
 
       <form
@@ -123,7 +144,7 @@ export default function Register() {
       >
 
         {/* Full name */}
-        <Field label="Full Name">
+        <Field label={t('fullName')}>
           <input
             className="input"
             value={form.full_name}
@@ -138,7 +159,7 @@ export default function Register() {
           )}
         </Field>
 
-        <Field label="Username">
+        <Field label={t('usernameOrEmail')}>
           <input
             className="input"
             value={form.username}
@@ -154,7 +175,7 @@ export default function Register() {
         </Field>
 
         {/* Email */}
-        <Field label="Email">
+        <Field label={t('email')}>
           <input
             type="email"
             className="input"
@@ -165,21 +186,21 @@ export default function Register() {
         </Field>
 
         {/* Gender */}
-        <Field label="Gender">
+        <Field label={t('gender')}>
           <select
             className="input"
             value={form.gender}
             onChange={(e) => setForm({ ...form, gender: e.target.value })}
             required
           >
-            <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="">{t('selectGender')}</option>
+            <option value="male">{t('male')}</option>
+            <option value="female">{t('female')}</option>
           </select>
         </Field>
 
         {/* PASSWORD */}
-        <Field label="Password">
+        <Field label={t('password')}>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -205,16 +226,16 @@ export default function Register() {
             {passwordFocused && (
               <>
                 <p className={passwordChecks.minLength ? "text-green-600" : "text-red-500"}>
-                  {passwordChecks.minLength ? "✔" : "✖"} At least 8 characters
+                  {passwordChecks.minLength ? "✔" : "✖"} {t('weak')} - At least 8 characters
                 </p>
                 <p className={passwordChecks.hasUpper ? "text-green-600" : "text-red-500"}>
-                  {passwordChecks.hasUpper ? "✔" : "✖"} At least 1 uppercase letter
+                  {passwordChecks.hasUpper ? "✔" : "✖"} {t('fair')} - At least 1 uppercase letter
                 </p>
                 <p className={passwordChecks.hasLower ? "text-green-600" : "text-red-500"}>
-                  {passwordChecks.hasLower ? "✔" : "✖"} At least 1 lowercase letter
+                  {passwordChecks.hasLower ? "✔" : "✖"} {t('good')} - At least 1 lowercase letter
                 </p>
                 <p className={passwordChecks.hasNumber ? "text-green-600" : "text-red-500"}>
-                  {passwordChecks.hasNumber ? "✔" : "✖"} At least 1 number
+                  {passwordChecks.hasNumber ? "✔" : "✖"} {t('strong')} - At least 1 number
                 </p>
               </>
             )}
@@ -236,14 +257,14 @@ export default function Register() {
                 />
               </div>
               <p className="text-xs mt-1 text-gray-500">
-                Strength: {strengthLabel}
+                {t('passwordStrength')}: {strengthLabel}
               </p>
             </>
           )}
         </Field>
 
         {/* Confirm password */}
-        <Field label="Confirm Password">
+        <Field label={t('confirmPassword')}>
           <input
             type={showPassword ? 'text' : 'password'}
             className="input"
@@ -264,13 +285,13 @@ export default function Register() {
           disabled={!canSubmit}
           className="btn-primary w-full disabled:opacity-50"
         >
-          {loading ? 'Creating…' : 'Create account'}
+          {loading ? t('registering') : t('register')}
         </button>
 
         <p className="text-sm text-slate-500 text-center">
-          Already have an account?{' '}
+          {t('alreadyHaveAccount')}{' '}
           <Link to="/login" className="text-brand-600 hover:underline">
-            Sign in
+            {t('signInHere')}
           </Link>
         </p>
       </form>

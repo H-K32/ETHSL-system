@@ -2,10 +2,12 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import '../styles/login.css'
 
 export default function Login() {
   const { login } = useAuth()
+  const { t, toggleLanguage, lang } = useLanguage()
   const nav = useNavigate()
   const loc = useLocation()
   const [form, setForm] = useState({ username: '', password: '' })
@@ -31,7 +33,7 @@ export default function Login() {
       if (detail === 'account_inactive') {
         setErr('inactive')
       } else {
-        setErr('Invalid username/email or password.')
+        setErr(t('invalidCredentials'))
       }
     } finally { setLoading(false) }
   }
@@ -44,6 +46,27 @@ export default function Login() {
       <span className="lp-blob lp-blob--c" />
       <span className="lp-grid" />
 
+      {/* Language Toggle */}
+      <button 
+        onClick={toggleLanguage}
+        className="language-toggle"
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          padding: '8px 16px',
+          background: 'rgba(255, 255, 255, 0.9)',
+          border: '1px solid #e0e0e0',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          fontSize: '14px',
+          zIndex: 100
+        }}
+      >
+        {lang === 'en' ? 'አማርኛ' : 'English'}
+      </button>
+
       <div className="lp-card">
         <div className="lp-tag">
           <span className="lp-dot" />
@@ -51,9 +74,9 @@ export default function Login() {
         </div>
 
         <h1 className="lp-title">
-          Hello again<span className="lp-period">.</span>
+          {t('helloAgain')}<span className="lp-period">.</span>
         </h1>
-        <p className="lp-sub">Sign in to keep climbing.</p>
+        <p className="lp-sub">{t('signInToKeepClimbing')}</p>
 
         <form onSubmit={onSubmit} className="lp-form">
           <div className="lp-field">
@@ -65,7 +88,7 @@ export default function Login() {
               placeholder=" "
               required
             />
-            <label htmlFor="lp-user">Username or Email</label>
+            <label htmlFor="lp-user">{t('usernameOrEmail')}</label>
           </div>
 
           <div className="lp-field">
@@ -78,21 +101,21 @@ export default function Login() {
               placeholder=" "
               required
             />
-            <label htmlFor="lp-pass">Password</label>
+            <label htmlFor="lp-pass">{t('password')}</label>
             
           </div>
 
           {err === 'inactive' ? (
             <p className="lp-error">
-              No active account was found. If you have already registered, please{' '}
-              <a href="/#contact" className="lp-link">Contact Us</a>{' '}for assistance.
+              {t('noActiveAccount')} {' '}
+              <a href="/#contact" className="lp-link">{t('contactUs')}</a>{' '}{t('forAssistance')}
             </p>
           ) : err ? (
             <p className="lp-error">{err}</p>
           ) : null}
 
           <button disabled={loading} className="lp-btn">
-            <span>{loading ? 'Signing in…' : 'Sign in'}</span>
+            <span>{loading ? t('signingIn') : t('signIn')}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M13 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -100,14 +123,14 @@ export default function Login() {
           <div className="lp-foot-row">
   <span className="lp-foot-line" />
   <Link to="/forgot-password" className="lp-forgot">
-  Forgot password?
+    {t('forgotPassword')}
 </Link>
   <span className="lp-foot-line" />
 </div>
 
 
           <p className="lp-foot">
-            New here? <Link to="/register" className="lp-link">Create an account</Link>
+            {t('newHere')} <Link to="/register" className="lp-link">{t('createAccount')}</Link>
           </p> 
           
         </form>
