@@ -4,6 +4,7 @@ import { getLevels } from '../api/lms'
 import Spinner from '../components/Spinner'
 import ErrorState from '../components/ErrorState'
 import EmptyState from '../components/EmptyState'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import '../styles/levels.css'
 
 // Custom pure SVG icon components (No lucide-react used)
@@ -51,6 +52,7 @@ const ChevronRight = ({ className }) => (
 
 export default function Levels() {
   const { data, loading, error, reload } = useAsync(getLevels, [])
+  const { t } = useLanguage()
 
   if (loading) return <Spinner />
   if (error) return <div className="max-w-5xl mx-auto px-4 py-10"><ErrorState error={error} onRetry={reload} /></div>
@@ -78,7 +80,7 @@ export default function Levels() {
             className="group flex items-center space-x-2.5 font-mono text-xs font-black uppercase tracking-wider text-sienna-600 hover:text-sienna-700 transition"
           >
             <ArrowLeft className="w-4 h-4 text-sienna-500 group-hover:-translate-x-1.5 transition-transform" />
-            <span>Dashboard</span>
+            <span>{ t('dashboard') }</span>
           </Link>
           
         </header>
@@ -87,10 +89,10 @@ export default function Levels() {
         <div className="mb-10 text-center md:text-left">
           <div className="inline-flex items-center gap-1.5 bg-sienna-100 text-sienna-800 rounded-full font-mono text-[10px] tracking-widest uppercase font-black px-4 py-1.5 mb-4 border border-sienna-200/50 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-sienna-600" />
-            <span>Structured Pathway</span>
+            <span>{t('structuredPathway')}</span>
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black text-forest-900 tracking-tight leading-none mb-4">
-            Proficiency Levels
+            {t('proficiencyLevels')}
           </h1>
         </div>
 
@@ -103,15 +105,15 @@ export default function Levels() {
               <Compass className="w-6 h-6 text-sienna-400" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-bold text-forest-900">Academic Progress</h3>
-              <p className="text-xs font-sans text-forest-600 font-medium">Unlocked levels determine active learning capacities.</p>
+              <h3 className="font-serif text-lg font-bold text-forest-900">{t('academicProgress')}</h3>
+              <p className="text-xs font-sans text-forest-600 font-medium">{t('unlockedLevelsDetermineCapacities')}</p>
             </div>
           </div>
           
           <div className="w-full md:w-80">
             <div className="flex justify-between items-center mb-1.5 text-xs font-mono font-black text-forest-850 tracking-wide">
-              <span>Pathway Metrics</span>
-              <span>{unlockedCount} / {totalCount} Active Levels</span>
+              <span>{t('pathwayMetrics')}</span>
+              <span>{unlockedCount} / {totalCount} {t('activeLevels')}</span>
             </div>
             <div className="h-2 bg-bone-200 rounded-full overflow-hidden border border-bone-300">
               <div 
@@ -126,7 +128,7 @@ export default function Levels() {
         <div className="flex items-center justify-between mb-4 mt-2">
           <h2 className="font-serif text-2xl font-black text-forest-900 tracking-tight flex items-center gap-2">
             <Award className="w-5 h-5 text-sienna-500" />
-            <span>Curriculum Flow</span>
+            <span>{t('curriculumFlowTitle')}</span>
           </h2>
 
         </div>
@@ -166,15 +168,15 @@ export default function Levels() {
                         }`}
                       >
                         <BookOpen className="w-3 h-3 text-sienna-500" />
-                        <span>Chapter {l.order ?? index + 1}</span>
+                        <span>{t('chapter')} {l.order ?? index + 1}</span>
                       </span>
                       {locked ? (
                         <span className="text-[10px] font-mono font-black uppercase tracking-wider text-bone-400 bg-bone-200 px-2 py-0.5 rounded flex items-center gap-1 border border-bone-300">
-                          <Lock className="w-2.5 h-2.5 text-bone-450" /> Locked
+                          <Lock className="w-2.5 h-2.5 text-bone-450" /> {t('locked')}
                         </span>
                       ) : (
                         <span className="text-[10px] font-mono font-black uppercase tracking-wider text-forest-800 bg-forest-100 px-2 py-0.5 rounded border border-forest-200">
-                          Active
+                          {t('active')}
                         </span>
                       )}
                     </div>
@@ -201,10 +203,10 @@ export default function Levels() {
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
                         <span className="text-[9px] font-mono font-black uppercase text-bone-400 leading-none">
-                          Level Compass
+                          {t('levelCompass')}
                         </span>
                         <span className="text-xs font-mono font-bold uppercase tracking-wider text-forest-800 mt-0.5">
-                          {locked ? 'Locked Content' : 'Begin Journey'}
+                          {locked ? t('lockedContent') : t('beginJourney')}
                         </span>
                       </div>
                       {!locked && (
@@ -231,15 +233,15 @@ export default function Levels() {
                           className="w-full text-center py-2 px-3 rounded-lg font-mono text-[11px] font-black uppercase tracking-wider border transition-colors"
                           style={{ background: 'var(--color-forest-900)', color: 'var(--color-bone-50)', borderColor: 'var(--color-forest-900)' }}
                         >
-                          Take Level Quiz
+                          {t('takeLevelQuiz')}
                         </Link>
                       ) : (
                         <div
-                          title="Complete all lessons and quizzes in this level first"
+                          title={t('completeAllLessons')}
                           className="w-full text-center py-2 px-3 rounded-lg font-mono text-[11px] font-black uppercase tracking-wider border cursor-not-allowed"
                           style={{ opacity: 0.45, background: 'var(--color-bone-200)', color: 'var(--color-forest-600)', borderColor: 'var(--color-bone-300)' }}
                         >
-                          Take Level Quiz
+                          {t('takeLevelQuiz')}
                         </div>
                       )
                     )}
@@ -254,10 +256,8 @@ export default function Levels() {
                     <Lock className="w-3.5 h-3.5 text-sienna-450 animate-bounce" />
                     <span className="font-mono text-[10px] font-extrabold uppercase">
                       {!l.content_done
-                        ? 'Complete all lessons & quizzes in the previous level first'
-                        : !l.quiz_passed
-                        ? 'Pass the previous level\'s final quiz to unlock'
-                        : 'Pass the previous level\'s final quiz to unlock'}
+                        ? t('completeAllLessons')
+                        : t('passPreviousQuiz')}
                     </span>
                   </div>
                   {Card}

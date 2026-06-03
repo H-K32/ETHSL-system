@@ -31,14 +31,8 @@ const RefreshIcon = ({ className }) => (
   </svg>
 )
 
-// Optional UI placeholders (so it doesn't crash)
-const Spinner = () => <div className="p-4">Loading...</div>
-const ErrorState = ({ error, onRetry }) => (
-  <div className="p-4 text-red-500">
-    <p>Error: {error?.message || 'Something went wrong'}</p>
-    <button onClick={onRetry}>Retry</button>
-  </div>
-)
+import SpinnerComponent from '../components/Spinner.jsx'
+import ErrorStateComponent from '../components/ErrorState.jsx'
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
@@ -55,8 +49,8 @@ export default function Dashboard() {
     }
   }, [user, navigate])
 
-  if (loading) return <Spinner />
-  if (error) return <ErrorState error={error} onRetry={reload} />
+  if (loading) return <SpinnerComponent />
+  if (error) return <ErrorStateComponent error={error} onRetry={reload} />
 
   const handleRetake = () => {
     const saved = localStorage.getItem('sienna_placement_user')
@@ -108,7 +102,7 @@ return (
               className="flex items-center gap-2 font-black uppercase text-rose-700"
             >
               <LogoutIcon className="w-4 h-4" />
-              Logout
+              {t('logout')}
             </button>
           </div>
         </header>
@@ -205,7 +199,7 @@ return (
         <div className="rounded-2xl border p-6 shadow-sm" style={{ background: 'white', borderColor: 'var(--mist-2)' }}>
           <h3 className="font-serif font-black mb-5 flex items-center gap-2" style={{ color: 'var(--navy-deep)' }}>
             <RefreshIcon className="w-4 h-4" style={{ color: 'var(--aqua-bright)' }} />
-            Quick Actions
+            {t('quickActions')}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Link to="/levels" className="rounded-xl p-4 text-center font-mono font-black text-xs uppercase tracking-wider border transition-colors" style={{ background: 'var(--mist)', borderColor: 'var(--mist-2)', color: 'var(--navy-deep)' }}>

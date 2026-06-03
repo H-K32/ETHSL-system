@@ -1,11 +1,11 @@
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import useAsync from '../utils/useAsync.js'
-import { getLessons } from '../api/lms.js'
+import { getLessons, translateContent } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
-import { useTranslations, tx } from '../utils/useTranslations.js'
 import '../styles/Lessons.css'
 
 export default function Lessons() {
@@ -13,35 +13,39 @@ export default function Lessons() {
   const nav = useNavigate()
   const { state } = useLocation()
   const levelId = state?.levelId
-  const { t, lang } = useLanguage()
+  const { lang, t } = useLanguage()
 
   const { data, loading, error, reload } = useAsync(
     () => getLessons(courseId),
     [courseId]
   )
+  const [amTranslations, setAmTranslations] = useState({})
 
-  if (loading) return <Spinner />
-
-  if (error)
-    return (
-      <div className="lessons-page">
-        <div className="lessons-shell">
-          <ErrorState error={error} onRetry={reload} />
-        </div>
-      </div>
-    )
-
-  // normalize response
   const lessons = (data?.results || data || [])
     .slice()
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 
-  const lessonTranslations = useTranslations(lang, 'lesson', lessons, ['title', 'description'])
+  useEffect(() => {
+    if (lang !== 'am' || lessons.length === 0) return
+    lessons.forEach(lesson => {
+      ['title', 'description'].forEach(field => {
+        if (amTranslations[`${lesson.id}_${field}`]) return
+        translateContent('lesson', lesson.id, field)
+          .then(r => setAmTranslations(prev => ({ ...prev, [`${lesson.id}_${field}`]: r.translated })))
+          .catch(() => {})
+      })
+    })
+  }, [lang, lessons.length])
+
+  if (loading) return <Spinner />
+  if (error) return (
+    <div className="lessons-page"><div className="lessons-shell"><ErrorState error={error} onRetry={reload} /></div></div>
+  )
 
   return (
     <div className="lessons-page">
       <div className="lessons-shell">
-        <span className="lessons-eyebrow">Module · Lessons</span>
+        <span className="lessons-eyebrow">{t('moduleLesson')}</span>
         <h1 className="lessons-title">{t('yourLearningPath')}</h1>
         <p className="lessons-subtitle">{t('workThroughLessons')}</p>
 
@@ -74,10 +78,10 @@ export default function Lessons() {
                     </div>
 
                     <div className="lesson-meta">
-                      <div className="lesson-name">{tx(lessonTranslations, lang, l.id, 'title', l.title)}</div>
+                      <div className="lesson-name">{lang === 'am' && amTranslations[`${l.id}_title`] ? amTranslations[`${l.id}_title`] : l.title}</div>
 
                       {l.description && (
-                        <div className="lesson-blurb">{tx(lessonTranslations, lang, l.id, 'description', l.description)}</div>
+                        <div className="lesson-blurb">{lang === 'am' && amTranslations[`${l.id}_description`] ? amTranslations[`${l.id}_description`] : l.description}</div>
                       )}
                     </div>
                   </div>

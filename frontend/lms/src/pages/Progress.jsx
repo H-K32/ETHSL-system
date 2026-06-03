@@ -64,6 +64,9 @@ export default function Progress() {
   const total_quiz_attempts = d.total_quiz_attempts ?? 0;
   const streak_count        = d.streak_count        ?? 0;
   const current_level       = d.current_level       ?? '—';
+  const translatedLevel = current_level !== '—'
+    ? (() => { const k = 'levelName_' + current_level; const v = t(k); return v !== k ? v : current_level; })()
+    : current_level;
   const successRate = total_quiz_attempts > 0
     ? Math.round((quizzes_passed / total_quiz_attempts) * 100)
     : 0;
@@ -82,15 +85,11 @@ export default function Progress() {
           </Link>
           <div className="flex items-center space-x-2 text-forest-800 font-mono text-[10px] tracking-widest uppercase font-bold">
             <span className="w-1.5 h-1.5 bg-forest-550 rounded-full animate-ping" />
-            <span>Chapter 03: Personal Study Records</span>
+          <span>{t('chapter03')}</span>
           </div>
         </header>
 
         <div className="progress-hero mb-10 text-center md:text-left">
-          <div className="inline-flex items-center gap-1.5 bg-sienna-150 text-sienna-900 rounded-full font-mono text-[10px] tracking-widest uppercase font-black px-4 py-1.5 mb-4 border border-sienna-200/50 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-sienna-600 animate-pulse" />
-            <span>Skill Plan</span>
-          </div>
           <h1 className="progress-title text-4xl md:text-5xl font-serif font-black text-forest-900 tracking-tight leading-none mb-3">
             {t('yourLearningProgress')}
           </h1>
@@ -107,7 +106,7 @@ export default function Progress() {
             </div>
             <div>
               <p className="font-mono text-[9px] font-black uppercase tracking-widest text-sienna-600">{t('yourCurrentLevel')}</p>
-              <h3 className="font-serif text-lg md:text-xl font-bold text-forest-950 mt-1">{current_level}</h3>
+              <h3 className="font-serif text-lg md:text-xl font-bold text-forest-950 mt-1">{translatedLevel}</h3>
             </div>
           </div>
           <Link to="/levels" className="shrink-0 inline-flex items-center gap-2 px-5 py-3 font-serif font-bold text-sm bg-forest-900 hover:bg-forest-850 text-bone-50 rounded-xl border border-forest-950 shadow-xs transition-all">
@@ -148,16 +147,16 @@ export default function Progress() {
                 <Activity className="w-4 h-4 text-sienna-500" />
                 <span>{t('quizPerformance')}</span>
               </h3>
-              <span className="font-mono text-[9px] px-2 py-0.5 bg-sienna-100 text-sienna-800 rounded font-black uppercase">Exams</span>
+              <span className="font-mono text-[9px] px-2 py-0.5 bg-sienna-100 text-sienna-800 rounded font-black uppercase">{t('exams')}</span>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
                 <span className="font-sans text-xs font-semibold text-forest-750">{t('totalQuizAttempts')}</span>
-                <span className="font-mono text-xs font-bold text-forest-950">{total_quiz_attempts} times</span>
+                <span className="font-mono text-xs font-bold text-forest-950">{total_quiz_attempts} {t('times')}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
                 <span className="font-sans text-xs font-semibold text-forest-750">{t('passedQuizzes')}</span>
-                <span className="font-mono text-xs font-bold text-emerald-700">{quizzes_passed} quizzes</span>
+                <span className="font-mono text-xs font-bold text-emerald-700">{quizzes_passed} {t('quizzes')}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
                 <span className="font-sans text-xs font-semibold text-forest-750">{t('quizSuccessRate')}</span>
@@ -178,12 +177,12 @@ export default function Progress() {
                   <Compass className="w-4 h-4 text-sienna-500" />
                   <span>{t('learningSummary')}</span>
                 </h3>
-                <span className="font-mono text-[9px] px-2 py-0.5 bg-forest-100 text-forest-800 rounded font-black uppercase">Overview</span>
+                <span className="font-mono text-[9px] px-2 py-0.5 bg-forest-100 text-forest-800 rounded font-black uppercase">{t('overview')}</span>
               </div>
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
                   <span className="font-sans text-xs font-semibold text-forest-750">{t('currentLevel')}</span>
-                  <span className="font-mono text-xs font-bold text-forest-950">{current_level}</span>
+                  <span className="font-mono text-xs font-bold text-forest-950">{translatedLevel}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
                   <span className="font-sans text-xs font-semibold text-forest-750">{t('lessonsCompleted')}</span>
@@ -191,13 +190,13 @@ export default function Progress() {
                 </div>
                 <div className="flex justify-between items-center p-3 bg-bone-50 rounded-xl border border-bone-200">
                   <span className="font-sans text-xs font-semibold text-forest-750">{t('studyStreak')}</span>
-                  <span className="font-mono text-xs font-bold text-sienna-600">{streak_count} days 🔥</span>
+                  <span className="font-mono text-xs font-bold text-sienna-600">{streak_count} {t('days_unit')} 🔥</span>
                 </div>
               </div>
             </div>
             <div className="mt-6 pt-4 border-t border-dashed border-bone-200">
               <p className="text-[11px] font-sans text-forest-650 font-semibold italic text-center">
-                "Knowing grammar is the path to freedom."
+                {t('grammarQuote')}
               </p>
             </div>
           </div>
@@ -212,7 +211,7 @@ export default function Progress() {
             </div>
             <div>
               <h4 className="font-serif text-lg font-bold text-bone-100">{t('readyForNewLessons')}</h4>
-              <p className="text-xs font-sans text-bone-300 font-medium mt-0.5">Explore chapter courses and interactive tests now.</p>
+              <p className="text-xs font-sans text-bone-300 font-medium mt-0.5">{t('exploreChapters')}</p>
             </div>
           </div>
           <Link to="/levels" className="px-5 py-2.5 bg-sienna-600 hover:bg-sienna-700 text-bone-50 border border-sienna-700 rounded-lg text-xs font-mono font-black uppercase shrink-0 tracking-wider shadow-sm transition">

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useAuth } from '../context/AuthContext.jsx'
 import api from '../api/client.js'
 import '../styles/notifications.css'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 export default function Notifications() {
-  const { user } = useAuth()
+  const { t } = useLanguage()
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -19,34 +19,26 @@ export default function Notifications() {
   const isWarningExpired = (dateString) => {
     const warningDate = new Date(dateString)
     const now = new Date()
-    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
-    return now - warningDate > THIRTY_DAYS_MS
+    return now - warningDate > 30 * 24 * 60 * 60 * 1000
   }
 
   const fetchNotifications = async () => {
     try {
       setLoading(true)
-      // Get user's warning message from their profile
       const response = await api.get('/users/profile/')
       const userData = response.data
-      
       const warningNotifications = []
-      
       if (userData.warning_message) {
         warningNotifications.push({
           id: 1,
           type: 'warning',
-          title: 'Admin Warning',
           message: userData.warning_message,
           date: userData.warning_date || new Date().toISOString(),
-          is_read: false
         })
       }
-      
       setNotifications(warningNotifications.filter(n => !isWarningExpired(n.date)))
     } catch (err) {
-      console.error('Error fetching notifications:', err)
-      setError('Failed to load notifications')
+      setError(t('failedNotifications'))
     } finally {
       setLoading(false)
     }
@@ -56,8 +48,7 @@ export default function Notifications() {
     try {
       const response = await api.get('/community/reports-against-me/')
       setReports(response.data || [])
-    } catch (err) {
-      console.error('Error fetching reports:', err)
+    } catch {
       setReports([])
     }
   }
@@ -69,11 +60,10 @@ export default function Notifications() {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
-
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins} minutes ago`
-    if (diffHours < 24) return `${diffHours} hours ago`
-    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffMins < 1) return t('justNow')
+    if (diffMins < 60) return `${diffMins} ${t('minutesAgo')}`
+    if (diffHours < 24) return `${diffHours} ${t('hoursAgo')}`
+    if (diffDays < 7) return `${diffDays} ${t('daysAgo')}`
     return date.toLocaleDateString()
   }
 
@@ -81,7 +71,7 @@ export default function Notifications() {
     return (
       <div className="notifications-loading">
         <div className="loading-spinner"></div>
-        <p>Loading notifications...</p>
+        <p>{t('loadingNotifications')}</p>
       </div>
     )
   }
@@ -90,67 +80,54 @@ export default function Notifications() {
     return (
       <div className="notifications-error">
         <p>{error}</p>
-        <button onClick={fetchNotifications} className="retry-btn">Try Again</button>
+        <button onClick={fetchNotifications} className="retry-btn">{t('retry')}</button>
       </div>
     )
   }
 
   return (
     <div className="notifications-container">
-      {/* Header */}
       <div className="notifications-header">
         <div>
-          <h1 className="notifications-title">Notifications</h1>
-          <p className="notifications-subtitle">Stay updated with warnings and reports</p>
-        </div>
-        <div className="notifications-stats">
+          <h1 className="notifications-title">{t('notifications_title')}</h1>
+          <p className="notifications-subtitle">{t('notificationsSubtitle')}</p>
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="notifications-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'warnings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('warnings')}
-        >
+        <button className={`tab-btn ${activeTab === 'warnings' ? 'active' : ''}`} onClick={() => setActiveTab('warnings')}>
           <svg className="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          Warnings
+          {t('warningsTab')}
         </button>
-        <button 
-          className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
-          onClick={() => setActiveTab('reports')}
-        >
+        <button className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
           <svg className="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Reports Against You
+          {t('reportsTab')}
         </button>
       </div>
 
-      {/* Warnings Tab Content */}
       {activeTab === 'warnings' && (
         <div className="notifications-list">
           {notifications.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">✅</div>
-              <h3>No Warnings</h3>
-              <p>You have no warnings. Keep up the good work!</p>
+              <h3>{t('noWarningsTitle')}</h3>
+              <p>{t('noWarningsText')}</p>
             </div>
           ) : (
             notifications.map((notification) => (
-              <div key={notification.id} className={`notification-card warning`}>
-                <div className="notification-icon">
-                  <span>⚠️</span>
-                </div>
+              <div key={notification.id} className="notification-card warning">
+                <div className="notification-icon"><span>⚠️</span></div>
                 <div className="notification-content">
                   <div className="notification-header">
-                    <h3 className="notification-title">{notification.title}</h3>
+                    <h3 className="notification-title">{t('adminWarning')}</h3>
                     <span className="notification-date">{formatDate(notification.date)}</span>
                   </div>
                   <p className="notification-message">{notification.message}</p>
-                  <p className="notification-note">This warning will disappear automatically after 30 days.</p>
+                  <p className="notification-note">{t('warningDisappears')}</p>
                 </div>
               </div>
             ))
@@ -158,33 +135,28 @@ export default function Notifications() {
         </div>
       )}
 
-      {/* Reports Tab Content */}
       {activeTab === 'reports' && (
         <div className="notifications-list">
           {reports.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">🛡️</div>
-              <h3>No Reports</h3>
-              <p>No one has reported you. Keep being a positive community member!</p>
+              <h3>{t('noReportsTitle')}</h3>
+              <p>{t('noReportsText')}</p>
             </div>
           ) : (
             reports.map((report, index) => (
               <div key={report.id || index} className="notification-card report">
-                <div className="notification-icon">
-                  <span>📢</span>
-                </div>
+                <div className="notification-icon"><span>📢</span></div>
                 <div className="notification-content">
                   <div className="notification-header">
-                    <h3 className="notification-title">Report Filed Against You</h3>
-                    {report.created_at && (
-                      <span className="notification-date">{formatDate(report.created_at)}</span>
-                    )}
+                    <h3 className="notification-title">{t('reportFiled')}</h3>
+                    {report.created_at && <span className="notification-date">{formatDate(report.created_at)}</span>}
                   </div>
                   <p className="notification-message">
-                    <strong>Reason:</strong> {report.reason}
+                    <strong>{t('reason')}:</strong> {report.reason}
                   </p>
                   <div className="notification-warning">
-                    <small>Please review our community guidelines.</small>
+                    <small>{t('communityGuidelinesText')}</small>
                   </div>
                 </div>
               </div>
@@ -193,20 +165,19 @@ export default function Notifications() {
         </div>
       )}
 
-      {/* Info Section */}
       <div className="info-section">
         <div className="info-card">
           <div className="info-icon">📋</div>
           <div className="info-content">
-            <h4>Community Guidelines</h4>
-            <p>Be respectful, help others, and follow our community rules to maintain a positive learning environment.</p>
+            <h4>{t('communityGuidelines')}</h4>
+            <p>{t('communityGuidelinesText')}</p>
           </div>
         </div>
         <div className="info-card">
           <div className="info-icon">🤝</div>
           <div className="info-content">
-            <h4>Need Help?</h4>
-            <p>If you have questions about a warning or report, please contact an admin.</p>
+            <h4>{t('needHelp')}</h4>
+            <p>{t('needHelpText')}</p>
           </div>
         </div>
       </div>

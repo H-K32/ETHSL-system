@@ -1,8 +1,10 @@
 import useAsync from '../utils/useAsync.js'
-import { getCurriculum } from '../api/lms.js'
+import { getCurriculum, translateContent } from '../api/lms.js'
 import Spinner from '../components/Spinner.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { useState, useEffect } from 'react'
 import '../styles/curriculum.css'
 
 /* ── icons ─────────────────────────────────────────────────── */
@@ -47,16 +49,40 @@ function st(item) {
   return 'lock'
 }
 
-// offset for lesson labels only; nodes stay vertically aligned
 const ZZ = [28, -28]
 
 export default function Curriculum() {
   const { data, loading, error, reload } = useAsync(getCurriculum, [])
+  const { lang, t } = useLanguage()
+  const [amTr, setAmTr] = useState({})
+
+  const levels = Array.isArray(data) ? data : []
+
+  useEffect(() => {
+    if (lang !== 'am' || levels.length === 0) return
+    levels.forEach(level => {
+      level.courses.forEach(course => {
+        if (!amTr[`course_${course.id}_title`]) {
+          translateContent('course', course.id, 'title')
+            .then(r => setAmTr(prev => ({ ...prev, [`course_${course.id}_title`]: r.translated })))
+            .catch(() => {})
+        }
+        course.lessons.forEach(lesson => {
+          if (!amTr[`lesson_${lesson.id}_title`]) {
+            translateContent('lesson', lesson.id, 'title')
+              .then(r => setAmTr(prev => ({ ...prev, [`lesson_${lesson.id}_title`]: r.translated })))
+              .catch(() => {})
+          }
+        })
+      })
+    })
+  }, [lang, levels.length])
+
+  const tr = (key, fallback) => (lang === 'am' && amTr[key]) ? amTr[key] : fallback
 
   if (loading) return <Spinner />
   if (error)   return <ErrorState error={error} onRetry={reload} />
 
-  const levels = Array.isArray(data) ? data : []
   const totalL = levels.reduce((a, l) => a + l.courses.reduce((b, c) => b + c.lessons.length, 0), 0)
   const doneL  = levels.reduce((a, l) => a + l.courses.reduce((b, c) => b + c.lessons.filter(ls => ls.completed).length, 0), 0)
   const pct    = totalL > 0 ? Math.round((doneL / totalL) * 100) : 0
@@ -67,49 +93,43 @@ export default function Curriculum() {
       {/* ── header ── */}
       <div className="rp-header">
         <div>
-          <span className="rp-eyebrow">🗺️ Learning Roadmap</span>
-          <h1 className="rp-title">Your Full Learning Path</h1>
-          <p className="rp-sub">Every level, module, and lesson — your complete journey from start to certificate.</p>
+          <span className="rp-eyebrow">🗺️ {t('curriculumRoadmap')}</span>
+          <h1 className="rp-title">{t('fullLearningPath')}</h1>
+          <p className="rp-sub">{t('curriculumSubtitle')}</p>
         </div>
         <div className="rp-progress-box">
           <div className="rp-progress-row">
-            <span>Overall Progress</span>
+            <span>{t('overallProgress')}</span>
             <strong>{pct}%</strong>
           </div>
           <div className="rp-progress-track">
             <div className="rp-progress-fill" style={{ width: `${pct}%` }} />
           </div>
-          <div className="rp-progress-sub">{doneL} / {totalL} lessons completed</div>
+          <div className="rp-progress-sub">{doneL} / {totalL} {t('lessonsUnit')}</div>
         </div>
       </div>
 
       {levels.length === 0
-        ? <EmptyState title="No curriculum available" hint="Check back soon." />
+        ? <EmptyState title={t('noCurriculum')} hint={t('checkBackSoon')} />
         : (
           <div className="rp-road">
 
             {levels.map((level, li) => {
               const lSt      = st(level)
-              const isLast   = li === levels.length - 1
               const lvlTotal = level.courses.reduce((a, c) => a + c.lessons.length, 0)
               const lvlDone  = level.courses.reduce((a, c) => a + c.lessons.filter(l => l.completed).length, 0)
               const lvlPct   = lvlTotal > 0 ? Math.round((lvlDone / lvlTotal) * 100) : 0
               const certEarned = lvlPct === 100
-
-              // flatten lessons with course info
-              const allLessons = level.courses.flatMap((c, ci) =>
-                c.lessons.map((l, lsi) => ({
-                  ...l,
-                  courseTitle: c.title,
-                  courseState: st(c),
-                  globalIdx: level.courses.slice(0, ci).reduce((a, x) => a + x.lessons.length, 0) + lsi,
-                }))
-              )
+              const levelName = (() => {
+                const n = level.display_name || level.name || ''
+                const k = 'levelName_' + n
+                const v = t(k)
+                return v !== k ? v : n
+              })()
 
               return (
                 <div key={level.id} className="rp-level-block">
 
-                  {/* ── vertical connector from previous level ── */}
                   {li > 0 && (
                     <div className={`rp-vline rp-vline--${lSt === 'lock' ? 'lock' : 'open'}`} />
                   )}
@@ -127,14 +147,14 @@ export default function Curriculum() {
                     <div className={`rp-level-card rp-level-card--${lSt}`}>
                       <div className="rp-level-card-top">
                         <div>
-                          <div className="rp-level-card-label">Level {level.order ?? li + 1}</div>
-                          <div className="rp-level-card-name">{level.display_name || level.name}</div>
+                          <div className="rp-level-card-label">{t('levelLabel')} {level.order ?? li + 1}</div>
+                          <div className="rp-level-card-name">{levelName}</div>
                         </div>
                         <div className="rp-level-card-badges">
-                          {lSt === 'lock'    && <span className="rp-badge rp-badge--lock">🔒 Locked</span>}
-                          {lSt === 'open'    && <span className="rp-badge rp-badge--open">▶ In Progress</span>}
-                          {lSt === 'done'    && <span className="rp-badge rp-badge--done">✓ Completed</span>}
-                          {level.has_quiz    && <span className="rp-badge rp-badge--quiz">📝 Quiz</span>}
+                          {lSt === 'lock' && <span className="rp-badge rp-badge--lock">🔒 {t('locked')}</span>}
+                          {lSt === 'open' && <span className="rp-badge rp-badge--open">▶ {t('inProgress')}</span>}
+                          {lSt === 'done' && <span className="rp-badge rp-badge--done">✓ {t('completedBadge')}</span>}
+                          {level.has_quiz && <span className="rp-badge rp-badge--quiz">📝 {t('quizBadge')}</span>}
                         </div>
                       </div>
                       {lSt !== 'lock' && (
@@ -148,8 +168,6 @@ export default function Curriculum() {
 
                   {/* ══ COURSES + LESSONS ══ */}
                   <div className="rp-indent">
-
-                    {/* left branch line from level node down */}
                     <div className={`rp-branch-line rp-branch-line--${lSt === 'lock' ? 'lock' : 'open'}`} />
 
                     <div className="rp-courses">
@@ -163,7 +181,6 @@ export default function Curriculum() {
                         return (
                           <div key={course.id} className="rp-course-block">
 
-                            {/* ── COURSE ROW ── */}
                             <div className="rp-course-row">
                               <div className={`rp-course-dot rp-course-dot--${cSt}`}>
                                 {cSt === 'done' ? <ICheck /> : cSt === 'lock' ? <ILock /> : <IBook />}
@@ -171,8 +188,8 @@ export default function Curriculum() {
                               <div className={`rp-course-card rp-course-card--${cSt}`}>
                                 <div className="rp-course-card-top">
                                   <div>
-                                    <div className="rp-course-label">Module</div>
-                                    <div className="rp-course-name">{course.title}</div>
+                                    <div className="rp-course-label">{t('moduleLabel')}</div>
+                                    <div className="rp-course-name">{tr(`course_${course.id}_title`, course.title)}</div>
                                     {course.description && (
                                       <div className="rp-course-desc">{course.description}</div>
                                     )}
@@ -195,25 +212,20 @@ export default function Curriculum() {
                               </div>
                             </div>
 
-                            {/* ── LESSONS (zigzag nodes) ── */}
+                            {/* ── LESSONS ── */}
                             <div className="rp-lessons-wrap">
-                              {/* spine */}
                               <div className={`rp-lesson-spine rp-lesson-spine--${cSt === 'lock' ? 'lock' : 'open'}`} />
 
                               {course.lessons.map((lesson, lsi) => {
-                                const lsSt  = lesson.completed ? 'done' : lesson.unlocked ? 'open' : 'lock'
-                                const xOff  = ZZ[lsi % ZZ.length]
+                                const lsSt = lesson.completed ? 'done' : lesson.unlocked ? 'open' : 'lock'
+                                const xOff = ZZ[lsi % ZZ.length]
                                 const isLastLesson = lsi === course.lessons.length - 1
 
                                 return (
                                   <div key={lesson.id} className="rp-ls-step">
-
-                                    {/* lesson circle */}
                                     <div className={`rp-ls-node rp-ls-node--${lsSt}`}>
                                       {lsSt === 'open' && <span className="rp-ls-glow" />}
                                     </div>
-
-                                    {/* label */}
                                     <div
                                       className={`rp-ls-label rp-ls-label--${xOff >= 0 ? 'r' : 'l'}`}
                                       style={{ '--x': `${xOff}px` }}
@@ -226,17 +238,15 @@ export default function Curriculum() {
                                             ? <span>{lsi + 1}</span>
                                             : <ILock />}
                                         </span>
-                                        <div className="rp-ls-title">{lesson.title}</div>
+                                        <div className="rp-ls-title">{tr(`lesson_${lesson.id}_title`, lesson.title)}</div>
                                       </div>
                                       <div className="rp-ls-tags">
-                                        {lesson.completed  && <span className="rp-badge rp-badge--done">Done</span>}
-                                        {!lesson.completed && lesson.unlocked  && <span className="rp-badge rp-badge--open">Ready</span>}
-                                        {!lesson.unlocked  && <span className="rp-badge rp-badge--lock">Locked</span>}
-                                        {lesson.has_quiz   && <span className="rp-badge rp-badge--quiz">Quiz</span>}
+                                        {lesson.completed && <span className="rp-badge rp-badge--done">{t('doneBadge')}</span>}
+                                        {!lesson.completed && lesson.unlocked && <span className="rp-badge rp-badge--open">{t('readyBadge')}</span>}
+                                        {!lesson.unlocked && <span className="rp-badge rp-badge--lock">{t('locked')}</span>}
+                                        {lesson.has_quiz && <span className="rp-badge rp-badge--quiz">{t('quizBadge')}</span>}
                                       </div>
                                     </div>
-
-                                    {/* vertical line to next lesson */}
                                     {!isLastLesson && (
                                       <div
                                         className={`rp-ls-vline rp-ls-vline--${course.lessons[lsi + 1]?.unlocked ? 'open' : 'lock'}`}
@@ -248,7 +258,6 @@ export default function Curriculum() {
                               })}
                             </div>
 
-                            {/* connector to next course */}
                             {!isLastC && (
                               <div className={`rp-course-connector rp-course-connector--${level.courses[ci + 1] ? st(level.courses[ci + 1]) === 'lock' ? 'lock' : 'open' : 'lock'}`} />
                             )}
@@ -256,10 +265,8 @@ export default function Curriculum() {
                         )
                       })}
                     </div>
-
                   </div>
 
-                  {/* ── line from branch down to certificate ── */}
                   <div className={`rp-vline rp-vline--${certEarned ? 'open' : 'lock'}`} style={{ height: 28 }} />
 
                   {/* ══ CERTIFICATE NODE ══ */}
@@ -270,15 +277,15 @@ export default function Curriculum() {
                     </div>
                     <div className={`rp-cert-card rp-cert-card--${certEarned ? 'earned' : 'lock'}`}>
                       <div className="rp-cert-title">
-                        {certEarned ? '🎉 Certificate Unlocked!' : '🏆 Level Certificate'}
+                        {certEarned ? `🎉 ${t('certUnlocked')}` : `🏆 ${t('levelCertLabel')}`}
                       </div>
                       <div className="rp-cert-sub">
                         {certEarned
-                          ? `${level.display_name || level.name} — Completed`
-                          : `Complete all lessons to unlock · ${lvlPct}% done`}
+                          ? `${levelName} — ${t('completedBadge')}`
+                          : `${t('completeAllToUnlock')} · ${lvlPct}% ${t('doneBadge')}`}
                       </div>
                       {certEarned && (
-                        <a href="/certificates" className="rp-cert-btn">View Certificate →</a>
+                        <a href="/certificates" className="rp-cert-btn">{t('viewCertificate')} →</a>
                       )}
                     </div>
                   </div>
@@ -294,7 +301,7 @@ export default function Curriculum() {
                 {pct === 100 && <span className="rp-pulse" />}
               </div>
               <div className="rp-finish-label">
-                {pct === 100 ? '🏆 Journey Complete!' : 'Finish Line'}
+                {pct === 100 ? `🏆 ${t('journeyComplete')}` : t('finishLine')}
               </div>
             </div>
 

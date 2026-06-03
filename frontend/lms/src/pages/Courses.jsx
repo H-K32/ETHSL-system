@@ -13,24 +13,18 @@ export default function Courses() {
   const { lang, t } = useLanguage()
   const { data, loading, error, reload } = useAsync(() => getCourses(levelId), [levelId])
   const [amTranslations, setAmTranslations] = useState({})
-  const [translationErrors, setTranslationErrors] = useState({})
 
   const courses = Array.isArray(data) ? data : (data?.results || [])
 
   useEffect(() => {
     if (lang !== 'am' || courses.length === 0) return
     courses.forEach(course => {
-      if (amTranslations[course.id]) return
-      console.log('[Courses] Translating description for course', course.id)
-      translateContent('course', course.id, 'description')
-        .then(r => { 
-          console.log('[Courses] Translation SUCCESS:', r.translated); 
-          setAmTranslations(prev => ({ ...prev, [course.id]: r.translated })) 
-        })
-        .catch(e => { 
-          console.error('[Courses] Translation FAILED:', e); 
-          setTranslationErrors(prev => ({ ...prev, [course.id]: e.message }))
-        })
+      ['title', 'description'].forEach(field => {
+        if (amTranslations[`${course.id}_${field}`]) return
+        translateContent('course', course.id, field)
+          .then(r => setAmTranslations(prev => ({ ...prev, [`${course.id}_${field}`]: r.translated })))
+          .catch(() => {})
+      })
     })
   }, [lang, courses.length])
 
@@ -51,7 +45,7 @@ export default function Courses() {
       <div className="courses-shell">
         <header className="courses-header">
           <div>
-            <span className="courses-eyebrow">Curriculum / Modules</span>
+            <span className="courses-eyebrow">{t('curriculumModules')}</span>
             <h1 className="courses-title">{t('availableModules')}</h1>
             <p className="courses-subtitle">{t('selectModule')}</p>
           </div>
@@ -72,10 +66,10 @@ export default function Courses() {
               <div key={course.id}>
                 <article className="course-card">
                   <div className="course-icon">📚</div>
-                  <h3 className="course-title">{course.title}</h3>
+                  <h3 className="course-title">{lang === 'am' && amTranslations[`${course.id}_title`] ? amTranslations[`${course.id}_title`] : course.title}</h3>
                   {course.description && (
                     <p className="course-description">
-                      {lang === 'am' && amTranslations[course.id] ? amTranslations[course.id] : course.description}
+                      {lang === 'am' && amTranslations[`${course.id}_description`] ? amTranslations[`${course.id}_description`] : course.description}
                     </p>
                   )}
                   <div className="course-buttons">

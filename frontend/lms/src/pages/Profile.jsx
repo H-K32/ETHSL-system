@@ -4,6 +4,7 @@ import useAsync from '../utils/useAsync.js'
 import { getProfile } from '../api/lms.js'
 import ProgressBar from '../components/ProgressBar.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import api from '../api/client.js'
 import '../styles/profile.css'
 
@@ -24,6 +25,7 @@ function isPasswordValid(checks) {
 
 export default function Profile() {
   const { user, logout, refreshUser } = useAuth()
+  const { t } = useLanguage()
   const nav = useNavigate()
   const { data, loading, error, reload } = useAsync(getProfile, [])
   const [isEditing, setIsEditing] = useState(false)
@@ -76,15 +78,15 @@ export default function Profile() {
   if (loading) return (
     <div className="profile-loading">
       <div className="loading-spinner"></div>
-      <p>Loading profile...</p>
+      <p>{t('loadingProfile')}</p>
     </div>
   )
 
   if (error) return (
     <div className="profile-container">
       <div className="profile-error">
-        <p>{error?.message || 'Failed to load profile'}</p>
-        <button onClick={reload} className="retry-btn">Try Again</button>
+        <p>{error?.message || t('failedProfile')}</p>
+        <button onClick={reload} className="retry-btn">{t('retry')}</button>
       </div>
     </div>
   )
@@ -369,25 +371,25 @@ export default function Profile() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
-              Edit Profile
+              {t('editProfile')}
             </button>
             <button onClick={() => { setIsChangingPassword(true); setMessage({ type: '', text: '' }) }} className="password-btn">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
-              Change Password
+              {t('changePassword')}
             </button>
             <button onClick={() => nav('/forgot-password')} className="forgot-btn">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Forgot Password?
+              {t('forgotPassword')}
             </button>
             <button onClick={logout} className="logout-button">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              Logout
+              {t('logout')}
             </button>
           </div>
         </div>
@@ -396,23 +398,23 @@ export default function Profile() {
       {/* Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-label">Completed Lessons</div>
+          <div className="stat-label">{t('completedLessons')}</div>
           <div className="stat-value">{stats.completed_lessons ?? 0}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Quiz Average</div>
+          <div className="stat-label">{t('quizAverage')}</div>
           <div className="stat-value">
             {stats.quiz_average != null ? `${Math.round(stats.quiz_average)}%` : '—'}
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Current Level</div>
-          <div className="stat-value stat-value--text">{stats.current_level || '—'}</div>
+          <div className="stat-label">{t('currentLevel')}</div>
+          <div className="stat-value stat-value--text">{(() => { const k = 'levelName_' + (stats.current_level || ''); const v = t(k); return v !== k ? v : (stats.current_level || '—'); })()}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">🔥 Streak</div>
+          <div className="stat-label">🔥 {t('streak')}</div>
           <div className="stat-value">
-            {p.streak_count ?? 0} {(p.streak_count ?? 0) === 1 ? 'day' : 'days'}
+            {p.streak_count ?? 0} {(p.streak_count ?? 0) === 1 ? t('day') : t('days')}
           </div>
         </div>
       </div>
@@ -422,7 +424,7 @@ export default function Profile() {
         <div className="modal-overlay" onClick={() => setIsEditing(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Edit Profile</h2>
+              <h2>{t('editProfile')}</h2>
               <button className="modal-close" onClick={() => setIsEditing(false)}>×</button>
             </div>
             <form onSubmit={handleUpdateProfile}>
@@ -557,8 +559,8 @@ export default function Profile() {
               </div>
 
               <div className="modal-footer">
-                <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
-                <button type="submit" className="submit-btn">Save Changes</button>
+                <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>{t('cancel')}</button>
+                <button type="submit" className="submit-btn">{t('save')}</button>
               </div>
             </form>
           </div>
@@ -570,7 +572,7 @@ export default function Profile() {
         <div className="modal-overlay" onClick={() => setIsChangingPassword(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Change Password</h2>
+              <h2>{t('changePassword')}</h2>
               <button className="modal-close" onClick={() => setIsChangingPassword(false)}>×</button>
             </div>
             <form onSubmit={handleChangePassword}>
@@ -627,13 +629,13 @@ export default function Profile() {
               )}
 
               <div className="modal-footer">
-                <button type="button" className="cancel-btn" onClick={() => setIsChangingPassword(false)}>Cancel</button>
+                <button type="button" className="cancel-btn" onClick={() => setIsChangingPassword(false)}>{t('cancel')}</button>
                 <button
                   type="submit"
                   className="submit-btn"
                   disabled={!isPasswordValid(pwChecks) || passwordData.new_password !== passwordData.confirm_password}
                 >
-                  Update Password
+                  {t('updatePassword')}
                 </button>
               </div>
             </form>
@@ -642,10 +644,10 @@ export default function Profile() {
       )}
 
       {/* Course Progress Section */}
-      <div className="section-title">Course Progress</div>
+      <div className="section-title">{t('courseProgress')}</div>
       {courses.length === 0 ? (
         <div className="empty-state">
-          <p>No course progress yet. Start learning to see your progress!</p>
+          <p>{t('noProgressYet')}</p>
         </div>
       ) : (
         <div className="course-list">
@@ -654,7 +656,7 @@ export default function Profile() {
               <div className="course-header">
                 <span className="course-title">{c.title || c.course?.title}</span>
                 <span className="course-lesson-count">
-                  {c.completed_lessons ?? 0}/{c.total_lessons ?? '?'} lessons
+                  {c.completed_lessons ?? 0}/{c.total_lessons ?? '?'} {t('lessonsUnit')}
                 </span>
               </div>
               <div className="course-progress-bar">
