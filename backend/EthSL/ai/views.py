@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from courses.models import Lesson, Course, Level, Quiz, Question
+from courses.models import Lesson, Course, Level, Quiz, Question, Option
 from community.models import Post, Comment, Report
 from django.conf import settings
 from .translation_service import get_translation_service
@@ -29,6 +29,7 @@ TRANSLATABLE_TYPES = {
     'level':    (Level,    ['name']),
     'quiz':     (Quiz,     ['description']),
     'question': (Question, ['question_text']),
+    'option':   (Option,   ['option_text']),
     'post':     (Post,     ['title', 'content']),
     'comment':  (Comment,  ['content']),
     'report':   (Report,   ['reason']),

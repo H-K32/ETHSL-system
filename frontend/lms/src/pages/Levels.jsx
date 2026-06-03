@@ -58,35 +58,19 @@ export default function Levels() {
 
   const levels = Array.isArray(data) ? data : []
 
-  // Function to translate level names
-  const translateLevelName = (levelName) => {
-    if (!levelName || lang !== 'am') return levelName
-    
-    const levelTranslations = {
-      'Beginner': 'ጀማሪ',
-      'Intermediate': 'መካከለኛ',
-      'Advanced': 'ከፍተኛ'
-    }
-    
-    return levelTranslations[levelName] || levelName
-  }
-
-  // Load Amharic translations for level descriptions
+  // Translate level display names via backend cache
   useEffect(() => {
     if (lang !== 'am' || levels.length === 0) return
     levels.forEach(level => {
-      if (amTranslations[`${level.id}_description`]) return
-      if (level.description) {
-        translateContent('level', level.id, 'description')
-          .then(r => setAmTranslations(prev => ({ ...prev, [`${level.id}_description`]: r.translated })))
-          .catch(() => {})
-      }
+      if (amTranslations[`${level.id}_name`]) return
+      translateContent('level', level.id, 'name')
+        .then(r => setAmTranslations(prev => ({ ...prev, [`${level.id}_name`]: r.translated })))
+        .catch(e => console.error('[Levels] Translation failed for level', level.id, e))
     })
   }, [lang, levels.length])
 
   if (loading) return <Spinner />
   if (error) return <div className="max-w-5xl mx-auto px-4 py-10"><ErrorState error={error} onRetry={reload} /></div>
-  const levels = Array.isArray(data) ? data : []
 
   // Count unlocked levels for progress metrics
   const unlockedCount = levels.filter(l => l.unlocked).length
@@ -214,7 +198,7 @@ export default function Levels() {
                     {/* Level Title */}
                     <div className="z-10 relative">
                       <h3 className="level-title mb-2 text-xl md:text-2xl font-serif font-black leading-tight text-forest-950">
-                        {translateLevelName(l.display_name || l.name)}
+                        {lang === 'am' && amTranslations[`${l.id}_name`] ? amTranslations[`${l.id}_name`] : (l.display_name || l.name)}
                       </h3>
                       
   
@@ -223,7 +207,7 @@ export default function Levels() {
                     {/* Description */}
                     {l.description && (
                       <p className="level-desc leading-relaxed text-sm text-forest-800 font-sans font-medium mb-5 z-10 relative">
-                        {lang === 'am' && amTranslations[`${l.id}_description`] ? amTranslations[`${l.id}_description`] : l.description}
+                        {l.description}
                       </p>
                     )}
                   </div>

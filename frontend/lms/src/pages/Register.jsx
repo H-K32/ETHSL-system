@@ -226,16 +226,16 @@ export default function Register() {
             {passwordFocused && (
               <>
                 <p className={passwordChecks.minLength ? "text-green-600" : "text-red-500"}>
-                  {passwordChecks.minLength ? "✔" : "✖"} {t('weak')} - At least 8 characters
+                  {passwordChecks.minLength ? "✔" : "✖"} {t('weak')} - {t('pwMinLength')}
                 </p>
                 <p className={passwordChecks.hasUpper ? "text-green-600" : "text-red-500"}>
-                  {passwordChecks.hasUpper ? "✔" : "✖"} {t('fair')} - At least 1 uppercase letter
+                  {passwordChecks.hasUpper ? "✔" : "✖"} {t('fair')} - {t('pwUppercase')}
                 </p>
                 <p className={passwordChecks.hasLower ? "text-green-600" : "text-red-500"}>
-                  {passwordChecks.hasLower ? "✔" : "✖"} {t('good')} - At least 1 lowercase letter
+                  {passwordChecks.hasLower ? "✔" : "✖"} {t('good')} - {t('pwLowercase')}
                 </p>
                 <p className={passwordChecks.hasNumber ? "text-green-600" : "text-red-500"}>
-                  {passwordChecks.hasNumber ? "✔" : "✖"} {t('strong')} - At least 1 number
+                  {passwordChecks.hasNumber ? "✔" : "✖"} {t('strong')} - {t('pwNumber')}
                 </p>
               </>
             )}

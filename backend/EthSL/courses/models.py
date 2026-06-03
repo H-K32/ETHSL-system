@@ -158,3 +158,4 @@ class Option(models.Model):
     option_image = models.ImageField(upload_to="images/option/", blank=True, null=True)
     option_video = models.FileField(upload_to="videos/option/", blank=True, null=True)
     is_correct = models.BooleanField(default=False)
+    am_option_text = models.TextField(null=True, blank=True)

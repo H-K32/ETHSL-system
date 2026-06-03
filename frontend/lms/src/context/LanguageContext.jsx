@@ -290,6 +290,12 @@ const translations = {
     passwordsMustMatch: 'Passwords do not match',
     passwordRequirements: 'Password must be 8+ chars with uppercase, lowercase, and number',
     selectGenderError: 'Please select gender',
+    pwMinLength: 'At least 8 characters',
+    pwUppercase: 'At least 1 uppercase letter',
+    pwLowercase: 'At least 1 lowercase letter',
+    pwNumber: 'At least 1 number',
+    username: 'Username',
+    backToHome: '← Back to Home',
     invalidFullName: 'Full name can only contain letters and spaces.',
     invalidUsername: 'Username can only contain letters and numbers.',
     useAnotherUsername: 'Use a different username',
@@ -311,6 +317,59 @@ const translations = {
     dashboard: 'Dashboard',
     continueL: 'Continue Learning →',
     learnEsl: 'Learn Ethiopian Sign Language visually',
+
+    // Home Page extra
+    homeAbout: 'About',
+    homeWhyEthsl: 'Why ETHSL',
+    homeFeatures: 'Features',
+    homeHowItWorks: 'How It Works',
+    homeBenefits: 'Benefits',
+    homeFaq: 'FAQ',
+    homeContact: 'Contact',
+    homeLogin: 'Login',
+    homeRegister: 'Register',
+    homeGetStarted: 'Get Started →',
+    homeSignIn: 'Sign In',
+    homeHeroTitle: 'Learn Ethiopian Sign Language',
+    homeHeroEm: 'the modern way.',
+    homeHeroSubtitle: 'A structured, visual learning platform that helps learners master Ethiopian Sign Language through engaging lessons, assessments, and guided progression from beginner to advanced levels.',
+    homeWhatIsEthsl: 'What is ETHSL?',
+    homeAboutDesc: 'ETHSL (Ethiopian Sign Language Tutor) is an innovative learning platform designed to make Ethiopian Sign Language education accessible, engaging, and effective for everyone. Through structured lessons, visual demonstrations, and guided learning pathways, users can build communication skills at their own pace.',
+    homeBuiltForAll: 'Built for Everyone',
+    homeBuiltForAllDesc: 'Students, teachers, parents, professionals, and anyone interested in inclusive communication can benefit from learning Ethiopian Sign Language through ETHSL.',
+    homeWhyChoose: 'Why Choose ETHSL?',
+    homeVisualLearning: 'Visual Learning',
+    homeVisualDesc: 'Learn signs through clear visual demonstrations that make learning intuitive and memorable.',
+    homeStructuredLevels: 'Structured Levels',
+    homeStructuredDesc: 'Progress through carefully designed levels that help build confidence and mastery over time.',
+    homeProgressTracking: 'Progress Tracking',
+    homeProgressDesc: 'Monitor lesson completion, quiz results, and learning achievements throughout your journey.',
+    homePlatformFeatures: 'Platform Features',
+    homeVideoLessons: 'Video-Based Lessons',
+    homeInteractiveAssessments: 'Interactive Assessments',
+    homeLevelUnlock: 'Level Unlock System',
+    homeLessonDiscovery: 'Lesson Discovery',
+    homeAccessibleLearning: 'Accessible Learning',
+    homeHowTitle: 'How It Works',
+    homeStep1: 'Create an Account',
+    homeStep2: 'Take Placement Assessment',
+    homeStep3: 'Start Learning Lessons',
+    homeStep4: 'Track Progress & Improve',
+    homeInclusiveComm: 'Inclusive Communication',
+    homeInclusiveDesc: 'Ethiopian Sign Language helps bridge communication gaps and promotes accessibility for individuals with hearing impairments and the wider community.',
+    homeWhyLearn: 'Why Learn Ethiopian Sign Language?',
+    homeWhyLearnDesc: 'Learning sign language strengthens communication, promotes inclusion, supports equal opportunities, and helps create a society where everyone can participate and connect effectively.',
+    homeFaqTitle: 'Frequently Asked Questions',
+    homeFaq1Q: 'Do I need prior experience?',
+    homeFaq1A: 'No. ETHSL is designed for beginners and learners of all skill levels.',
+    homeFaq2Q: 'Is the platform free?',
+    homeFaq2A: 'Yes. Learners can access educational resources and begin learning without cost.',
+    homeFaq3Q: 'Can I learn on mobile devices?',
+    homeFaq3A: 'Absolutely. ETHSL works on desktops, tablets, and smartphones.',
+    homeContactTitle: 'Contact Us',
+    homeContactDesc: 'Have questions, suggestions, or feedback?',
+    homeContactDesc2: "We'd love to hear from you.",
+    homeLangToggle: 'አማርኛ',
   },
 
   am: {
@@ -591,6 +650,10 @@ const translations = {
     passwordsMustMatch: 'የይለፍ ቃሎች አይዛመዱም',
     passwordRequirements: 'የይለፍ ቃል 8 ገበታ ወይም ከዚያ በላይ መስሪያ፣ ዓ፣ ንዑስ፣ እና ቁጥር መሆን አለበት',
     selectGenderError: 'እባክዎ ጾታ ይምረጡ',
+    pwMinLength: 'ቢያንስ 8 ገበታ',
+    pwUppercase: 'ቢያንስ 1 ትልቅ ፊደል',
+    pwLowercase: 'ቢያንስ 1 ንዑስ ፊደል',
+    pwNumber: 'ቢያንስ 1 ቁጥር',
     invalidFullName: 'ሙሉ ስም ፊደል እና ቦታዎች ብቻ ሊይዝ ይችላል።',
     invalidUsername: 'ተጠቃሚ ስም ፊደል እና ቁጥሮች ብቻ ሊይዝ ይችላል።',
     useAnotherUsername: 'ሌላ ተጠቃሚ ስም ይጠቀሙ',
@@ -612,6 +675,59 @@ const translations = {
     dashboard: 'ዳሽቦርድ',
     continueL: 'መማርን ይቀጥሉ →',
     learnEsl: 'የኢትዮጵያ የምልክት ቋንቋ ነቢርነት ይማሩ',
+
+    // Home Page extra
+    homeAbout: 'ስለ',
+    homeWhyEthsl: 'ለምን ETHSL',
+    homeFeatures: 'ባህሪዎች',
+    homeHowItWorks: 'እንዴት ይሠራል',
+    homeBenefits: 'ጥቅሞች',
+    homeFaq: 'ፍ.ጎ.ሙ',
+    homeContact: 'ያናግሩን',
+    homeLogin: 'ይግቡ',
+    homeRegister: 'ይመዝገቡ',
+    homeGetStarted: 'ይጀምሩ →',
+    homeSignIn: 'ይግቡ',
+    homeHeroTitle: 'የኢትዮጵያ የምልክት ቋንቋ ይማሩ',
+    homeHeroEm: 'ዘመናዊ መንገድ።',
+    homeHeroSubtitle: 'መዋቅርያዊ, ገላጭ የመማር ዋንጫ በማመልከቻ ትምህርቶች, ግምገማዎች, እና ስር ደረጃ ከጀማሪ ወደ ጎበጣ ደረጃ የኢትዮጵያ የምልክት ቋንቋ ለማስተማር የተነደፈ።',
+    homeWhatIsEthsl: 'ETHSL ምንድነው?',
+    homeAboutDesc: 'ETHSL (Ethiopian Sign Language Tutor) የኢትዮጵያ የምልክት ቋንቋ ትምህርትን ለሁሉም ሰው ተደራሽ፣ አስገራሚ እና ውጤታማ ለማድረግ የተነደፈ ፈጠራ ዋንጫ ነው።',
+    homeBuiltForAll: 'ለሁሉም የተገነባ',
+    homeBuiltForAllDesc: 'ተማሪዎች፣ አስተማሪዎች፣ ወላጆች, ሙያተኞች, እና በሚያገናኙት ግንኙነት ላይ ፍላጎት ያላቸው ማንም ሰው ETHSL በኩል ሊጠቀሙ ይችላሉ።',
+    homeWhyChoose: 'ለምን ETHSL ይምረጡ?',
+    homeVisualLearning: 'ነቢር ማመልከቻ',
+    homeVisualDesc: 'ምልክቶችን በግልጽ ምስላዊ ሰቢካዎች በኩል ይማሩ።',
+    homeStructuredLevels: 'መዋቅርያዊ ደረጃዎች',
+    homeStructuredDesc: 'በጥንቃቄ የተነደፈ ደረጃዎች በኩል ወሰንከሮ ብራታና ሙያትን መገንባት ይችላሉ።',
+    homeProgressTracking: 'እድገት ክትትል',
+    homeProgressDesc: 'ትምህርት ማጠናቀቂያ, የፈተና ውጤቶች, እና የመማር ስኬቶች ሙሉ ጉዞዎ ክትትል ይደረጋል።',
+    homePlatformFeatures: 'ዋንጫ ባህሪዎች',
+    homeVideoLessons: 'ቪዴዮ ላይ ተሠራ ትምህርቶች',
+    homeInteractiveAssessments: 'ተስተ ግምገማዎች',
+    homeLevelUnlock: 'ደረጃ ክፈት ስርዓት',
+    homeLessonDiscovery: 'ትምህርት ግኝታ',
+    homeAccessibleLearning: 'ተደራሽ ማመልከቻ',
+    homeHowTitle: 'እንዴት ይሠራል',
+    homeStep1: 'ሂሳብ ፍጠር',
+    homeStep2: 'ደረጃ ግምገማ ውሰድ',
+    homeStep3: 'ትምህርቶች መማር ይጀምር',
+    homeStep4: 'እድገት ክትትል እና ማሻሻል',
+    homeInclusiveComm: 'ሚያገናኙ ግንኙነት',
+    homeInclusiveDesc: 'የኢትዮጵያ የምልክት ቋንቋ ግንኙነት ክፍተቶች ለመዝጋት ይረዳ።',
+    homeWhyLearn: 'የኢትዮጵያ የምልክት ቋንቋ ለምን ይማሩ?',
+    homeWhyLearnDesc: 'የምልክት ቋንቋ ማወቅ ግንኙነት ይጠነካራ ይህም ሚያገናኙነት ሲሠራ ፍትሐዊ ዕድሎች ሲደገሙ እና ማህበረሰቡ ተሳታፊ ይሆናል።',
+    homeFaqTitle: 'በተደጋጋሚ የሚነሱ ጥያቄዎች',
+    homeFaq1Q: 'ቀዳሚ ልምምድ ያስፈልገ?',
+    homeFaq1A: 'አይ። ETHSL ለጀማሪዎች እና ሁሉም ደረጃ ተማሪዎች ይሠራል።',
+    homeFaq2Q: 'ዋንጫ ነፃ ነው?',
+    homeFaq2A: 'አዎ። ተማሪዎች ትምህርታዊ መሳሪያዎችን ያለ ወጭ ሊደርሱ ይችላሉ።',
+    homeFaq3Q: 'በሞባይል መሳሪያ ሊማሩ ይችላሉ?',
+    homeFaq3A: 'ስሌት። ETHSL በገንዘቦች, ታብሌቶች, እና ስማርትፎኖች ላይ ይሠራ።',
+    homeContactTitle: 'ያናግሩን',
+    homeContactDesc: 'ጥያቄዎች, ሃሳቦች, ወይም አስተያየት አለዎት?',
+    homeContactDesc2: 'ከእናንተ ሰምተን ማግኘት ይፈልጋሉ።',
+    homeLangToggle: 'English',
   },
 }
 
@@ -619,20 +735,30 @@ const LanguageContext = createContext(null)
 
 export function LanguageProvider({ children }) {
   const { user } = useAuth()
-  const lang = user?.language || 'en'
+
+  // For authenticated users, language comes from their profile.
+  // For unauthenticated pages (Home, Login, Register), use localStorage.
+  const storedLang = typeof window !== 'undefined'
+    ? (localStorage.getItem('ethsl_lang') || 'en')
+    : 'en'
+  const lang = user?.language || storedLang
 
   const t = useCallback((key) => translations[lang]?.[key] ?? translations.en[key] ?? key, [lang])
 
   const toggleLanguage = useCallback(async () => {
     const newLang = lang === 'en' ? 'am' : 'en'
-    try {
-      await api.patch('/users/profile/', { language: newLang })
-      // Reload the page so AuthContext re-fetches user with new language
-      window.location.reload()
-    } catch {
-      // silently ignore
+    // Always persist to localStorage so unauthenticated pages work
+    localStorage.setItem('ethsl_lang', newLang)
+    if (user) {
+      // Also persist to backend for authenticated users
+      try {
+        await api.patch('/users/profile/', { language: newLang })
+      } catch (e) {
+        console.error('[LanguageContext] Failed to save language to backend:', e)
+      }
     }
-  }, [lang])
+    window.location.reload()
+  }, [lang, user])
 
   return (
     <LanguageContext.Provider value={{ lang, t, toggleLanguage }}>
