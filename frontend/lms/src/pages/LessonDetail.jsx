@@ -56,20 +56,37 @@ export default function LessonDetail() {
   const { lang, t } = useLanguage()
   const [amTitle, setAmTitle] = useState(null)
   const [amDesc, setAmDesc] = useState(null)
+  const [translationError, setTranslationError] = useState(null)
 
   useEffect(() => {
     if (lang !== 'am' || !lesson?.id) return
+    
+    // Translate title
     if (!amTitle) {
       console.log('[LessonDetail] Translating title for lesson', lesson.id)
       translateContent('lesson', lesson.id, 'title')
-        .then(r => { console.log('[LessonDetail] Title translation:', r.translated); setAmTitle(r.translated) })
-        .catch(e => { console.error('[LessonDetail] Title translation failed:', e) })
+        .then(r => { 
+          console.log('[LessonDetail] Title translation SUCCESS:', r.translated); 
+          setAmTitle(r.translated) 
+        })
+        .catch(e => { 
+          console.error('[LessonDetail] Title translation FAILED:', e); 
+          setTranslationError(`Title translation failed: ${e.message}`);
+        })
     }
+    
+    // Translate description
     if (!amDesc) {
       console.log('[LessonDetail] Translating description for lesson', lesson.id)
       translateContent('lesson', lesson.id, 'description')
-        .then(r => { console.log('[LessonDetail] Desc translation:', r.translated); setAmDesc(r.translated) })
-        .catch(e => { console.error('[LessonDetail] Desc translation failed:', e) })
+        .then(r => { 
+          console.log('[LessonDetail] Desc translation SUCCESS:', r.translated); 
+          setAmDesc(r.translated) 
+        })
+        .catch(e => { 
+          console.error('[LessonDetail] Desc translation FAILED:', e);
+          setTranslationError(`Description translation failed: ${e.message}`);
+        })
     }
   }, [lang, lesson?.id])
 

@@ -13,6 +13,7 @@ export default function Courses() {
   const { lang, t } = useLanguage()
   const { data, loading, error, reload } = useAsync(() => getCourses(levelId), [levelId])
   const [amTranslations, setAmTranslations] = useState({})
+  const [translationErrors, setTranslationErrors] = useState({})
 
   const courses = Array.isArray(data) ? data : (data?.results || [])
 
@@ -22,8 +23,14 @@ export default function Courses() {
       if (amTranslations[course.id]) return
       console.log('[Courses] Translating description for course', course.id)
       translateContent('course', course.id, 'description')
-        .then(r => { console.log('[Courses] Translation:', r.translated); setAmTranslations(prev => ({ ...prev, [course.id]: r.translated })) })
-        .catch(e => { console.error('[Courses] Translation failed:', e) })
+        .then(r => { 
+          console.log('[Courses] Translation SUCCESS:', r.translated); 
+          setAmTranslations(prev => ({ ...prev, [course.id]: r.translated })) 
+        })
+        .catch(e => { 
+          console.error('[Courses] Translation FAILED:', e); 
+          setTranslationErrors(prev => ({ ...prev, [course.id]: e.message }))
+        })
     })
   }, [lang, courses.length])
 

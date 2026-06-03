@@ -25,6 +25,8 @@ import AuthLayout from './components/AuthLayout.jsx'
 import CheckEmail from './pages/CheckEmail.jsx'
 import VerifyEmail from './pages/VerifyEmail.jsx'
 import VerifyEmailChange from './pages/VerifyEmailChange.jsx'
+// Initialize translation debugging tools
+import './utils/translationDebugger.js'
 
 export default function App() {
   return (

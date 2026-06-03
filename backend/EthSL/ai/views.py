@@ -2,24 +2,33 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from courses.models import Lesson, Course, Level, Quiz, Question
+from community.models import Post, Comment, Report
 from openai import OpenAI
 from django.conf import settings
+from .translation_service import get_translation_service
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Guard against missing API key at startup
+# ============================================================================
+# INITIALIZATION LOGGING
+# ============================================================================
 _openai_key = getattr(settings, 'OPENAI_API_KEY', None)
 if not _openai_key:
-    logger.error('[AI] OPENAI_API_KEY is not set in settings/environment. Translation and tutor features will fail.')
+    logger.error('[AI] CRITICAL: OPENAI_API_KEY is not set in settings/environment. Translation and tutor features will fail.')
+else:
+    logger.info('[AI] OPENAI_API_KEY is loaded from environment')
 
 try:
     client = OpenAI(api_key=_openai_key)
+    logger.info('[AI] OpenAI client initialized successfully')
 except Exception as e:
-    logger.error('[AI] Failed to initialize OpenAI client: %s', e)
+    logger.error('[AI] CRITICAL: Failed to initialize OpenAI client: %s', e, exc_info=True)
     client = None
 
-# Supported content types and their translatable fields
+# ============================================================================
+# TRANSLATABLE CONTENT TYPES
+# ============================================================================
 # Maps type_name -> (ModelClass, [translatable_fields])
 TRANSLATABLE_TYPES = {
     'lesson':   (Lesson,   ['title', 'description']),
@@ -27,6 +36,9 @@ TRANSLATABLE_TYPES = {
     'level':    (Level,    ['display_name']),
     'quiz':     (Quiz,     ['description']),
     'question': (Question, ['question_text']),
+    'post':     (Post,     ['title', 'content']),
+    'comment':  (Comment,  ['content']),
+    'report':   (Report,   ['reason']),
 }
 
 
@@ -81,93 +93,90 @@ class TranslateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        translation_service = get_translation_service()
+        
+        # ====== REQUEST VALIDATION ======
         content_type = request.data.get('type')
         content_id   = request.data.get('id')
         field        = request.data.get('field')
 
-        # --- Validate required fields ---
-        if not all([content_type, content_id, field]):
-            logger.warning('[Translate] Missing params: type=%s id=%s field=%s', content_type, content_id, field)
-            return Response({'error': 'type, id and field are required'}, status=400)
+        logger.debug('[TranslateView] Request received: type=%s id=%s field=%s from user=%s', 
+                    content_type, content_id, field, request.user.id)
 
-        # --- Validate content type ---
+        if not all([content_type, content_id, field]):
+            logger.warning('[TranslateView] VALIDATION FAILED: Missing required parameters. type=%s id=%s field=%s', 
+                          content_type, content_id, field)
+            return Response(
+                {'error': 'type, id and field are required'}, 
+                status=400
+            )
+
+        # ====== CONTENT TYPE VALIDATION ======
         if content_type not in TRANSLATABLE_TYPES:
-            logger.warning('[Translate] Unsupported content type: %s', content_type)
-            return Response({'error': f'Unsupported type "{content_type}". Supported: {list(TRANSLATABLE_TYPES.keys())}'}, status=400)
+            logger.warning('[TranslateView] VALIDATION FAILED: Unsupported content type "%s". Supported: %s', 
+                          content_type, list(TRANSLATABLE_TYPES.keys()))
+            return Response(
+                {'error': f'Unsupported type "{content_type}". Supported: {list(TRANSLATABLE_TYPES.keys())}'}, 
+                status=400
+            )
 
         ModelClass, allowed_fields = TRANSLATABLE_TYPES[content_type]
 
-        # --- Validate field ---
+        # ====== FIELD VALIDATION ======
         if field not in allowed_fields:
-            logger.warning('[Translate] Field "%s" not translatable for type "%s"', field, content_type)
-            return Response({'error': f'Field "{field}" is not translatable for type "{content_type}"'}, status=400)
+            logger.warning('[TranslateView] VALIDATION FAILED: Field "%s" not translatable for type "%s". Allowed: %s', 
+                          field, content_type, allowed_fields)
+            return Response(
+                {'error': f'Field "{field}" is not translatable for type "{content_type}"'}, 
+                status=400
+            )
 
-        # --- Fetch object ---
+        # ====== FETCH OBJECT ======
         try:
             obj = ModelClass.objects.get(pk=content_id)
+            logger.debug('[TranslateView] Object fetched: %s id=%s', content_type, content_id)
         except ModelClass.DoesNotExist:
-            logger.warning('[Translate] %s with id=%s not found', content_type, content_id)
+            logger.warning('[TranslateView] DB ERROR: %s with id=%s not found', content_type, content_id)
             return Response({'error': 'Not found'}, status=404)
         except Exception as e:
-            logger.error('[Translate] DB error fetching %s id=%s: %s', content_type, content_id, e, exc_info=True)
+            logger.error('[TranslateView] DB ERROR: Failed to fetch %s id=%s: %s', content_type, content_id, e, exc_info=True)
             return Response({'error': 'Database error'}, status=500)
 
-        am_field = f'am_{field}'
-
-        # --- Check if am_ cache field exists on model ---
-        if not hasattr(obj, am_field):
-            logger.warning('[Translate] Model %s has no field "%s" — cache not available', content_type, am_field)
-            # Still attempt translation but cannot cache
-            can_cache = False
-        else:
-            can_cache = True
-
-        # --- Return cached translation if available ---
-        if can_cache:
-            cached = getattr(obj, am_field, None)
-            if cached:
-                logger.debug('[Translate] Cache hit for %s id=%s field=%s', content_type, content_id, field)
-                return Response({'translated': cached})
-
-        # --- Get original text ---
+        # ====== GET ORIGINAL TEXT ======
         original = getattr(obj, field, '') or ''
         if not original.strip():
-            logger.debug('[Translate] Empty original for %s id=%s field=%s', content_type, content_id, field)
+            logger.debug('[TranslateView] EMPTY ORIGINAL: %s id=%s field=%s', content_type, content_id, field)
             return Response({'translated': ''})
 
-        # --- Check OpenAI client ---
-        if not client:
-            logger.error('[Translate] OpenAI client not initialized — cannot translate')
+        logger.debug('[TranslateView] Original text (len=%d): %s...', len(original), original[:50])
+
+        # ====== CHECK CACHE ======
+        cached = translation_service.check_cache(obj, field)
+        if cached:
+            logger.info('[TranslateView] CACHE HIT: %s id=%s field=%s', content_type, content_id, field)
+            return Response({'translated': cached})
+
+        # ====== CHECK SERVICE AVAILABILITY ======
+        if not translation_service.is_available():
+            logger.error('[TranslateView] CRITICAL: Translation service not available')
             return Response({'error': 'Translation service unavailable.'}, status=503)
 
-        # --- Call OpenAI ---
+        # ====== CALL OPENAI ======
         try:
-            logger.info('[Translate] Requesting translation for %s id=%s field=%s', content_type, content_id, field)
-            response = client.chat.completions.create(
-                model='gpt-3.5-turbo',
-                messages=[
-                    {'role': 'system', 'content': 'You are a professional translator. Translate the following text to Amharic. Return only the translated text, nothing else.'},
-                    {'role': 'user', 'content': original},
-                ],
-                max_tokens=500,
-                temperature=0.3,
-            )
-            translated = response.choices[0].message.content.strip()
-            logger.info('[Translate] Translation successful for %s id=%s field=%s', content_type, content_id, field)
+            logger.info('[TranslateView] OpenAI request: model=%s, type=%s id=%s field=%s', 
+                        translation_service.model, content_type, content_id, field)
+            translated = translation_service.translate(original)
+            logger.info('[TranslateView] OpenAI SUCCESS: %s id=%s field=%s (len=%d)', 
+                       content_type, content_id, field, len(translated))
         except Exception as e:
-            logger.error('[Translate] OpenAI error for %s id=%s field=%s: %s', content_type, content_id, field, e, exc_info=True)
+            logger.error('[TranslateView] OPENAI ERROR: %s id=%s field=%s: %s', 
+                        content_type, content_id, field, e, exc_info=True)
             return Response({'error': 'Translation service unavailable.'}, status=503)
 
-        # --- Cache the result ---
-        if can_cache:
-            try:
-                setattr(obj, am_field, translated)
-                obj.save(update_fields=[am_field])
-                logger.debug('[Translate] Cached translation for %s id=%s field=%s', content_type, content_id, field)
-            except Exception as e:
-                logger.error('[Translate] Cache save failed for %s id=%s field=%s: %s', content_type, content_id, field, e, exc_info=True)
-                # Return translation anyway even if caching failed
+        # ====== CACHE RESULT ======
+        translation_service.save_cache(obj, field, translated)
 
+        logger.debug('[TranslateView] Returning translation: type=%s id=%s field=%s', content_type, content_id, field)
         return Response({'translated': translated})
 
 
