@@ -39,12 +39,9 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />
-        <Route path="/placement" element={<Placement />} />
         <Route path="/check-email" element={<CheckEmail />} />
         <Route path="/verify-email/:uidb64/:token" element={<VerifyEmail />} />
         <Route path="/verify-email-change/:uidb64/:token" element={<VerifyEmailChange />} />
-        
-        
       </Route>
 
       {/* ================= PUBLIC HOME PAGE (NO NAVBAR) ================= */}
@@ -55,6 +52,7 @@ export default function App() {
         {/* ================= PROTECTED ROUTES ================= */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/placement" element={<Placement />} />
           <Route path="/curriculum" element={<Curriculum />} />
           <Route path="/levels" element={<Levels />} />
           <Route path="/progress" element={<Progress />} />

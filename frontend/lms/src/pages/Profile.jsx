@@ -643,8 +643,8 @@ export default function Profile() {
         </div>
       )}
 
-      {/* Course Progress Section */}
-      <div className="section-title">{t('courseProgress')}</div>
+      {/* Module Progress Section */}
+      <div className="section-title">{t('moduleProgress')}</div>
       {courses.length === 0 ? (
         <div className="empty-state">
           <p>{t('noProgressYet')}</p>

@@ -486,12 +486,12 @@ class PlacementTestView(APIView):
 
     def get(self, request):
         from courses.models import Quiz
+        from courses.serializers import QuizSerializer
 
         level_name = request.query_params.get('level', '').lower()
         if level_name not in ('intermediate', 'advanced'):
             return Response({'detail': 'level query param must be intermediate or advanced.'}, status=400)
 
-        # Map English level name to order since DB stores Amharic text in name field
         level_order = {'intermediate': 2, 'advanced': 3}
         order = level_order[level_name]
 
@@ -502,7 +502,6 @@ class PlacementTestView(APIView):
             course__isnull=True,
         ).prefetch_related('questions__options').first()
 
-        # Fallback: any level-linked quiz with no lesson/course for this level
         if not quiz:
             quiz = Quiz.objects.filter(
                 level__order=order,
@@ -514,19 +513,10 @@ class PlacementTestView(APIView):
                 quiz.save(update_fields=['quiz_type'])
 
         if not quiz:
-            return Response({'questions': [], 'quiz_id': None})
+            return Response({'quiz_id': None, 'questions': []})
 
-        questions = [
-            {
-                'id': q.id,
-                'question_text': q.question_text,
-                'points': q.points,
-                'options': [{'id': o.id, 'option_text': o.option_text} for o in q.options.all()],
-            }
-            for q in quiz.questions.all()
-        ]
-
-        return Response({'quiz_id': quiz.id, 'questions': questions})
+        serializer = QuizSerializer(quiz)
+        return Response(serializer.data)
 
 
 class PlacementSubmitView(APIView):

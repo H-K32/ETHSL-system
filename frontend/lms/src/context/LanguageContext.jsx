@@ -126,8 +126,8 @@ const translations = {
     // Profile
     editProfile: 'Edit Profile',
     changePassword: 'Change Password',
-    courseProgress: 'Course Progress',
-    noProgressYet: 'No course progress yet. Start learning to see your progress!',
+    moduleProgress: 'Module Progress',
+    noProgressYet: 'No module progress yet. Start learning to see your progress!',
     quizAverage: 'Quiz Average',
     currentLevel: 'Current Level',
 
@@ -166,7 +166,22 @@ const translations = {
     viewCertificate: 'View Certificate',
     journeyComplete: 'Journey Complete!',
     finishLine: 'Finish Line',
-    // Quiz
+    // Placement
+    placementTitle: 'Placement Test',
+    placementSubtitle: 'Answer the questions below to determine your starting level.',
+    placementNoQuestions: 'No placement questions available.',
+    placementSkip: 'Skip to Dashboard',
+    placementSubmit: 'Submit Answers',
+    placementSubmitting: 'Submitting…',
+    placementPassed: 'Placement Test Passed!',
+    placementComplete: 'Placement Test Complete',
+    placementPassedMsg: "Congratulations! You've been placed in the",
+    placementPassedMsg2: 'level.',
+    placementFailedMsg: "You've been placed in the Beginner level to help you get started.",
+    placementScore: 'Score',
+    placementContinue: 'Continue to Dashboard',
+
+    // Quiz (already exists but ensure complete)
     quizTitle: 'Quiz',
     answered: 'answered',
     answerAllToSubmit: 'Answer all questions to submit',
@@ -495,8 +510,8 @@ const translations = {
     // Profile
     editProfile: 'መገለጫ አስተካክል',
     changePassword: 'የይለፍ ቃል ቀይር',
-    courseProgress: 'የኮርስ እድገት',
-    noProgressYet: 'እስካሁን ምንም የኮርስ እድገት የለም። ለማየት መማር ይጀምሩ!',
+    moduleProgress: 'የሞጁል እድገት',
+    noProgressYet: 'እስካሁን ምንም የሞጁል እድገት የለም። ለማየት መማር ይጀምሩ!',
     quizAverage: 'አማካይ ፈተና',
     currentLevel: 'የአሁን ደረጃ',
 
@@ -539,6 +554,21 @@ const translations = {
     completedLesson: 'ተጠናቅቋል',
     passedQuizScore: 'ፈተና ተሳክቷል · ነጥብ',
     lessonsCompletedOf: 'ትምህርቶች ተጠናቅቀዋል',
+
+    // Placement
+    placementTitle: 'የደረጃ ምደባ',
+    placementSubtitle: 'የሚጀምሩበትን ደረጃ ለመወሰን ጥያቄዎቹን ይመልሱ።',
+    placementNoQuestions: 'ምንም የደረጃ ምደባ ጥያቄዎች የሉም።',
+    placementSkip: 'ወደ ዳሽቦርድ ዝለል',
+    placementSubmit: 'ምልሶቹን አቅርብ',
+    placementSubmitting: 'በማቅረብ ላይ…',
+    placementPassed: 'የደረጃ ምደባ ተሳክቷል!',
+    placementComplete: 'የደረጃ ምደባ ተጠናቀቀ',
+    placementPassedMsg: 'እንኳን ደስ አለዎ! የተሰጡት ደረጃ',
+    placementPassedMsg2: 'ነው።',
+    placementFailedMsg: 'የመግቢያ ፈተና አላለፉም። መጀመሪያ ደረጃ ተመደበዋል',
+    placementScore: 'ነጥብ',
+    placementContinue: 'ወደ ዳሽቦርድ ይቀጥሉ',
 
     // Quiz
     quizTitle: 'ፈተና',
